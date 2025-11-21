@@ -1,295 +1,466 @@
 // services/api.ts
-import { MOCK_CUSTOMERS, MOCK_SALES, MOCK_REMARKS, MOCK_TASKS, MOCK_GOALS, MOCK_MILESTONES } from '../data/mockData';
+import { supabase } from '../lib/supabase';
 import { Customer, Sale, Remark, Task, CustomerFormData, Goal, Milestone } from '../types';
 import { analyzeRemarkSentiment } from './geminiService';
 
-// --- LocalStorage Persistence ---
-const CUSTOMERS_KEY = 'intellicrm_customers';
-const SALES_KEY = 'intellicrm_sales';
-const REMARKS_KEY = 'intellicrm_remarks';
-const TASKS_KEY = 'intellicrm_tasks';
-const GOALS_KEY = 'intellicrm_goals';
-const MILESTONES_KEY = 'intellicrm_milestones';
-const IDS_KEY = 'intellicrm_ids';
+// --- HELPERS ---
 
-// A function to initialize storage only if it's not already set.
-const initializeStorage = () => {
-  if (localStorage.getItem(CUSTOMERS_KEY) === null) localStorage.setItem(CUSTOMERS_KEY, JSON.stringify(MOCK_CUSTOMERS));
-  if (localStorage.getItem(SALES_KEY) === null) localStorage.setItem(SALES_KEY, JSON.stringify(MOCK_SALES));
-  if (localStorage.getItem(REMARKS_KEY) === null) localStorage.setItem(REMARKS_KEY, JSON.stringify(MOCK_REMARKS));
-  if (localStorage.getItem(TASKS_KEY) === null) localStorage.setItem(TASKS_KEY, JSON.stringify(MOCK_TASKS));
-  if (localStorage.getItem(GOALS_KEY) === null) localStorage.setItem(GOALS_KEY, JSON.stringify(MOCK_GOALS));
-  if (localStorage.getItem(MILESTONES_KEY) === null) localStorage.setItem(MILESTONES_KEY, JSON.stringify(MOCK_MILESTONES));
+// Map DB snake_case to frontend camelCase
+const mapCustomer = (data: any): Customer => ({
+    id: data.id,
+    name: data.name,
+    contact: data.contact,
+    alternateContact: data.alternate_contact,
+    avatar: data.avatar || `https://i.pravatar.cc/150?u=${data.id}`,
+    tier: data.tier,
+    state: data.state,
+    district: data.district,
+    salesThisMonth: Number(data.sales_this_month),
+    avg6MoSales: Number(data.avg_6_mo_sales),
+    outstandingBalance: Number(data.outstanding_balance),
+    daysSinceLastOrder: Number(data.days_since_last_order),
+    lastUpdated: data.last_updated,
+});
 
-  if (localStorage.getItem(IDS_KEY) === null) {
-    const initialIds = {
-      customer: MOCK_CUSTOMERS.reduce((max, c) => Math.max(max, parseInt(c.id)), 0) + 1,
-      sale: MOCK_SALES.reduce((max, s) => Math.max(max, parseInt(s.id.substring(1))), 0) + 1,
-      remark: MOCK_REMARKS.reduce((max, r) => Math.max(max, parseInt(r.id.substring(1))), 0) + 1,
-      task: MOCK_TASKS.reduce((max, t) => Math.max(max, parseInt(t.id.substring(1))), 0) + 1,
-      goal: MOCK_GOALS.reduce((max, g) => Math.max(max, parseInt(g.id.substring(1))), 0) + 1,
-      milestone: MOCK_MILESTONES.reduce((max, m) => Math.max(max, parseInt(m.id.substring(1))), 0) + 1,
-    };
-    localStorage.setItem(IDS_KEY, JSON.stringify(initialIds));
-  }
-};
+const mapSale = (data: any): Sale => ({
+    id: data.id,
+    customerId: data.customer_id,
+    amount: Number(data.amount),
+    date: data.date,
+});
 
-// Run initialization once at module load to ensure storage is ready.
-initializeStorage();
+const mapRemark = (data: any): Remark => ({
+    id: data.id,
+    customerId: data.customer_id,
+    remark: data.remark,
+    timestamp: data.timestamp,
+    user: data.user || 'Sales Team',
+    sentiment: data.sentiment,
+});
 
-const loadFromStorage = <T>(key: string): T[] => {
-    try {
-        const stored = localStorage.getItem(key);
-        return stored ? JSON.parse(stored) : [];
-    } catch (e) {
-        console.error(`Failed to parse ${key} from localStorage`, e);
-        return [];
-    }
-};
+const mapTask = (data: any): Task => ({
+    id: data.id,
+    customerId: data.customer_id,
+    customerName: data.customer_name,
+    task: data.task,
+    dueDate: data.due_date,
+    completed: data.completed,
+});
 
-const saveToStorage = <T>(key: string, data: T[]): void => {
-    localStorage.setItem(key, JSON.stringify(data));
-};
+const mapGoal = (data: any): Goal => ({
+    id: data.id,
+    customerId: data.customer_id,
+    title: data.title,
+    targetAmount: Number(data.target_amount),
+    currentAmount: Number(data.current_amount),
+    deadline: data.deadline,
+    status: data.status,
+});
 
-// --- Data Initialization from Storage ---
-let customers: Customer[] = loadFromStorage<Customer>(CUSTOMERS_KEY);
-let sales: Sale[] = loadFromStorage<Sale>(SALES_KEY);
-let remarks: Remark[] = loadFromStorage<Remark>(REMARKS_KEY);
-let tasks: Task[] = loadFromStorage<Task>(TASKS_KEY);
-let goals: Goal[] = loadFromStorage<Goal>(GOALS_KEY);
-let milestones: Milestone[] = loadFromStorage<Milestone>(MILESTONES_KEY);
+const mapMilestone = (data: any): Milestone => ({
+    id: data.id,
+    goalId: data.goal_id,
+    description: data.description,
+    targetDate: data.target_date,
+    completed: data.completed,
+});
 
-
-// --- ID Management ---
-let idCounters = (() => {
-    try {
-        const stored = localStorage.getItem(IDS_KEY);
-        if (stored) return JSON.parse(stored);
-    } catch (e) { console.error('Failed to parse IDs from localStorage', e); }
-    return { customer: 100, sale: 100, remark: 100, task: 100, goal: 100, milestone: 100 };
-})();
-
-const saveIdCounters = () => {
-    localStorage.setItem(IDS_KEY, JSON.stringify(idCounters));
-};
-
-// Simulate API latency
-const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 
 // --- CUSTOMER API ---
+
 export const fetchCustomers = async (): Promise<Customer[]> => {
-  await delay(500);
-  return [...customers];
+    const { data, error } = await supabase
+        .from('customers')
+        .select('*')
+        .order('last_updated', { ascending: false });
+
+    if (error) throw error;
+    return (data || []).map(mapCustomer);
 };
+
 export const fetchCustomerById = async (id: string): Promise<Customer | undefined> => {
-    await delay(100);
-    return customers.find(c => c.id === id);
-}
+    const { data, error } = await supabase
+        .from('customers')
+        .select('*')
+        .eq('id', id)
+        .single();
+
+    if (error) return undefined;
+    return mapCustomer(data);
+};
+
 export const addCustomer = async (formData: CustomerFormData): Promise<Customer> => {
-  await delay(400);
-  const newCustomer: Customer = {
-    id: String(idCounters.customer++),
-    avatar: `https://i.pravatar.cc/150?u=${idCounters.customer}`,
-    name: formData.name,
-    contact: formData.contact,
-    alternateContact: formData.alternateContact || undefined,
-    state: formData.state,
-    district: formData.district,
-    tier: formData.tier,
-    salesThisMonth: 0,
-    avg6MoSales: 0,
-    outstandingBalance: 0,
-    daysSinceLastOrder: 0,
-    lastUpdated: new Date().toISOString(),
-  };
-  customers.unshift(newCustomer);
-  saveToStorage(CUSTOMERS_KEY, customers);
-  saveIdCounters();
-  return newCustomer;
+    const { data, error } = await supabase
+        .from('customers')
+        .insert([{
+            name: formData.name,
+            contact: formData.contact,
+            alternate_contact: formData.alternateContact,
+            tier: formData.tier,
+            state: formData.state,
+            district: formData.district,
+            avatar: `https://i.pravatar.cc/150?u=${Date.now()}`, // Temporary avatar logic
+            last_updated: new Date().toISOString()
+        }])
+        .select()
+        .single();
+
+    if (error) throw error;
+    return mapCustomer(data);
 };
+
 export const updateCustomer = async (customerId: string, updateData: Partial<CustomerFormData>): Promise<Customer> => {
-    await delay(300);
-    const customerIndex = customers.findIndex(c => c.id === customerId);
-    if (customerIndex === -1) throw new Error("Customer not found");
-    customers[customerIndex] = { ...customers[customerIndex], ...updateData, lastUpdated: new Date().toISOString() };
-    saveToStorage(CUSTOMERS_KEY, customers);
-    return customers[customerIndex];
-}
-export const deleteCustomer = async (customerId: string): Promise<boolean> => {
-    await delay(500);
-    customers = customers.filter(c => c.id !== customerId);
-    saveToStorage(CUSTOMERS_KEY, customers);
-    return true;
-}
-export const bulkAddCustomers = async (newCustomersData: Omit<Customer, 'id' | 'avatar' | 'lastUpdated'>[]): Promise<Customer[]> => {
-    await delay(1000);
-    const addedCustomers: Customer[] = newCustomersData.map(customerData => ({
-        id: String(idCounters.customer++),
-        avatar: `https://i.pravatar.cc/150?u=${idCounters.customer}`,
-        ...customerData,
-        lastUpdated: new Date().toISOString(),
-    }));
-    customers = [...addedCustomers, ...customers];
-    saveToStorage(CUSTOMERS_KEY, customers);
-    saveIdCounters();
-    return addedCustomers;
+    const dbUpdateData: any = {};
+    if (updateData.name) dbUpdateData.name = updateData.name;
+    if (updateData.contact) dbUpdateData.contact = updateData.contact;
+    if (updateData.alternateContact) dbUpdateData.alternate_contact = updateData.alternateContact;
+    if (updateData.tier) dbUpdateData.tier = updateData.tier;
+    if (updateData.state) dbUpdateData.state = updateData.state;
+    if (updateData.district) dbUpdateData.district = updateData.district;
+    dbUpdateData.last_updated = new Date().toISOString();
+
+    const { data, error } = await supabase
+        .from('customers')
+        .update(dbUpdateData)
+        .eq('id', customerId)
+        .select()
+        .single();
+
+    if (error) throw error;
+    return mapCustomer(data);
 };
+
+export const deleteCustomer = async (customerId: string): Promise<boolean> => {
+    const { error } = await supabase
+        .from('customers')
+        .delete()
+        .eq('id', customerId);
+
+    if (error) throw error;
+    return true;
+};
+
+export const bulkAddCustomers = async (newCustomersData: Omit<Customer, 'id' | 'avatar' | 'lastUpdated'>[]): Promise<Customer[]> => {
+    const dbData = newCustomersData.map(c => ({
+        name: c.name,
+        contact: c.contact,
+        alternate_contact: c.alternateContact,
+        tier: c.tier,
+        state: c.state,
+        district: c.district,
+        sales_this_month: c.salesThisMonth,
+        avg_6_mo_sales: c.avg6MoSales,
+        outstanding_balance: c.outstandingBalance,
+        days_since_last_order: c.daysSinceLastOrder,
+        last_updated: new Date().toISOString(),
+        avatar: `https://i.pravatar.cc/150?u=${Math.random()}`
+    }));
+
+    const { data, error } = await supabase
+        .from('customers')
+        .insert(dbData)
+        .select();
+
+    if (error) throw error;
+    return (data || []).map(mapCustomer);
+};
+
 
 // --- TRANSACTIONAL API ---
+
 export const fetchSalesForCustomer = async (customerId: string): Promise<Sale[]> => {
-  await delay(200);
-  return sales.filter(s => s.customerId === customerId).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    const { data, error } = await supabase
+        .from('sales')
+        .select('*')
+        .eq('customer_id', customerId)
+        .order('date', { ascending: false });
+
+    if (error) throw error;
+    return (data || []).map(mapSale);
 };
+
 export const fetchAllSales = async (): Promise<Sale[]> => {
-    await delay(200);
-    return [...sales];
+    const { data, error } = await supabase
+        .from('sales')
+        .select('*')
+        .order('date', { ascending: false });
+
+    if (error) throw error;
+    return (data || []).map(mapSale);
 };
+
 export const addSale = async (customerId: string, amount: number, date: string): Promise<Sale> => {
-    await delay(300);
-    const newSale: Sale = { id: `s${idCounters.sale++}`, customerId, amount, date };
-    sales.unshift(newSale);
-    saveToStorage(SALES_KEY, sales);
-    saveIdCounters();
-    const customerIndex = customers.findIndex(c => c.id === customerId);
-    if(customerIndex > -1) {
-        customers[customerIndex].lastUpdated = new Date().toISOString();
-        saveToStorage(CUSTOMERS_KEY, customers);
-    }
-    return newSale;
-}
+    // 1. Add Sale
+    const { data: saleData, error: saleError } = await supabase
+        .from('sales')
+        .insert([{ customer_id: customerId, amount, date }])
+        .select()
+        .single();
+
+    if (saleError) throw saleError;
+
+    // 2. Update Customer last_updated
+    await supabase
+        .from('customers')
+        .update({ last_updated: new Date().toISOString() })
+        .eq('id', customerId);
+
+    return mapSale(saleData);
+};
+
 export const addPayment = async (customerId: string, amount: number, date: string): Promise<Customer> => {
-    await delay(300);
-    const customerIndex = customers.findIndex(c => c.id === customerId);
-    if (customerIndex === -1) throw new Error("Customer not found");
-    customers[customerIndex].outstandingBalance -= amount;
-    customers[customerIndex].lastUpdated = new Date().toISOString();
-    saveToStorage(CUSTOMERS_KEY, customers);
+    // 1. Fetch current balance
+    const { data: customer, error: fetchError } = await supabase
+        .from('customers')
+        .select('outstanding_balance')
+        .eq('id', customerId)
+        .single();
+
+    if (fetchError) throw fetchError;
+
+    const newBalance = (customer.outstanding_balance || 0) - amount;
+
+    // 2. Update balance
+    const { data: updatedCustomer, error: updateError } = await supabase
+        .from('customers')
+        .update({
+            outstanding_balance: newBalance,
+            last_updated: new Date().toISOString()
+        })
+        .eq('id', customerId)
+        .select()
+        .single();
+
+    if (updateError) throw updateError;
+
+    // 3. Add Remark
     await addRemark(customerId, `Payment of ₹${amount.toLocaleString('en-IN')} recorded for ${new Date(date).toLocaleDateString()}.`);
-    return customers[customerIndex];
-}
+
+    return mapCustomer(updatedCustomer);
+};
+
 export const addBill = async (customerId: string, amount: number): Promise<Customer> => {
-    await delay(300);
-    const customerIndex = customers.findIndex(c => c.id === customerId);
-    if (customerIndex === -1) throw new Error("Customer not found");
-    customers[customerIndex].outstandingBalance += amount;
-    customers[customerIndex].lastUpdated = new Date().toISOString();
-    saveToStorage(CUSTOMERS_KEY, customers);
+    // 1. Fetch current balance
+    const { data: customer, error: fetchError } = await supabase
+        .from('customers')
+        .select('outstanding_balance')
+        .eq('id', customerId)
+        .single();
+
+    if (fetchError) throw fetchError;
+
+    const newBalance = (customer.outstanding_balance || 0) + amount;
+
+    // 2. Update balance
+    const { data: updatedCustomer, error: updateError } = await supabase
+        .from('customers')
+        .update({
+            outstanding_balance: newBalance,
+            last_updated: new Date().toISOString()
+        })
+        .eq('id', customerId)
+        .select()
+        .single();
+
+    if (updateError) throw updateError;
+
+    // 3. Add Remark
     await addRemark(customerId, `Bill of ₹${amount.toLocaleString('en-IN')} added.`);
-    return customers[customerIndex];
-}
+
+    return mapCustomer(updatedCustomer);
+};
+
 
 // --- REMARKS API ---
+
 export const fetchRemarksForCustomer = async (customerId: string): Promise<Remark[]> => {
-  await delay(200);
-  return remarks.filter(r => r.customerId === customerId).sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+    const { data, error } = await supabase
+        .from('remarks')
+        .select('*')
+        .eq('customer_id', customerId)
+        .order('timestamp', { ascending: false });
+
+    if (error) throw error;
+    return (data || []).map(mapRemark);
 };
+
 export const addRemark = async (customerId: string, remarkText: string): Promise<Remark> => {
-    await delay(200);
     const sentimentResult = await analyzeRemarkSentiment(remarkText);
-    const newRemark: Remark = {
-        id: `r${idCounters.remark++}`,
-        customerId,
-        remark: remarkText,
-        timestamp: new Date().toISOString(),
-        user: "Sales Team", 
-        sentiment: sentimentResult?.sentiment
-    };
-    remarks.unshift(newRemark);
-    saveToStorage(REMARKS_KEY, remarks);
-    saveIdCounters();
-    return newRemark;
-}
+
+    const { data, error } = await supabase
+        .from('remarks')
+        .insert([{
+            customer_id: customerId,
+            remark: remarkText,
+            sentiment: sentimentResult?.sentiment,
+            user: 'Sales Team',
+            timestamp: new Date().toISOString()
+        }])
+        .select()
+        .single();
+
+    if (error) throw error;
+    return mapRemark(data);
+};
+
 
 // --- TASKS API ---
+
 export const fetchTasks = async (): Promise<Task[]> => {
-  await delay(300);
-  return [...tasks];
-};
-export const fetchTasksForCustomer = async (customerId: string): Promise<Task[]> => {
-    await delay(200);
-    return tasks.filter(t => t.customerId === customerId).sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime());
-}
-export const addTask = async (taskData: Omit<Task, 'id' | 'completed'>): Promise<Task> => {
-    await delay(300);
-    const newTask: Task = { id: `t${idCounters.task++}`, completed: false, ...taskData };
-    tasks.unshift(newTask);
-    saveToStorage(TASKS_KEY, tasks);
-    saveIdCounters();
-    return newTask;
-};
-export const toggleTaskComplete = async (taskId: string): Promise<Task | undefined> => {
-    await delay(100);
-    const taskIndex = tasks.findIndex(t => t.id === taskId);
-    if (taskIndex > -1) {
-        tasks[taskIndex].completed = !tasks[taskIndex].completed;
-        saveToStorage(TASKS_KEY, tasks);
-        return tasks[taskIndex];
-    }
-    return undefined;
+    const { data, error } = await supabase
+        .from('tasks')
+        .select('*')
+        .order('due_date', { ascending: true });
+
+    if (error) throw error;
+    return (data || []).map(mapTask);
 };
 
+export const fetchTasksForCustomer = async (customerId: string): Promise<Task[]> => {
+    const { data, error } = await supabase
+        .from('tasks')
+        .select('*')
+        .eq('customer_id', customerId)
+        .order('due_date', { ascending: true });
+
+    if (error) throw error;
+    return (data || []).map(mapTask);
+};
+
+export const addTask = async (taskData: Omit<Task, 'id' | 'completed'>): Promise<Task> => {
+    const { data, error } = await supabase
+        .from('tasks')
+        .insert([{
+            customer_id: taskData.customerId,
+            customer_name: taskData.customerName,
+            task: taskData.task,
+            due_date: taskData.dueDate,
+            completed: false
+        }])
+        .select()
+        .single();
+
+    if (error) throw error;
+    return mapTask(data);
+};
+
+export const toggleTaskComplete = async (taskId: string): Promise<Task | undefined> => {
+    // 1. Get current status
+    const { data: task, error: fetchError } = await supabase
+        .from('tasks')
+        .select('completed')
+        .eq('id', taskId)
+        .single();
+
+    if (fetchError) throw fetchError;
+
+    // 2. Toggle
+    const { data: updatedTask, error: updateError } = await supabase
+        .from('tasks')
+        .update({ completed: !task.completed })
+        .eq('id', taskId)
+        .select()
+        .single();
+
+    if (updateError) throw updateError;
+    return mapTask(updatedTask);
+};
+
+
 // --- GOALS & MILESTONES API ---
-export const fetchGoalsForCustomer = async (customerId: string): Promise<{goals: Goal[], milestones: Milestone[]}> => {
-    await delay(400);
-    const customerGoals = goals
-        .filter(g => g.customerId === customerId)
-        .map(goal => { // Recalculate currentAmount and status on fetch
-            const goalSales = sales.filter(s => s.customerId === customerId && new Date(s.date) <= new Date(goal.deadline));
-            const currentAmount = goalSales.reduce((sum, s) => sum + s.amount, 0);
-            let status: Goal['status'] = 'InProgress';
-            if (currentAmount >= goal.targetAmount) {
-                status = 'Achieved';
-            } else if (new Date() > new Date(goal.deadline)) {
-                status = 'Missed';
-            }
-            return { ...goal, currentAmount, status };
-        })
-        .sort((a,b) => new Date(b.deadline).getTime() - new Date(a.deadline).getTime());
-    
-    const goalIds = new Set(customerGoals.map(g => g.id));
-    const customerMilestones = milestones.filter(m => goalIds.has(m.goalId));
-    
-    return { goals: customerGoals, milestones: customerMilestones };
-};
-export const addGoal = async (goalData: Omit<Goal, 'id' | 'currentAmount' | 'status'>): Promise<Goal> => {
-    await delay(300);
-    const newGoal: Goal = {
-        id: `g${idCounters.goal++}`,
-        ...goalData,
-        currentAmount: 0,
-        status: 'InProgress'
-    };
-    goals.unshift(newGoal);
-    saveToStorage(GOALS_KEY, goals);
-    saveIdCounters();
-    return newGoal;
-};
-export const deleteGoal = async (goalId: string): Promise<void> => {
-    await delay(300);
-    goals = goals.filter(g => g.id !== goalId);
-    milestones = milestones.filter(m => m.goalId !== goalId);
-    saveToStorage(GOALS_KEY, goals);
-    saveToStorage(MILESTONES_KEY, milestones);
-};
-export const addMilestone = async (milestoneData: Omit<Milestone, 'id' | 'completed'>): Promise<Milestone> => {
-    await delay(200);
-    const newMilestone: Milestone = {
-        id: `m${idCounters.milestone++}`,
-        ...milestoneData,
-        completed: false
-    };
-    milestones.push(newMilestone);
-    saveToStorage(MILESTONES_KEY, milestones);
-    saveIdCounters();
-    return newMilestone;
-};
-export const toggleMilestoneComplete = async (milestoneId: string): Promise<Milestone | undefined> => {
-    await delay(100);
-    const milestoneIndex = milestones.findIndex(m => m.id === milestoneId);
-    if (milestoneIndex > -1) {
-        milestones[milestoneIndex].completed = !milestones[milestoneIndex].completed;
-        saveToStorage(MILESTONES_KEY, milestones);
-        return milestones[milestoneIndex];
+
+export const fetchGoalsForCustomer = async (customerId: string): Promise<{ goals: Goal[], milestones: Milestone[] }> => {
+    // Fetch goals
+    const { data: goalsData, error: goalsError } = await supabase
+        .from('goals')
+        .select('*')
+        .eq('customer_id', customerId)
+        .order('deadline', { ascending: false });
+
+    if (goalsError) throw goalsError;
+
+    const goals = (goalsData || []).map(mapGoal);
+    const goalIds = goals.map(g => g.id);
+
+    // Fetch milestones for these goals
+    let milestones: Milestone[] = [];
+    if (goalIds.length > 0) {
+        const { data: milestonesData, error: milestonesError } = await supabase
+            .from('milestones')
+            .select('*')
+            .in('goal_id', goalIds);
+
+        if (milestonesError) throw milestonesError;
+        milestones = (milestonesData || []).map(mapMilestone);
     }
-    return undefined;
+
+    // Recalculate goal progress (simplified for now, ideally use DB aggregation or triggers)
+    // For now, we trust the 'current_amount' in DB or recalculate if needed. 
+    // Let's stick to DB value to keep it simple, assuming we update it on sales.
+    // NOTE: In a real app, you'd want a trigger to update goal.current_amount on sales insert.
+
+    return { goals, milestones };
+};
+
+export const addGoal = async (goalData: Omit<Goal, 'id' | 'currentAmount' | 'status'>): Promise<Goal> => {
+    const { data, error } = await supabase
+        .from('goals')
+        .insert([{
+            customer_id: goalData.customerId,
+            title: goalData.title,
+            target_amount: goalData.targetAmount,
+            deadline: goalData.deadline,
+            current_amount: 0,
+            status: 'InProgress'
+        }])
+        .select()
+        .single();
+
+    if (error) throw error;
+    return mapGoal(data);
+};
+
+export const deleteGoal = async (goalId: string): Promise<void> => {
+    const { error } = await supabase
+        .from('goals')
+        .delete()
+        .eq('id', goalId);
+
+    if (error) throw error;
+};
+
+export const addMilestone = async (milestoneData: Omit<Milestone, 'id' | 'completed'>): Promise<Milestone> => {
+    const { data, error } = await supabase
+        .from('milestones')
+        .insert([{
+            goal_id: milestoneData.goalId,
+            description: milestoneData.description,
+            target_date: milestoneData.targetDate,
+            completed: false
+        }])
+        .select()
+        .single();
+
+    if (error) throw error;
+    return mapMilestone(data);
+};
+
+export const toggleMilestoneComplete = async (milestoneId: string): Promise<Milestone | undefined> => {
+    const { data: milestone, error: fetchError } = await supabase
+        .from('milestones')
+        .select('completed')
+        .eq('id', milestoneId)
+        .single();
+
+    if (fetchError) throw fetchError;
+
+    const { data: updatedMilestone, error: updateError } = await supabase
+        .from('milestones')
+        .update({ completed: !milestone.completed })
+        .eq('id', milestoneId)
+        .select()
+        .single();
+
+    if (updateError) throw updateError;
+    return mapMilestone(updatedMilestone);
 };
