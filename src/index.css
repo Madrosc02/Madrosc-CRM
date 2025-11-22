@@ -1,67 +1,110 @@
 @import "tailwindcss";
 
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Merriweather:wght@300;400;700&display=swap');
+
 @theme {
   --font-sans: 'Inter', sans-serif;
+  --font-serif: 'Merriweather', serif;
 
-  /* Light Theme Colors */
-  --color-bg-light: #f8f9fa;
-  --color-card-light: #ffffff;
-  --color-primary-light: #0d6efd;
+  /* Brand Colors */
+  --color-primary: #2563eb;
+  /* Blue 600 */
+  --color-primary-hover: #1d4ed8;
+  /* Blue 700 */
+  --color-secondary: #475569;
+  /* Slate 600 */
 
-  /* Dark Theme Colors */
-  --color-bg-dark: #0d1117;
-  --color-card-dark: #161b22;
-  --color-primary-dark: #2f81f7;
+  /* Light Theme */
+  --color-bg-light: #f8fafc;
+  /* Slate 50 */
+  --color-surface-light: #ffffff;
+  --color-text-primary-light: #0f172a;
+  /* Slate 900 */
+  --color-text-secondary-light: #64748b;
+  /* Slate 500 */
+  --color-border-light: #e2e8f0;
+  /* Slate 200 */
+
+  /* Dark Theme */
+  --color-bg-dark: #0f172a;
+  /* Slate 900 */
+  --color-surface-dark: #1e293b;
+  /* Slate 800 */
+  --color-text-primary-dark: #f8fafc;
+  /* Slate 50 */
+  --color-text-secondary-dark: #94a3b8;
+  /* Slate 400 */
+  --color-border-dark: #334155;
+  /* Slate 700 */
 }
 
 @layer base {
   body {
     font-family: var(--font-sans);
-    background-attachment: fixed;
+    background-color: var(--color-bg-light);
+    color: var(--color-text-primary-light);
     transition: background-color 0.3s ease, color 0.3s ease;
   }
 
-  /* Elegant Gradient Mesh Background */
-  body.light {
-    background-color: var(--color-bg-light);
-    background-image:
-      radial-gradient(at 20% 20%, hsla(210, 80%, 95%, 1) 0px, transparent 50%),
-      radial-gradient(at 80% 0%, hsla(28, 80%, 90%, 1) 0px, transparent 50%),
-      radial-gradient(at 80% 80%, hsla(190, 80%, 90%, 1) 0px, transparent 50%);
-    color: #212529;
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-serif);
   }
 
   body.dark {
     background-color: var(--color-bg-dark);
-    background-image:
-      radial-gradient(at 20% 20%, hsla(210, 40%, 15%, 0.5) 0px, transparent 50%),
-      radial-gradient(at 80% 0%, hsla(28, 40%, 15%, 0.5) 0px, transparent 50%),
-      radial-gradient(at 80% 80%, hsla(190, 40%, 15%, 0.5) 0px, transparent 50%);
-    color: #c9d1d9;
+    color: var(--color-text-primary-dark);
   }
 }
 
 @layer components {
-
-  /* Base Card Style */
   .card-base {
-    background-color: var(--color-card-light);
-    border: 1px solid #dee2e6;
+    background-color: var(--color-surface-light);
+    border: 1px solid var(--color-border-light);
     border-radius: 0.75rem;
-    /* 12px */
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
     transition: all 0.2s ease-in-out;
   }
 
   .dark .card-base {
-    background-color: var(--color-card-dark);
-    border-color: #30363d;
-    box-shadow: 0 0 #0000, 0 0 #0000, 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+    background-color: var(--color-surface-dark);
+    border-color: var(--color-border-dark);
+    box-shadow: none;
   }
 
-  /* Modal Styling */
-  .modal-content {
-    animation: slide-in-down 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  .btn-primary {
+    @apply px-4 py-2 bg-[var(--color-primary)] text-white rounded-md font-medium transition-colors hover:bg-[var(--color-primary-hover)] disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-secondary {
+    @apply px-4 py-2 bg-white dark:bg-[var(--color-surface-dark)] border border-[var(--color-border-light)] dark:border-[var(--color-border-dark)] text-[var(--color-text-primary-light)] dark:text-[var(--color-text-primary-dark)] rounded-md font-medium transition-colors hover:bg-gray-50 dark:hover:bg-white/5;
+  }
+
+  .input-base {
+    @apply block w-full px-3 py-2 rounded-md bg-white dark:bg-[var(--color-surface-dark)] border border-[var(--color-border-light)] dark:border-[var(--color-border-dark)] text-[var(--color-text-primary-light)] dark:text-[var(--color-text-primary-dark)] shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)] transition-all;
+  }
+
+  /* Drawer Animations */
+  .drawer-enter {
+    transform: translateX(100%);
+  }
+
+  .drawer-enter-active {
+    transform: translateX(0);
+    transition: transform 300ms ease-out;
+  }
+
+  .drawer-exit {
+    transform: translateX(0);
+  }
+
+  .drawer-exit-active {
+    transform: translateX(100%);
+    transition: transform 300ms ease-in;
   }
 }
 
@@ -69,8 +112,8 @@
 
   /* Custom Scrollbar */
   ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+    width: 6px;
+    height: 6px;
   }
 
   ::-webkit-scrollbar-track {
@@ -78,63 +121,18 @@
   }
 
   ::-webkit-scrollbar-thumb {
-    background: #ced4da;
+    background: #cbd5e1;
+    /* Slate 300 */
     border-radius: 10px;
   }
 
-  ::-webkit-scrollbar-thumb:hover {
-    background: #adb5bd;
-  }
-
   .dark ::-webkit-scrollbar-thumb {
-    background: #495057;
+    background: #475569;
+    /* Slate 600 */
   }
 
-  .dark ::-webkit-scrollbar-thumb:hover {
-    background: #6c757d;
-  }
-
-  .animate-fade-in {
-    animation: fade-in 0.5s ease-out forwards;
-  }
-
-  .animate-slide-in-right {
-    animation: slide-in-right 0.3s ease-out forwards;
-  }
-}
-
-@keyframes slide-in-down {
-  from {
-    transform: translateY(-20px);
-    opacity: 0;
-  }
-
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
-
-@keyframes fade-in {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes slide-in-right {
-  from {
-    transform: translateX(100%);
-    opacity: 0;
-  }
-
-  to {
-    transform: translateX(0);
-    opacity: 1;
+  ::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+    /* Slate 400 */
   }
 }

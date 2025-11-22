@@ -1,19 +1,26 @@
-import React, { useEffect } from 'react';
-import { useApp } from './contexts/AppContext';
-import Header from './components/layout/Header';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
+import Layout from './components/layout/Layout';
 import Dashboard from './components/Dashboard';
 import AnalyticsPage from './components/analytics/AnalyticsPage';
-import CustomerDetailModal from './components/CustomerDetailModal';
+import Login from './components/Login';
+import CustomerDetailDrawer from './components/CustomerDetailDrawer';
 import AddCustomerModal from './components/AddCustomerModal';
 import BulkImportModal from './components/BulkImportModal';
 import AddTaskModal from './components/AddTaskModal';
 import CommandPalette from './components/command/CommandPalette';
-import Filters from './components/layout/Filters';
+import { useApp } from './contexts/AppContext';
 
+const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+    const { user, loading } = useAuth();
+    if (loading) return <div className="flex h-screen items-center justify-center">Loading...</div>;
+    if (!user) return <Navigate to="/login" replace />;
+    return <>{children}</>;
+};
 
-const App: React.FC = () => {
-    const { 
-        currentView,
+const AuthenticatedApp: React.FC = () => {
+    const {
         isDetailModalOpen,
         isAddCustomerModalOpen,
         isBulkImportModalOpen,
@@ -21,7 +28,7 @@ const App: React.FC = () => {
         openCommandPalette
     } = useApp();
 
-    useEffect(() => {
+    React.useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
             if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
                 e.preventDefault();
@@ -32,23 +39,38 @@ const App: React.FC = () => {
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, [openCommandPalette]);
 
-
     return (
-        <div className="min-h-screen font-sans">
-            <Header />
-            <main className="p-4 sm:p-6 lg:p-8">
-                {currentView === 'dashboard' && <Filters />}
-                {currentView === 'dashboard' && <Dashboard />}
-                {currentView === 'analytics' && <AnalyticsPage />}
-            </main>
-            
+        <Layout>
+            <Routes>
+                <Route path="/" element={<Dashboard />} />
+                <Route path="/analytics" element={<AnalyticsPage />} />
+                <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+
             {/* Modals & Overlays */}
-            {isDetailModalOpen && <CustomerDetailModal />}
+            {isDetailModalOpen && <CustomerDetailDrawer />}
             {isAddCustomerModalOpen && <AddCustomerModal />}
             {isBulkImportModalOpen && <BulkImportModal />}
             {isAddTaskModalOpen && <AddTaskModal />}
             <CommandPalette />
-        </div>
+        </Layout>
+    );
+};
+
+const App: React.FC = () => {
+    return (
+        <AuthProvider>
+            <Router>
+                <Routes>
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/*" element={
+                        <ProtectedRoute>
+                            <AuthenticatedApp />
+                        </ProtectedRoute>
+                    } />
+                </Routes>
+            </Router>
+        </AuthProvider>
     );
 };
 

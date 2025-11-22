@@ -1,0 +1,199 @@
+import React, { useState, useEffect, useCallback } from 'react';
+import { Customer, Sale, Remark, CustomerFormData } from '../../types';
+import { generateAIPerformanceReview, suggestBestContactTime } from '../../services/geminiService';
+import Spinner from '../ui/Spinner';
+import MarkdownRenderer from '../ui/MarkdownRenderer';
+import { indianStatesAndDistricts } from '../../data/indianStatesAndDistricts';
+
+const inputStyle = "block w-full px-3 py-2 rounded-md bg-card-bg-light dark:bg-card-bg-dark border border-border-light dark:border-border-dark text-text-primary-light dark:text-text-primary-dark transition-colors shadow-sm focus:outline-none focus:border-primary-light dark:focus:border-primary-dark focus:ring-2 focus:ring-primary-light/30 dark:focus:ring-primary-dark/30";
+const btnPrimary = "px-4 py-2 font-medium text-white bg-primary-light dark:bg-primary-dark rounded-md transition-colors hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark disabled:opacity-60 disabled:cursor-not-allowed";
+const btnSecondary = "px-4 py-2 font-medium border border-border-light dark:border-border-dark rounded-md bg-card-bg-light dark:bg-card-bg-dark transition-colors hover:bg-gray-50 dark:hover:bg-white/10";
+const btnSecondarySm = "px-3 py-1 text-xs font-medium border border-border-light dark:border-border-dark rounded-md bg-card-bg-light dark:bg-card-bg-dark transition-colors hover:bg-gray-50 dark:hover:bg-white/10";
+
+const DetailCard: React.FC<{ title: string; value: React.ReactNode; className?: string }> = ({ title, value, className = '' }) => (
+    <div className={`p-3 bg-gray-50 dark:bg-white/5 rounded-lg ${className}`}>
+        <p className="text-xs text-[var(--text-secondary-light)] dark:text-[var(--text-secondary-dark)]">{title}</p>
+        <p className="font-semibold text-[var(--text-primary-light)] dark:text-[var(--text-primary-dark)]">{value}</p>
+    </div>
+);
+
+const AIContactSuggestion: React.FC<{ remarks: Remark[] }> = ({ remarks }) => {
+    const [suggestion, setSuggestion] = useState<{ suggestion: string; reasoning: string } | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
+
+    const generateSuggestion = useCallback(async () => {
+        setIsLoading(true);
+        setSuggestion(null);
+        try {
+            const result = await suggestBestContactTime(remarks);
+            setSuggestion(result);
+        } catch (e) {
+            console.error(e);
+        } finally {
+            setIsLoading(false);
+        }
+    }, [remarks]);
+
+    useEffect(() => {
+        generateSuggestion();
+    }, [generateSuggestion]);
+
+    return (
+        <div className="bg-green-50 dark:bg-green-900/40 p-4 rounded-lg">
+            <div className="flex justify-between items-center mb-2">
+                <h4 className="font-semibold text-base flex items-center"><i className="fas fa-clock mr-2 text-green-600 dark:text-green-400"></i> Best Time to Contact</h4>
+                <button onClick={generateSuggestion} disabled={isLoading} className="text-xs text-green-600 hover:underline disabled:opacity-50">Regenerate</button>
+            </div>
+            {isLoading ? (
+                <div className="flex items-center justify-center h-16"><Spinner size="sm" /></div>
+            ) : suggestion ? (
+                <div>
+                    <p className="font-bold text-lg text-green-800 dark:text-green-200">{suggestion.suggestion}</p>
+                    <p className="text-sm text-green-700 dark:text-green-300">{suggestion.reasoning}</p>
+                </div>
+            ) : (
+                <p className="text-sm text-center text-green-700 dark:text-green-300">Could not generate suggestion.</p>
+            )}
+        </div>
+    );
+};
+
+export const CustomerOverview: React.FC<{ customer: Customer, sales: Sale[], remarks: Remark[], onEditMode: () => void }> = ({ customer, sales, remarks, onEditMode }) => {
+    const [aiReview, setAiReview] = useState('');
+    const [isLoading, setIsLoading] = useState(true);
+
+    const handleRegenerate = useCallback(async () => {
+        setIsLoading(true);
+        setAiReview('');
+        try {
+            const review = await generateAIPerformanceReview(customer, sales, remarks);
+            setAiReview(review);
+        } catch (e) { setAiReview("Error generating review.") }
+        finally { setIsLoading(false); }
+    }, [customer, sales, remarks]);
+
+    useEffect(() => {
+        handleRegenerate();
+    }, [handleRegenerate]);
+
+    return (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2 space-y-6">
+                <div>
+                    <div className="flex justify-between items-center mb-2">
+                        <h4 className="font-semibold text-lg">Key Metrics</h4>
+                        <button onClick={onEditMode} className={btnSecondarySm}>
+                            <i className="fas fa-pencil-alt mr-2"></i>Edit Details
+                        </button>
+                    </div>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                        <DetailCard title="Contact" value={<>{customer.contact}{customer.alternateContact && <span className="block text-xs mt-1">Alt: {customer.alternateContact}</span>}</>} />
+                        <DetailCard title="Location" value={`${customer.district}, ${customer.state}`} />
+                        <DetailCard title="Tier" value={customer.tier} />
+                        <DetailCard title="Sales This Month" value={`₹${customer.salesThisMonth.toLocaleString('en-IN')}`} />
+                        <DetailCard title="Outstanding" value={`₹${customer.outstandingBalance.toLocaleString('en-IN')}`} className="text-red-600 dark:text-red-400" />
+                        <DetailCard title="Last Order" value={`${customer.daysSinceLastOrder} days ago`} />
+                    </div>
+                </div>
+            </div>
+            <div className="space-y-4">
+                <AIContactSuggestion remarks={remarks} />
+                <div className="bg-blue-50 dark:bg-blue-900/40 p-4 rounded-lg">
+                    <div className="flex justify-between items-center mb-3">
+                        <h4 className="font-semibold flex items-center"><i className="fas fa-brain mr-2 text-blue-500"></i> AI Review</h4>
+                        <button onClick={handleRegenerate} disabled={isLoading} className="text-xs text-blue-600 hover:underline disabled:opacity-50">Regenerate</button>
+                    </div>
+                    {isLoading ? (
+                        <div className="flex flex-col items-center justify-center h-48">
+                            <Spinner />
+                            <p className="mt-2 text-sm text-[var(--text-secondary-light)] dark:text-[var(--text-secondary-dark)]">Generating insights...</p>
+                        </div>
+                    ) : (
+                        <MarkdownRenderer content={aiReview} />
+                    )}
+                </div>
+            </div>
+        </div>
+    )
+}
+
+export const EditDetailsForm: React.FC<{ customer: Customer, onCancel: () => void, onSave: (data: CustomerFormData) => Promise<void> }> = ({ customer, onCancel, onSave }) => {
+    const [formData, setFormData] = useState<CustomerFormData>({
+        name: customer.name,
+        contact: customer.contact,
+        alternateContact: customer.alternateContact || '',
+        state: customer.state,
+        district: customer.district,
+        tier: customer.tier,
+    });
+    const [districts, setDistricts] = useState<string[]>([]);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    useEffect(() => {
+        if (formData.state && indianStatesAndDistricts[formData.state]) {
+            setDistricts(indianStatesAndDistricts[formData.state]);
+        }
+    }, [formData.state]);
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({ ...prev, [name]: value }));
+        if (name === 'state') {
+            setFormData(prev => ({ ...prev, district: '' }));
+        }
+    };
+
+    const handleSubmit = async () => {
+        setIsSubmitting(true);
+        await onSave(formData);
+        setIsSubmitting(false);
+    }
+
+    return (
+        <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label className="block text-sm font-medium mb-1">Name</label>
+                    <input type="text" name="name" value={formData.name} onChange={handleChange} className={inputStyle} />
+                </div>
+                <div>
+                    <label className="block text-sm font-medium mb-1">Contact</label>
+                    <input type="tel" name="contact" value={formData.contact} onChange={handleChange} className={inputStyle} />
+                </div>
+                <div>
+                    <label className="block text-sm font-medium mb-1">Alternate Contact</label>
+                    <input type="tel" name="alternateContact" value={formData.alternateContact} onChange={handleChange} className={inputStyle} />
+                </div>
+                <div>
+                    <label className="block text-sm font-medium mb-1">State</label>
+                    <select name="state" value={formData.state} onChange={handleChange} className={inputStyle}>
+                        {Object.keys(indianStatesAndDistricts).sort().map(s => <option key={s} value={s}>{s}</option>)}
+                    </select>
+                </div>
+                <div>
+                    <label className="block text-sm font-medium mb-1">District</label>
+                    <select name="district" value={formData.district} onChange={handleChange} className={inputStyle} disabled={!formData.state}>
+                        <option value="">Select District</option>
+                        {districts.map(d => <option key={d} value={d}>{d}</option>)}
+                    </select>
+                </div>
+                <div>
+                    <label className="block text-sm font-medium mb-1">Tier</label>
+                    <select name="tier" value={formData.tier} onChange={handleChange} className={inputStyle}>
+                        <option value="Bronze">Bronze</option>
+                        <option value="Silver">Silver</option>
+                        <option value="Gold">Gold</option>
+                        <option value="Dead">Dead</option>
+                    </select>
+                </div>
+            </div>
+            <div className="flex justify-end gap-3 pt-4">
+                <button onClick={onCancel} className={btnSecondary}>Cancel</button>
+                <button onClick={handleSubmit} disabled={isSubmitting} className={`${btnPrimary} flex items-center`}>
+                    {isSubmitting && <Spinner size="sm" className="mr-2" />}
+                    Save Changes
+                </button>
+            </div>
+        </div>
+    )
+}

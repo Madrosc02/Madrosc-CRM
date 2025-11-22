@@ -75,9 +75,10 @@ alter table public.goals enable row level security;
 alter table public.milestones enable row level security;
 
 -- Create policies to allow public access (since we are using anon key for simple CRM)
-create policy "Allow public access" on public.customers for all using (true);
-create policy "Allow public access" on public.sales for all using (true);
-create policy "Allow public access" on public.remarks for all using (true);
-create policy "Allow public access" on public.tasks for all using (true);
-create policy "Allow public access" on public.goals for all using (true);
-create policy "Allow public access" on public.milestones for all using (true);
+-- Create policies to allow access only to authenticated users
+create policy "Allow authenticated access" on public.customers for all using (auth.role() = 'authenticated');
+create policy "Allow authenticated access" on public.sales for all using (auth.role() = 'authenticated');
+create policy "Allow authenticated access" on public.remarks for all using (auth.role() = 'authenticated');
+create policy "Allow authenticated access" on public.tasks for all using (auth.role() = 'authenticated');
+create policy "Allow authenticated access" on public.goals for all using (auth.role() = 'authenticated');
+create policy "Allow authenticated access" on public.milestones for all using (auth.role() = 'authenticated');
