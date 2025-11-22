@@ -44,12 +44,12 @@ export const generateAIPerformanceReview = async (
             - Mention any risks (e.g., high outstanding balance, long time since last order).
             - Conclude with a clear, actionable recommendation for the sales rep (e.g., "Next Action: Follow up on the outstanding balance.").
         `;
-        
+
         const response = await ai.models.generateContent({
             model: 'gemini-2.5-flash',
             contents: prompt,
         });
-        
+
         return response.text;
     } catch (error) {
         console.error("Error generating AI review:", error);
@@ -61,7 +61,7 @@ export const generateAIAnalyticsSummary = async (
     customers: Customer[],
     tasks: Task[]
 ): Promise<string> => {
-     try {
+    try {
         const totalCustomers = customers.length;
         const totalOutstanding = customers.reduce((sum, c) => sum + c.outstandingBalance, 0);
         const totalSalesThisMonth = customers.reduce((sum, c) => sum + c.salesThisMonth, 0);
@@ -90,7 +90,7 @@ export const generateAIAnalyticsSummary = async (
             2.  **Areas for Attention:** Point out risks like high outstanding balances, a large number of inactive customers, or overdue tasks.
             3.  **Recommendations:** Provide 2-3 actionable suggestions for the manager (e.g., "Launch a re-engagement campaign for 'Dead' tier customers." or "Focus the team on clearing overdue tasks to improve customer relations.").
         `;
-        
+
         const response = await ai.models.generateContent({
             model: 'gemini-2.5-flash',
             contents: prompt,
@@ -177,7 +177,7 @@ export const interpretNaturalLanguageSearch = async (query: string, customers: C
                 }
             }
         });
-        
+
         // The response text is a JSON string, so we need to parse it.
         const jsonText = response.text.trim();
         return JSON.parse(jsonText);
@@ -188,7 +188,7 @@ export const interpretNaturalLanguageSearch = async (query: string, customers: C
 };
 
 export const generateTaskFromRemark = async (remarkText: string): Promise<{ task: string; dueDate: string } | null> => {
-     try {
+    try {
         const response = await ai.models.generateContent({
             model: 'gemini-2.5-flash',
             contents: `
@@ -216,7 +216,7 @@ export const generateTaskFromRemark = async (remarkText: string): Promise<{ task
 
         const jsonText = response.text.trim();
         const result = JSON.parse(jsonText);
-        
+
         if (result && result.task && result.dueDate) {
             return result;
         }
@@ -279,7 +279,7 @@ export const generateSummaryFromNotes = async (notes: string): Promise<{ summary
 
         const jsonText = response.text.trim();
         const result = JSON.parse(jsonText);
-        
+
         if (result && result.summary && result.actionItems) {
             return result;
         }
@@ -321,7 +321,7 @@ export const analyzeRemarkSentiment = async (remarkText: string): Promise<{ sent
 
         const jsonText = response.text.trim();
         const result = JSON.parse(jsonText);
-        
+
         if (result && result.sentiment) {
             return result;
         }
@@ -379,7 +379,7 @@ export const suggestBestContactTime = async (remarks: Remark[]): Promise<{ sugge
 
         const jsonText = response.text.trim();
         const result = JSON.parse(jsonText);
-        
+
         if (result && result.suggestion && result.reasoning) {
             return result;
         }
@@ -468,5 +468,168 @@ export const suggestGoalsAndMilestones = async (customer: Customer, sales: Sale[
     } catch (error) {
         console.error("Error suggesting goals and milestones:", error);
         throw error;
+    }
+};
+
+export const generateEmailDraft = async (
+    customer: Customer,
+    context: string,
+    tone: 'Formal' | 'Friendly' | 'Urgent'
+): Promise<{ subject: string; body: string } | null> => {
+    try {
+        const prompt = `
+            You are an expert sales assistant. Draft a professional email for a customer based on the following details.
+            
+            **Customer Profile:**
+            - Name: ${customer.name}
+            - Company/Location: ${customer.district}, ${customer.state}
+            - Tier: ${customer.tier}
+            
+            **Email Context:**
+            ${context}
+            
+            **Tone:**
+            ${tone}
+            
+            **Requirements:**
+            - The email should be personalized and engaging.
+            - Use placeholders like [Your Name] for the sender's details.
+            - Return a JSON object with "subject" and "body" fields.
+            - The body should be in plain text (not markdown), ready to copy-paste.
+        `;
+
+        const response = await ai.models.generateContent({
+            model: 'gemini-2.5-flash',
+            contents: prompt,
+            config: {
+                responseMimeType: "application/json",
+                responseSchema: {
+                    type: Type.OBJECT,
+                    properties: {
+                        subject: { type: Type.STRING },
+                        body: { type: Type.STRING },
+                    },
+                    required: ["subject", "body"]
+                }
+            }
+        });
+
+        const jsonText = response.text.trim();
+        return JSON.parse(jsonText);
+    } catch (error) {
+        console.error("Error generating email draft:", error);
+        return null;
+    }
+};
+
+export const calculateWinProbability = async (
+    customer: Customer,
+    sales: Sale[],
+    remarks: Remark[]
+): Promise<{ score: number; reasoning: string; churnRisk: boolean } | null> => {
+    try {
+        const salesSummary = sales.length > 0
+            ? `Recent sales: ${sales.slice(0, 5).map(s => `₹${s.amount} on ${new Date(s.date).toLocaleDateString()}`).join(', ')}`
+            : 'No recent sales';
+
+        const remarksSummary = remarks.length > 0
+            ? `Recent remarks: ${remarks.slice(0, 3).map(r => `"${r.remark}" (${r.sentiment})`).join('; ')}`
+            : 'No recent remarks';
+
+        const prompt = `
+            You are a Lead Scoring AI. Calculate a "Win Probability Score" (0-100) for this customer based on their profile and activity.
+            Also determine if they are at risk of churning (High Churn Risk).
+            
+            **Customer Profile:**
+            - Name: ${customer.name}
+            - Tier: ${customer.tier}
+            - Sales This Month: ₹${customer.salesThisMonth}
+            - Avg 6-Mo Sales: ₹${customer.avg6MoSales}
+            - Days Since Last Order: ${customer.daysSinceLastOrder}
+            - Outstanding Balance: ₹${customer.outstandingBalance}
+            
+            **Activity:**
+            ${salesSummary}
+            ${remarksSummary}
+            
+            **Scoring Logic:**
+            - High Score (>80): Frequent buyer, low outstanding, positive sentiment, recent activity.
+            - Low Score (<40): Inactive (>30 days), high outstanding, negative sentiment, "Dead" tier.
+            - Churn Risk: True if score < 30 or days since last order > 60.
+            
+            **Response Format (JSON):**
+            {
+                "score": number,
+                "reasoning": "Short explanation of the score",
+                "churnRisk": boolean
+            }
+        `;
+
+        const response = await ai.models.generateContent({
+            model: 'gemini-2.5-flash',
+            contents: prompt,
+            config: {
+                responseMimeType: "application/json",
+                responseSchema: {
+                    type: Type.OBJECT,
+                    properties: {
+                        score: { type: Type.NUMBER },
+                        reasoning: { type: Type.STRING },
+                        churnRisk: { type: Type.BOOLEAN },
+                    },
+                    required: ["score", "reasoning", "churnRisk"]
+                }
+            }
+        });
+
+        const jsonText = response.text.trim();
+        return JSON.parse(jsonText);
+    } catch (error) {
+        console.error("Error calculating win probability:", error);
+        return null;
+    }
+};
+
+export const chatWithAI = async (
+    query: string,
+    customers: Customer[],
+    sales: Sale[],
+    tasks: Task[]
+): Promise<string> => {
+    try {
+        // Prepare context data (summarized to fit context window)
+        const customerSummary = customers.map(c => `${c.name} (${c.tier}): ₹${c.salesThisMonth} sales, ₹${c.outstandingBalance} due`).join('\n');
+        const recentSales = sales.slice(0, 20).map(s => `₹${s.amount} on ${s.date}`).join(', ');
+        const pendingTasks = tasks.filter(t => !t.completed).map(t => `${t.task} (Due: ${t.dueDate})`).join('\n');
+
+        const prompt = `
+            You are a helpful CRM Assistant. Answer the user's question based on the following data.
+            
+            **Context Data:**
+            Customers:\n${customerSummary}
+            
+            Recent Sales:\n${recentSales}
+            
+            Pending Tasks:\n${pendingTasks}
+            
+            **User Question:**
+            "${query}"
+            
+            **Guidelines:**
+            - Be concise and helpful.
+            - If the user asks for a list, format it nicely.
+            - If the answer isn't in the data, say so politely.
+            - You can perform simple calculations (e.g., "Total sales for Gold customers").
+        `;
+
+        const response = await ai.models.generateContent({
+            model: 'gemini-2.5-flash',
+            contents: prompt,
+        });
+
+        return response.text || "I couldn't generate a response.";
+    } catch (error) {
+        console.error("Error in chatWithAI:", error);
+        return "Sorry, I'm having trouble connecting to the AI right now.";
     }
 };

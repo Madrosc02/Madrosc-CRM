@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Customer, Sale, Remark, CustomerFormData } from '../../types';
-import { generateAIPerformanceReview, suggestBestContactTime } from '../../services/geminiService';
+import { generateAIPerformanceReview, suggestBestContactTime, calculateWinProbability } from '../../services/geminiService';
 import Spinner from '../ui/Spinner';
 import MarkdownRenderer from '../ui/MarkdownRenderer';
 import { indianStatesAndDistricts } from '../../data/indianStatesAndDistricts';
@@ -58,6 +58,51 @@ const AIContactSuggestion: React.FC<{ remarks: Remark[] }> = ({ remarks }) => {
     );
 };
 
+const WinProbability: React.FC<{ customer: Customer, sales: Sale[], remarks: Remark[] }> = ({ customer, sales, remarks }) => {
+    const [data, setData] = useState<{ score: number; reasoning: string; churnRisk: boolean } | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
+
+    const calculate = useCallback(async () => {
+        setIsLoading(true);
+        try {
+            const result = await calculateWinProbability(customer, sales, remarks);
+            setData(result);
+        } catch (e) { console.error(e); }
+        finally { setIsLoading(false); }
+    }, [customer, sales, remarks]);
+
+    useEffect(() => { calculate(); }, [calculate]);
+
+    if (isLoading) return <div className="h-24 bg-gray-50 dark:bg-white/5 rounded-lg animate-pulse"></div>;
+    if (!data) return null;
+
+    const getColor = (score: number) => {
+        if (score >= 80) return 'text-green-600 dark:text-green-400';
+        if (score >= 50) return 'text-yellow-600 dark:text-yellow-400';
+        return 'text-red-600 dark:text-red-400';
+    };
+
+    return (
+        <div className="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-100 dark:border-purple-800/30">
+            <div className="flex justify-between items-start mb-2">
+                <h4 className="font-semibold text-base flex items-center text-purple-800 dark:text-purple-200">
+                    <i className="fas fa-chart-line mr-2"></i> Win Probability
+                </h4>
+                {data.churnRisk && (
+                    <span className="px-2 py-0.5 bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-300 text-xs font-bold rounded-full border border-red-200 dark:border-red-800">
+                        ⚠️ Churn Risk
+                    </span>
+                )}
+            </div>
+            <div className="flex items-end gap-2 mb-1">
+                <span className={`text-3xl font-bold ${getColor(data.score)}`}>{data.score}%</span>
+                <span className="text-sm text-[var(--text-secondary-light)] dark:text-[var(--text-secondary-dark)] mb-1">probability</span>
+            </div>
+            <p className="text-sm text-[var(--text-secondary-light)] dark:text-[var(--text-secondary-dark)] leading-snug">{data.reasoning}</p>
+        </div>
+    );
+};
+
 export const CustomerOverview: React.FC<{ customer: Customer, sales: Sale[], remarks: Remark[], onEditMode: () => void }> = ({ customer, sales, remarks, onEditMode }) => {
     const [aiReview, setAiReview] = useState('');
     const [isLoading, setIsLoading] = useState(true);
@@ -95,6 +140,8 @@ export const CustomerOverview: React.FC<{ customer: Customer, sales: Sale[], rem
                         <DetailCard title="Last Order" value={`${customer.daysSinceLastOrder} days ago`} />
                     </div>
                 </div>
+
+                <WinProbability customer={customer} sales={sales} remarks={remarks} />
             </div>
             <div className="space-y-4">
                 <AIContactSuggestion remarks={remarks} />
