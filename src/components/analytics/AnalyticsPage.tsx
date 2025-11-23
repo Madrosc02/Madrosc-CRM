@@ -5,7 +5,6 @@ import SalesByStateChart from './SalesByStateChart';
 import TierDistributionChart from './TierDistributionChart';
 import OverallSalesTrendChart from './OverallSalesTrendChart';
 import AIAnalyticsInsight from './AIAnalyticsInsight';
-// import SalesLeaderboard from '../gamification/SalesLeaderboard'; // Replaced by PerformanceLeaderboard
 import { useApp } from '../../contexts/AppContext';
 import DashboardSkeleton from '../skeletons/DashboardSkeleton';
 import AnalyticsFilters from './AnalyticsFilters';
@@ -107,17 +106,10 @@ const AnalyticsPage: React.FC = () => {
                             <TierDistributionChart />
                         </FadeIn>
                     </div>
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        <FadeIn className="card-base p-4">
-                            <SalesLeaderboard />
-                        </FadeIn>
-                        <FadeIn className="card-base p-4">
-                            <AIAnalyticsInsight />
-                        </FadeIn>
-                        <FadeIn className="card-base p-4">
-                            <SalesForecast />
-                        </FadeIn>
-                    </div>
+
+                    <FadeIn className="card-base p-4">
+                        <AIAnalyticsInsight />
+                    </FadeIn>
                 </>
             )}
         </div >
