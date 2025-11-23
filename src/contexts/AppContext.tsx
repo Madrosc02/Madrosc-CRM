@@ -25,6 +25,8 @@ interface AppContextType extends CrmDataHook {
   searchQuery: string;
   setSearchQuery: (query: string) => void;
 
+  updateCustomerFlag: (customerId: string, flag: 'Green' | 'Red' | null) => Promise<Customer>;
+
   // KPI Filter
   kpiFilter: 'all' | 'total' | 'pending' | 'sales' | 'outstanding' | 'ai-search' | null;
   setKpiFilter: (filter: 'all' | 'total' | 'pending' | 'sales' | 'outstanding' | 'ai-search' | null) => void;
@@ -138,6 +140,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     ...crmData,
     searchQuery,
     setSearchQuery,
+    updateCustomerFlag: crmData.updateCustomerFlag,
     kpiFilter,
     setKpiFilter,
     currentView,

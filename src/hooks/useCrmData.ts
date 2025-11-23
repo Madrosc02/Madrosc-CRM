@@ -240,5 +240,6 @@ export const useCrmData = () => {
     deleteGoal: api.deleteGoal,
     addMilestone: api.addMilestone,
     toggleMilestoneComplete: api.toggleMilestoneComplete,
+    updateCustomerFlag: api.updateCustomerFlag,
   };
 };

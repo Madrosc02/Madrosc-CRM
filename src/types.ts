@@ -36,6 +36,7 @@ export interface Customer {
   outstandingBalance: number;
   daysSinceLastOrder: number;
   lastUpdated: string; // ISO string
+  flag?: 'Green' | 'Red'; // Added for Call Mode
 }
 
 export interface Sale {

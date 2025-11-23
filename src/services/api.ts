@@ -24,6 +24,7 @@ const mapCustomer = (data: any): Customer => ({
     outstandingBalance: Number(data.outstanding_balance),
     daysSinceLastOrder: Number(data.days_since_last_order),
     lastUpdated: data.last_updated,
+    flag: data.flag,
 });
 
 const mapSale = (data: any): Sale => ({
@@ -153,6 +154,8 @@ export const deleteCustomer = async (customerId: string): Promise<boolean> => {
     if (error) throw error;
     return true;
 };
+
+
 
 export const bulkAddCustomers = async (newCustomersData: Omit<Customer, 'id' | 'avatar' | 'lastUpdated'>[]): Promise<Customer[]> => {
     const dbData = newCustomersData.map(c => ({
@@ -560,4 +563,18 @@ export const deleteTerritory = async (territoryId: string): Promise<boolean> => 
     if (error) throw error;
     return true;
 };
+
+export const updateCustomerFlag = async (customerId: string, flag: 'Green' | 'Red' | null): Promise<Customer> => {
+    const { data, error } = await supabase
+        .from('customers')
+        .update({ flag, last_updated: new Date().toISOString() })
+        .eq('id', customerId)
+        .select()
+        .single();
+
+    if (error) throw error;
+    return mapCustomer(data);
+};
+
+
 

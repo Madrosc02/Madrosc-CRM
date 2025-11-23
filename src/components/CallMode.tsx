@@ -5,9 +5,10 @@ import GlassCard from './common/GlassCard';
 import { Customer, Remark } from '../types';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { CustomerRemarks } from './customer/CustomerRemarks';
+import { WinProbability } from './customer/CustomerOverview';
 
 const CallMode: React.FC = () => {
-    const { customers, remarks, sales, addRemark, openAddTaskModal, openDetailModal } = useApp();
+    const { customers, remarks, sales, addRemark, openAddTaskModal, openDetailModal, updateCustomerFlag } = useApp();
     const navigate = useNavigate();
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isAnimating, setIsAnimating] = useState(false);
@@ -53,6 +54,12 @@ const CallMode: React.FC = () => {
             .filter(r => r.customerId === currentCustomer.id)
             .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
     }, [remarks, currentCustomer]);
+
+    // Sales for current customer (needed for WinProbability)
+    const customerSales = useMemo(() => {
+        if (!currentCustomer) return [];
+        return sales.filter(s => s.customerId === currentCustomer.id);
+    }, [sales, currentCustomer]);
 
     // --- Handlers ---
     const handleNext = () => {
@@ -116,6 +123,16 @@ const CallMode: React.FC = () => {
     const onRemarkAdded = () => {
         // Context updates automatically
         console.log("Remark added in Call Mode");
+    };
+
+    const handleFlagChange = async (flag: 'Green' | 'Red') => {
+        if (!currentCustomer) return;
+        try {
+            const newFlag = currentCustomer.flag === flag ? null : flag; // Toggle off if same
+            await updateCustomerFlag(currentCustomer.id, newFlag);
+        } catch (error) {
+            console.error("Failed to update flag", error);
+        }
     };
 
     // --- Action Button Handlers ---
@@ -183,6 +200,24 @@ const CallMode: React.FC = () => {
 
                 {/* Top Actions */}
                 <div className="flex items-center gap-3">
+                    {/* Flag Toggles */}
+                    <div className="flex items-center gap-1 mr-4 bg-slate-100 p-1 rounded-lg">
+                        <button
+                            onClick={() => handleFlagChange('Green')}
+                            className={`p-2 rounded-md transition-all ${currentCustomer.flag === 'Green' ? 'bg-green-500 text-white shadow-sm' : 'text-slate-400 hover:text-green-500'}`}
+                            title="Mark as Safe/Good"
+                        >
+                            <i className="fas fa-flag"></i>
+                        </button>
+                        <button
+                            onClick={() => handleFlagChange('Red')}
+                            className={`p-2 rounded-md transition-all ${currentCustomer.flag === 'Red' ? 'bg-red-500 text-white shadow-sm' : 'text-slate-400 hover:text-red-500'}`}
+                            title="Raise Red Flag"
+                        >
+                            <i className="fas fa-flag"></i>
+                        </button>
+                    </div>
+
                     <button
                         onClick={handleCreateTask}
                         className="hidden md:flex items-center gap-2 px-4 py-2 bg-[#4C6FFF]/10 text-[#4C6FFF] rounded-lg font-semibold hover:bg-[#4C6FFF]/20 transition-all border border-[#4C6FFF]/20"
@@ -207,31 +242,34 @@ const CallMode: React.FC = () => {
             {/* --- Main Content Area --- */}
             <div className={`container mx-auto px-4 pt-24 pb-8 transition-all duration-500 ease-in-out ${isAnimating ? 'opacity-0 translate-x-8' : 'opacity-100 translate-x-0'}`}>
 
-                {/* Summary Metrics Row */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                {/* Summary Metrics Row - Smaller & Colorful */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
                     {[
-                        { label: 'All Clients', value: metrics.all, icon: 'fa-users', color: 'blue', colorHex: '#4C6FFF' },
-                        { label: 'Pending Orders', value: metrics.pendingOrders, icon: 'fa-clock', color: 'amber', colorHex: '#F59E0B' },
-                        { label: 'Low Performers', value: metrics.lowPerformers, icon: 'fa-chart-line-down', color: 'red', colorHex: '#EF4444' },
-                        { label: 'Silent Accounts', value: metrics.silentAccounts, icon: 'fa-user-slash', color: 'slate', colorHex: '#6B7280' },
+                        { label: 'All Clients', value: metrics.all, icon: 'fa-users', bg: 'bg-blue-500', text: 'text-white' },
+                        { label: 'Pending Orders', value: metrics.pendingOrders, icon: 'fa-clock', bg: 'bg-amber-500', text: 'text-white' },
+                        { label: 'Low Performers', value: metrics.lowPerformers, icon: 'fa-chart-line-down', bg: 'bg-red-500', text: 'text-white' },
+                        { label: 'Silent Accounts', value: metrics.silentAccounts, icon: 'fa-user-slash', bg: 'bg-slate-600', text: 'text-white' },
                     ].map((m, i) => (
-                        <GlassCard key={i} className="p-3 flex items-center justify-between border-l-4" style={{ borderLeftColor: m.colorHex }}>
+                        <div key={i} className={`${m.bg} rounded-xl p-3 flex items-center justify-between shadow-sm hover:shadow-md transition-shadow`}>
                             <div>
-                                <p className="text-[10px] text-[#6B7280] uppercase font-bold tracking-wider">{m.label}</p>
-                                <p className="text-xl font-bold mt-0.5 text-[#111827]">{m.value}</p>
+                                <p className={`text-[10px] uppercase font-bold tracking-wider opacity-80 ${m.text}`}>{m.label}</p>
+                                <p className={`text-lg font-bold mt-0.5 ${m.text}`}>{m.value}</p>
                             </div>
-                            <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ backgroundColor: `${m.colorHex}20`, color: m.colorHex }}>
-                                <i className={`fas ${m.icon} text-sm`}></i>
+                            <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white">
+                                <i className={`fas ${m.icon} text-xs`}></i>
                             </div>
-                        </GlassCard>
+                        </div>
                     ))}
                 </div>
 
                 {/* Customer Header */}
-                <div className="mb-6 flex flex-col md:flex-row justify-between items-start md:items-end gap-4 border-b border-[#E1E7F0] pb-4">
+                <div className="mb-4 flex flex-col md:flex-row justify-between items-start md:items-end gap-4 border-b border-[#E1E7F0] pb-4">
                     <div>
                         <div className="flex items-center gap-3 mb-1">
-                            <h2 className="text-3xl font-bold text-[#111827] font-serif tracking-tight">
+                            <h2 className={`text-3xl font-bold font-serif tracking-tight transition-colors ${currentCustomer.flag === 'Red' ? 'text-red-600' :
+                                    currentCustomer.flag === 'Green' ? 'text-green-600' :
+                                        'text-[#111827]'
+                                }`}>
                                 {currentCustomer.name}
                             </h2>
                             <span className={`px-3 py-1 text-xs font-bold rounded-full uppercase tracking-wider ${currentCustomer.tier === 'Platinum' ? 'bg-purple-100 text-purple-700' :
@@ -240,6 +278,12 @@ const CallMode: React.FC = () => {
                                 }`}>
                                 {currentCustomer.tier}
                             </span>
+                            {currentCustomer.flag && (
+                                <span className={`px-2 py-0.5 text-[10px] font-bold rounded uppercase tracking-wider ${currentCustomer.flag === 'Red' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'
+                                    }`}>
+                                    {currentCustomer.flag} Flag
+                                </span>
+                            )}
                         </div>
                         <p className="text-[#6B7280] flex items-center gap-2 text-sm">
                             <i className="fas fa-map-marker-alt text-[#00B894]"></i> {currentCustomer.town}, {currentCustomer.state}
@@ -258,41 +302,50 @@ const CallMode: React.FC = () => {
                 </div>
 
                 {/* --- 3-Column Grid Layout --- */}
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-[calc(100vh-280px)] min-h-[600px]">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-[calc(100vh-260px)] min-h-[600px]">
 
                     {/* LEFT COLUMN (3/12): KPIs, Contact, ACTION BUTTONS */}
-                    <div className="lg:col-span-3 flex flex-col gap-6 h-full overflow-y-auto pr-1 custom-scrollbar">
-                        {/* KPI Grid */}
-                        <div className="grid grid-cols-2 gap-3">
-                            <GlassCard className="p-4 flex flex-col justify-center items-center text-center border-t-4 border-[#00B894]">
-                                <p className="text-[10px] text-[#6B7280] uppercase font-bold">Outstanding</p>
-                                <p className="text-lg font-bold mt-1 text-[#00B894]">₹{currentCustomer.outstandingBalance?.toLocaleString() || '0'}</p>
+                    <div className="lg:col-span-3 flex flex-col gap-4 h-full overflow-y-auto pr-1 custom-scrollbar">
+                        {/* KPI Grid - Restored Last Order & Risk Score */}
+                        <div className="grid grid-cols-2 gap-2">
+                            <GlassCard className="p-3 flex flex-col justify-center items-center text-center border-t-4 border-[#00B894]">
+                                <p className="text-[9px] text-[#6B7280] uppercase font-bold">Outstanding</p>
+                                <p className="text-base font-bold mt-0.5 text-[#00B894]">₹{currentCustomer.outstandingBalance?.toLocaleString() || '0'}</p>
                             </GlassCard>
-                            <GlassCard className="p-4 flex flex-col justify-center items-center text-center border-t-4 border-[#4C6FFF]">
-                                <p className="text-[10px] text-[#6B7280] uppercase font-bold">YTD Sales</p>
-                                <p className="text-lg font-bold mt-1 text-[#4C6FFF]">₹{currentCustomer.totalSales?.toLocaleString() || '0'}</p>
+                            <GlassCard className="p-3 flex flex-col justify-center items-center text-center border-t-4 border-[#4C6FFF]">
+                                <p className="text-[9px] text-[#6B7280] uppercase font-bold">YTD Sales</p>
+                                <p className="text-base font-bold mt-0.5 text-[#4C6FFF]">₹{currentCustomer.totalSales?.toLocaleString() || '0'}</p>
+                            </GlassCard>
+                            <GlassCard className="p-3 flex flex-col justify-center items-center text-center border-t-4 border-amber-500 col-span-2">
+                                <p className="text-[9px] text-[#6B7280] uppercase font-bold">Last Order</p>
+                                <p className="text-sm font-bold mt-0.5 text-[#111827]">
+                                    {currentCustomer.lastOrderDate ? new Date(currentCustomer.lastOrderDate).toLocaleDateString() : 'Never'}
+                                </p>
                             </GlassCard>
                         </div>
 
+                        {/* Win Probability (Risk Score) */}
+                        <WinProbability customer={currentCustomer} sales={customerSales} remarks={customerRemarks} />
+
                         {/* Contact Card */}
-                        <GlassCard className="p-5">
-                            <h3 className="text-sm font-bold mb-4 uppercase tracking-wider text-[#6B7280] border-b border-[#E1E7F0] pb-2">Contact Details</h3>
-                            <div className="space-y-4">
+                        <GlassCard className="p-4">
+                            <h3 className="text-xs font-bold mb-3 uppercase tracking-wider text-[#6B7280] border-b border-[#E1E7F0] pb-2">Contact Details</h3>
+                            <div className="space-y-3">
                                 <div className="flex items-start gap-3 group cursor-pointer" onClick={handleCallNow}>
-                                    <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-[#00B894] group-hover:bg-[#00B894] group-hover:text-white transition-colors">
+                                    <div className="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center text-[#00B894] group-hover:bg-[#00B894] group-hover:text-white transition-colors">
                                         <i className="fas fa-phone text-xs"></i>
                                     </div>
                                     <div>
-                                        <p className="text-[10px] text-[#6B7280] uppercase font-bold">Mobile</p>
+                                        <p className="text-[9px] text-[#6B7280] uppercase font-bold">Mobile</p>
                                         <p className="font-medium text-sm text-[#111827]">{currentCustomer.phone || 'N/A'}</p>
                                     </div>
                                 </div>
                                 <div className="flex items-start gap-3 group cursor-pointer">
-                                    <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-[#00B894] group-hover:bg-[#00B894] group-hover:text-white transition-colors">
+                                    <div className="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center text-[#00B894] group-hover:bg-[#00B894] group-hover:text-white transition-colors">
                                         <i className="fas fa-envelope text-xs"></i>
                                     </div>
                                     <div>
-                                        <p className="text-[10px] text-[#6B7280] uppercase font-bold">Email</p>
+                                        <p className="text-[9px] text-[#6B7280] uppercase font-bold">Email</p>
                                         <p className="font-medium text-sm text-[#111827] truncate max-w-[150px]">{currentCustomer.email || 'N/A'}</p>
                                     </div>
                                 </div>
@@ -300,23 +353,23 @@ const CallMode: React.FC = () => {
                         </GlassCard>
 
                         {/* NEW ACTION BUTTONS */}
-                        <GlassCard className="p-5">
-                            <h3 className="text-sm font-bold mb-4 uppercase tracking-wider text-[#6B7280] border-b border-[#E1E7F0] pb-2">Customer Actions</h3>
-                            <div className="grid grid-cols-1 gap-3">
-                                <button onClick={openGoals} className="flex items-center justify-between w-full p-3 rounded-lg bg-purple-50 text-purple-700 hover:bg-purple-100 transition-colors border border-purple-100 group">
-                                    <span className="font-semibold flex items-center gap-2"><i className="fas fa-bullseye"></i> Goals</span>
+                        <GlassCard className="p-4">
+                            <h3 className="text-xs font-bold mb-3 uppercase tracking-wider text-[#6B7280] border-b border-[#E1E7F0] pb-2">Customer Actions</h3>
+                            <div className="grid grid-cols-1 gap-2">
+                                <button onClick={openGoals} className="flex items-center justify-between w-full p-2.5 rounded-lg bg-purple-50 text-purple-700 hover:bg-purple-100 transition-colors border border-purple-100 group">
+                                    <span className="font-semibold text-sm flex items-center gap-2"><i className="fas fa-bullseye w-4"></i> Goals</span>
                                     <i className="fas fa-chevron-right text-xs opacity-50 group-hover:translate-x-1 transition-transform"></i>
                                 </button>
-                                <button onClick={openSalesHistory} className="flex items-center justify-between w-full p-3 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors border border-blue-100 group">
-                                    <span className="font-semibold flex items-center gap-2"><i className="fas fa-chart-area"></i> Sales History</span>
+                                <button onClick={openSalesHistory} className="flex items-center justify-between w-full p-2.5 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors border border-blue-100 group">
+                                    <span className="font-semibold text-sm flex items-center gap-2"><i className="fas fa-chart-area w-4"></i> Sales History</span>
                                     <i className="fas fa-chevron-right text-xs opacity-50 group-hover:translate-x-1 transition-transform"></i>
                                 </button>
-                                <button onClick={openTasks} className="flex items-center justify-between w-full p-3 rounded-lg bg-amber-50 text-amber-700 hover:bg-amber-100 transition-colors border border-amber-100 group">
-                                    <span className="font-semibold flex items-center gap-2"><i className="fas fa-tasks"></i> Tasks</span>
+                                <button onClick={openTasks} className="flex items-center justify-between w-full p-2.5 rounded-lg bg-amber-50 text-amber-700 hover:bg-amber-100 transition-colors border border-amber-100 group">
+                                    <span className="font-semibold text-sm flex items-center gap-2"><i className="fas fa-tasks w-4"></i> Tasks</span>
                                     <i className="fas fa-chevron-right text-xs opacity-50 group-hover:translate-x-1 transition-transform"></i>
                                 </button>
-                                <button onClick={openQuickActions} className="flex items-center justify-between w-full p-3 rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition-colors border border-emerald-100 group">
-                                    <span className="font-semibold flex items-center gap-2"><i className="fas fa-bolt"></i> Quick Actions</span>
+                                <button onClick={openQuickActions} className="flex items-center justify-between w-full p-2.5 rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition-colors border border-emerald-100 group">
+                                    <span className="font-semibold text-sm flex items-center gap-2"><i className="fas fa-bolt w-4"></i> Quick Actions</span>
                                     <i className="fas fa-chevron-right text-xs opacity-50 group-hover:translate-x-1 transition-transform"></i>
                                 </button>
                             </div>
@@ -324,22 +377,22 @@ const CallMode: React.FC = () => {
                     </div>
 
                     {/* CENTER COLUMN (5/12): AI, Remarks */}
-                    <div className="lg:col-span-5 flex flex-col gap-6 h-full overflow-y-auto pr-1 custom-scrollbar">
+                    <div className="lg:col-span-5 flex flex-col gap-4 h-full overflow-y-auto pr-1 custom-scrollbar">
 
-                        {/* AI Call Prep */}
-                        <GlassCard className="p-5 bg-gradient-to-br from-indigo-50/80 to-purple-50/80 border-indigo-100 relative overflow-hidden">
-                            <div className="absolute top-0 right-0 p-3 opacity-10">
+                        {/* AI Call Prep - Fixed visibility */}
+                        <GlassCard className="p-4 bg-gradient-to-br from-indigo-50/80 to-purple-50/80 border-indigo-100 relative overflow-hidden shrink-0">
+                            <div className="absolute top-0 right-0 p-3 opacity-10 pointer-events-none">
                                 <i className="fas fa-robot text-6xl text-[#4C6FFF]"></i>
                             </div>
-                            <div className="flex items-center gap-2 mb-3 relative z-10">
+                            <div className="flex items-center gap-2 mb-2 relative z-10">
                                 <div className="w-6 h-6 rounded-md bg-[#4C6FFF] flex items-center justify-center text-white shadow-md shadow-indigo-500/30">
                                     <i className="fas fa-sparkles text-xs"></i>
                                 </div>
                                 <h3 className="text-sm font-bold text-[#111827] uppercase tracking-wide">AI Call Prep</h3>
                             </div>
-                            <div className="space-y-3 relative z-10">
+                            <div className="space-y-2 relative z-10">
                                 <div className="flex gap-3 items-start p-3 bg-white/60 rounded-xl border border-indigo-100">
-                                    <i className="fas fa-lightbulb text-[#F59E0B] mt-1"></i>
+                                    <i className="fas fa-lightbulb text-[#F59E0B] mt-1 shrink-0"></i>
                                     <div>
                                         <p className="text-xs font-bold text-[#111827]">Talking Point</p>
                                         <p className="text-sm text-[#6B7280] leading-snug">Sales dropped 15% vs last year. Ask about <strong>Amoxyclav</strong> stock.</p>
@@ -350,7 +403,7 @@ const CallMode: React.FC = () => {
 
                         {/* Interaction History (Reusing CustomerRemarks) */}
                         <GlassCard className="flex-1 flex flex-col overflow-hidden min-h-[500px]">
-                            <div className="p-4 border-b border-[#E1E7F0] flex justify-between items-center bg-slate-50/50">
+                            <div className="p-4 border-b border-[#E1E7F0] flex justify-between items-center bg-slate-50/50 shrink-0">
                                 <h3 className="text-sm font-bold uppercase tracking-wider text-[#6B7280]">Interaction History</h3>
                                 <button onClick={handleViewCustomerDetails} className="text-xs text-[#00B894] font-semibold hover:underline">View Customer Details</button>
                             </div>
@@ -367,7 +420,7 @@ const CallMode: React.FC = () => {
                     </div>
 
                     {/* RIGHT COLUMN (4/12): Sales, Mix */}
-                    <div className="lg:col-span-4 flex flex-col gap-6 h-full overflow-y-auto pr-1 custom-scrollbar">
+                    <div className="lg:col-span-4 flex flex-col gap-4 h-full overflow-y-auto pr-1 custom-scrollbar">
 
                         {/* 6-Month Sales Chart */}
                         <GlassCard className="p-5 h-[320px] flex flex-col">
