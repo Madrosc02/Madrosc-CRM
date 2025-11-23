@@ -11,100 +11,35 @@ const CallMode: React.FC = () => {
     const [isAnimating, setIsAnimating] = useState(false);
 
     // Sort customers by some logic (e.g., ID for now, later AI priority)
-    const sortedCustomers = useMemo(() => {
-        return [...customers];
-    }, [customers]);
+    { currentCustomer.name }
+                            </h2 >
+    <span className="px-3 py-1 bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300 text-xs font-bold rounded-full uppercase tracking-wider">
+        {currentCustomer.segment || 'Active'}
+    </span>
+                        </div >
+    <p className="text-[var(--text-secondary)] flex items-center gap-2">
+        <i className="fas fa-map-marker-alt"></i> {currentCustomer.town}, {currentCustomer.state}
+        <span className="mx-2">•</span>
+        <i className="fas fa-building"></i> {currentCustomer.firmName || 'No Firm Name'}
+    </p>
+                    </div >
+    <div className="flex gap-3">
+        <button className="btn-secondary flex items-center gap-2">
+            <i className="fab fa-whatsapp text-green-500 text-lg"></i> WhatsApp
+        </button>
+        <button className="btn-primary flex items-center gap-2 shadow-lg shadow-teal-500/30">
+            <i className="fas fa-phone-alt"></i> Call Now
+        </button>
+    </div>
+                </div >
 
-    const currentCustomer = sortedCustomers[currentIndex];
+    {/* Grid Layout */ }
+    < div className = "grid grid-cols-1 lg:grid-cols-3 gap-6" >
 
-    const handleNext = () => {
-        if (currentIndex < sortedCustomers.length - 1) {
-            setIsAnimating(true);
-            setTimeout(() => {
-                setCurrentIndex(prev => prev + 1);
-                setIsAnimating(false);
-            }, 300);
-        }
-    };
-
-    const handlePrevious = () => {
-        if (currentIndex > 0) {
-            setIsAnimating(true);
-            setTimeout(() => {
-                setCurrentIndex(prev => prev - 1);
-                setIsAnimating(false);
-            }, 300);
-        }
-    };
-
-    const handleExit = () => {
-        navigate('/');
-    };
-
-    if (!currentCustomer) return <div>Loading...</div>;
-
-    return (
-        <div className="min-h-screen bg-[var(--bg-background)] text-[var(--text-primary)] pb-24 relative overflow-hidden">
-            {/* Top Navigation Bar */}
-            <div className="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-[var(--border-color)] px-6 py-4 flex justify-between items-center shadow-sm">
-                <div className="flex items-center gap-4">
-                    <button onClick={handleExit} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors">
-                        <i className="fas fa-arrow-left text-xl text-[var(--text-secondary)]"></i>
-                    </button>
-                    <div>
-                        <h1 className="text-xl font-bold font-serif">Focus Mode</h1>
-                        <p className="text-xs text-[var(--text-secondary)]">
-                            Customer {currentIndex + 1} of {sortedCustomers.length}
-                        </p>
-                    </div>
-                </div>
-                <div className="flex items-center gap-3">
-                    <div className="h-2 w-32 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
-                        <div
-                            className="h-full bg-[var(--color-primary)] transition-all duration-500"
-                            style={{ width: `${((currentIndex + 1) / sortedCustomers.length) * 100}%` }}
-                        />
-                    </div>
-                </div>
-            </div>
-
-            {/* Main Content Area */}
-            <div className={`container mx-auto px-4 pt-24 transition-opacity duration-300 ${isAnimating ? 'opacity-0 translate-x-10' : 'opacity-100 translate-x-0'}`}>
-
-                {/* Header Section */}
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-                    <div>
-                        <div className="flex items-center gap-3 mb-1">
-                            <h2 className="text-3xl font-bold font-serif text-[var(--color-primary)]">
-                                {currentCustomer.name}
-                            </h2>
-                            <span className="px-3 py-1 bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300 text-xs font-bold rounded-full uppercase tracking-wider">
-                                {currentCustomer.segment || 'Active'}
-                            </span>
-                        </div>
-                        <p className="text-[var(--text-secondary)] flex items-center gap-2">
-                            <i className="fas fa-map-marker-alt"></i> {currentCustomer.town}, {currentCustomer.state}
-                            <span className="mx-2">•</span>
-                            <i className="fas fa-building"></i> {currentCustomer.firmName || 'No Firm Name'}
-                        </p>
-                    </div>
-                    <div className="flex gap-3">
-                        <button className="btn-secondary flex items-center gap-2">
-                            <i className="fab fa-whatsapp text-green-500 text-lg"></i> WhatsApp
-                        </button>
-                        <button className="btn-primary flex items-center gap-2 shadow-lg shadow-teal-500/30">
-                            <i className="fas fa-phone-alt"></i> Call Now
-                        </button>
-                    </div>
-                </div>
-
-                {/* Grid Layout */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
-                    {/* Left Column: Stats & Details */}
-                    <div className="space-y-6">
-                        {/* Key Metrics Cards */}
-                        <div className="grid grid-cols-2 gap-4">
+        {/* Left Column: Stats & Details */ }
+        < div className = "space-y-6" >
+            {/* Key Metrics Cards */ }
+            < div className = "grid grid-cols-2 gap-4" >
                             <GlassCard className="p-4 border-l-4 border-teal-500">
                                 <p className="text-xs text-[var(--text-secondary)] uppercase font-bold">Outstanding</p>
                                 <p className="text-xl font-bold mt-1">₹{currentCustomer.outstandingBalance?.toLocaleString() || '0'}</p>
@@ -121,10 +56,10 @@ const CallMode: React.FC = () => {
                                 <p className="text-xs text-[var(--text-secondary)] uppercase font-bold">Risk Score</p>
                                 <p className="text-lg font-bold mt-1 text-orange-600">Low</p>
                             </GlassCard>
-                        </div>
+                        </div >
 
-                        {/* Contact Details */}
-                        <GlassCard className="p-6">
+    {/* Contact Details */ }
+    < GlassCard className = "p-6" >
                             <h3 className="text-lg font-bold mb-4 border-b border-[var(--border-color)] pb-2">Contact Info</h3>
                             <div className="space-y-4">
                                 <div className="flex items-center gap-3">
@@ -146,13 +81,13 @@ const CallMode: React.FC = () => {
                                     </div>
                                 </div>
                             </div>
-                        </GlassCard>
-                    </div>
+                        </GlassCard >
+                    </div >
 
-                    {/* Middle Column: AI & Remarks */}
-                    <div className="space-y-6">
-                        {/* AI Analysis */}
-                        <GlassCard className="p-6 bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-slate-800 dark:to-slate-800/50 border-indigo-100 dark:border-indigo-900/30">
+    {/* Middle Column: AI & Remarks */ }
+    < div className = "space-y-6" >
+        {/* AI Analysis */ }
+        < GlassCard className = "p-6 bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-slate-800 dark:to-slate-800/50 border-indigo-100 dark:border-indigo-900/30" >
                             <div className="flex items-center gap-2 mb-4">
                                 <i className="fas fa-robot text-indigo-500 text-xl"></i>
                                 <h3 className="text-lg font-bold text-indigo-900 dark:text-indigo-100">AI Call Prep</h3>
@@ -165,10 +100,10 @@ const CallMode: React.FC = () => {
                                     <strong>Opportunity:</strong> They haven't ordered the new <em>Cardio</em> range yet. Good candidate for a sample drop.
                                 </p>
                             </div>
-                        </GlassCard>
+                        </GlassCard >
 
-                        {/* Past Remarks Timeline */}
-                        <GlassCard className="p-6 flex-1">
+    {/* Past Remarks Timeline */ }
+    < GlassCard className = "p-6 flex-1" >
                             <h3 className="text-lg font-bold mb-4">Recent Interactions</h3>
                             <div className="space-y-6 relative pl-4 border-l-2 border-slate-200 dark:border-slate-700">
                                 {/* Mock Data for now - needs real remarks integration */}
@@ -183,11 +118,11 @@ const CallMode: React.FC = () => {
                                     <p className="font-medium mt-1">Phone call. Discussed payment delay. Promised to clear by Friday.</p>
                                 </div>
                             </div>
-                        </GlassCard>
-                    </div>
+                        </GlassCard >
+                    </div >
 
-                    {/* Right Column: Graphs */}
-                    <div className="space-y-6">
+    {/* Right Column: Graphs */ }
+    < div className = "space-y-6" >
                         <GlassCard className="p-6 h-[300px]">
                             <h3 className="text-sm font-bold mb-4 uppercase tracking-wider text-[var(--text-secondary)]">Performance Trend</h3>
                             {/* Placeholder for specific customer chart - reusing main chart for demo layout */}
@@ -219,36 +154,36 @@ const CallMode: React.FC = () => {
                                 </div>
                             </div>
                         </GlassCard>
-                    </div>
-                </div>
-            </div>
+                    </div >
+                </div >
+            </div >
 
-            {/* Bottom Floating Action Bar */}
-            <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/90 dark:bg-slate-900/90 backdrop-blur-lg border-t border-[var(--border-color)] z-50">
-                <div className="container mx-auto flex justify-between items-center max-w-4xl">
-                    <button
-                        onClick={handlePrevious}
-                        disabled={currentIndex === 0}
-                        className="px-6 py-3 rounded-xl font-semibold text-[var(--text-secondary)] hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-50 transition-all"
-                    >
-                        <i className="fas fa-chevron-left mr-2"></i> Previous
-                    </button>
+    {/* Bottom Floating Action Bar */ }
+    < div className = "fixed bottom-0 left-0 right-0 p-4 bg-white/90 dark:bg-slate-900/90 backdrop-blur-lg border-t border-[var(--border-color)] z-50" >
+        <div className="container mx-auto flex justify-between items-center max-w-4xl">
+            <button
+                onClick={handlePrevious}
+                disabled={currentIndex === 0}
+                className="px-6 py-3 rounded-xl font-semibold text-[var(--text-secondary)] hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-50 transition-all"
+            >
+                <i className="fas fa-chevron-left mr-2"></i> Previous
+            </button>
 
-                    <div className="flex gap-4">
-                        <button className="px-6 py-3 rounded-xl font-bold bg-slate-100 dark:bg-slate-800 text-[var(--text-primary)] hover:bg-slate-200 dark:hover:bg-slate-700 transition-all">
-                            <i className="fas fa-pen mr-2"></i> Log Remarks
-                        </button>
-                        <button
-                            onClick={handleNext}
-                            disabled={currentIndex === sortedCustomers.length - 1}
-                            className="px-8 py-3 rounded-xl font-bold bg-[var(--color-primary)] text-white shadow-lg shadow-teal-500/30 hover:scale-105 hover:shadow-teal-500/50 transition-all flex items-center"
-                        >
-                            Next Customer <i className="fas fa-chevron-right ml-2"></i>
-                        </button>
-                    </div>
-                </div>
+            <div className="flex gap-4">
+                <button className="px-6 py-3 rounded-xl font-bold bg-slate-100 dark:bg-slate-800 text-[var(--text-primary)] hover:bg-slate-200 dark:hover:bg-slate-700 transition-all">
+                    <i className="fas fa-pen mr-2"></i> Log Remarks
+                </button>
+                <button
+                    onClick={handleNext}
+                    disabled={currentIndex === sortedCustomers.length - 1}
+                    className="px-8 py-3 rounded-xl font-bold bg-[var(--color-primary)] text-white shadow-lg shadow-teal-500/30 hover:scale-105 hover:shadow-teal-500/50 transition-all flex items-center"
+                >
+                    Next Customer <i className="fas fa-chevron-right ml-2"></i>
+                </button>
             </div>
         </div>
+            </div >
+        </div >
     );
 };
 
