@@ -45,103 +45,66 @@
   /* Slate 400 */
   --color-border-dark: #334155;
   /* Slate 700 */
-
-  /* Aliases */
-  --primary: var(--color-primary);
-  --secondary: var(--color-secondary);
+  @apply backdrop-blur-xl bg-white/80 dark:bg-slate-900/80 border border-white/40 dark:border-slate-700/40 shadow-2xl;
 }
 
-@layer base {
-  body {
-    font-family: var(--font-sans);
-    background: linear-gradient(135deg, #F0F4F8 0%, #E6E9F0 100%);
-    background-attachment: fixed;
-    color: var(--color-text-primary-light);
-    transition: background 0.3s ease, color 0.3s ease;
-    -webkit-font-smoothing: antialiased;
+.glass-card,
+.card-base {
+  @apply backdrop-blur-md bg-white/70 dark:bg-slate-800/60 border border-white/50 dark:border-slate-700/30 shadow-lg rounded-2xl transition-all duration-300 hover:shadow-xl hover:bg-white/90 dark:hover:bg-slate-800/80 hover:-translate-y-1;
+}
+
+.glass-sidebar {
+  @apply backdrop-blur-xl bg-white/90 dark:bg-slate-900/90 border-r border-white/20 dark:border-slate-700/30 shadow-2xl;
+}
+
+/* Buttons */
+.btn-primary {
+  @apply px-5 py-2.5 bg-gradient-to-r from-[var(--color-primary)] to-[#00A3A3] text-white rounded-xl font-bold shadow-lg shadow-teal-500/20 transition-all hover:shadow-teal-500/40 hover:scale-[1.02] active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100;
+}
+
+.btn-secondary {
+  @apply px-5 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 rounded-xl font-semibold shadow-sm transition-all hover:bg-slate-50 dark:hover:bg-slate-700 hover:border-slate-300 dark:hover:border-slate-600 active:scale-95;
+}
+
+.btn-danger {
+  @apply px-5 py-2.5 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl font-bold shadow-lg shadow-red-500/20 transition-all hover:shadow-red-500/40 hover:scale-[1.02] active:scale-95;
+}
+
+/* Inputs */
+.input-base {
+  @apply block w-full px-4 py-3 rounded-xl bg-white/60 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all backdrop-blur-sm placeholder:text-slate-400;
+}
+
+/* Animations */
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.5s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
   }
 
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
-    font-family: var(--font-serif);
-    font-weight: 700;
-    letter-spacing: -0.025em;
-  }
-
-  body.dark {
-    background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
-    color: var(--color-text-primary-dark);
+  to {
+    opacity: 1;
   }
 }
 
-@layer components {
-
-  /* Glassmorphism 2.0 */
-  .glass-panel {
-    @apply backdrop-blur-xl bg-white/80 dark:bg-slate-900/80 border border-white/40 dark:border-slate-700/40 shadow-2xl;
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
   }
 
-  .glass-card,
-  .card-base {
-    @apply backdrop-blur-md bg-white/70 dark:bg-slate-800/60 border border-white/50 dark:border-slate-700/30 shadow-lg rounded-2xl transition-all duration-300 hover:shadow-xl hover:bg-white/90 dark:hover:bg-slate-800/80 hover:-translate-y-1;
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
-
-  .glass-sidebar {
-    @apply backdrop-blur-xl bg-white/90 dark:bg-slate-900/90 border-r border-white/20 dark:border-slate-700/30 shadow-2xl;
-  }
-
-  /* Buttons */
-  .btn-primary {
-    @apply px-5 py-2.5 bg-gradient-to-r from-[var(--color-primary)] to-[#00A3A3] text-white rounded-xl font-bold shadow-lg shadow-teal-500/20 transition-all hover:shadow-teal-500/40 hover:scale-[1.02] active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100;
-  }
-
-  .btn-secondary {
-    @apply px-5 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 rounded-xl font-semibold shadow-sm transition-all hover:bg-slate-50 dark:hover:bg-slate-700 hover:border-slate-300 dark:hover:border-slate-600 active:scale-95;
-  }
-
-  .btn-danger {
-    @apply px-5 py-2.5 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl font-bold shadow-lg shadow-red-500/20 transition-all hover:shadow-red-500/40 hover:scale-[1.02] active:scale-95;
-  }
-
-  /* Inputs */
-  .input-base {
-    @apply block w-full px-4 py-3 rounded-xl bg-white/60 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all backdrop-blur-sm placeholder:text-slate-400;
-  }
-
-  /* Animations */
-  .animate-fade-in {
-    animation: fadeIn 0.5s ease-out forwards;
-  }
-
-  .animate-slide-up {
-    animation: slideUp 0.5s ease-out forwards;
-  }
-
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-    }
-
-    to {
-      opacity: 1;
-    }
-  }
-
-  @keyframes slideUp {
-    from {
-      opacity: 0;
-      transform: translateY(20px);
-    }
-
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
+}
 }
 
 @layer utilities {

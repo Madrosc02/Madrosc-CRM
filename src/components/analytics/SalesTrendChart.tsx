@@ -139,8 +139,8 @@ const SalesTrendChart: React.FC = () => {
                                 key={value}
                                 onClick={() => setSelectedPreset(value)}
                                 className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${selectedPreset === value
-                                        ? 'bg-[var(--primary-light)] text-white dark:bg-[var(--primary-dark)]'
-                                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-white/10 dark:text-gray-300 dark:hover:bg-white/20'
+                                    ? 'bg-[var(--primary-light)] text-white dark:bg-[var(--primary-dark)]'
+                                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-white/10 dark:text-gray-300 dark:hover:bg-white/20'
                                     }`}
                             >
                                 {label}
@@ -172,28 +172,30 @@ const SalesTrendChart: React.FC = () => {
             <div className="h-[300px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border-light)" opacity={0.5} />
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--chart-grid)" opacity={0.5} />
                         <XAxis
                             dataKey="name"
                             axisLine={false}
                             tickLine={false}
-                            tick={{ fill: 'var(--text-secondary-light)', fontSize: 12 }}
+                            tick={{ fill: 'var(--text-secondary)', fontSize: 12 }}
                             dy={10}
                         />
                         <YAxis
                             axisLine={false}
                             tickLine={false}
-                            tick={{ fill: 'var(--text-secondary-light)', fontSize: 12 }}
+                            tick={{ fill: 'var(--text-secondary)', fontSize: 12 }}
                             tickFormatter={(value) => `₹${(value / 1000).toFixed(0)}k`}
                         />
                         <Tooltip
                             cursor={{ fill: 'transparent' }}
                             contentStyle={{
-                                backgroundColor: 'var(--surface-light)',
-                                borderColor: 'var(--border-light)',
+                                backgroundColor: 'var(--bg-surface)',
+                                borderColor: 'var(--border-color)',
+                                color: 'var(--text-primary)',
                                 borderRadius: '0.5rem',
                                 boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
                             }}
+                            itemStyle={{ color: 'var(--text-primary)' }}
                             formatter={(value: number) => [`₹${value.toLocaleString('en-IN')}`, 'Sales']}
                         />
                         <Bar dataKey="value" radius={[4, 4, 0, 0]} barSize={40}>
