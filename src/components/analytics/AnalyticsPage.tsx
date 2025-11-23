@@ -18,9 +18,52 @@ import ExecutiveSummary from './ExecutiveSummary';
 import CustomerSegmentation from './CustomerSegmentation';
 
 const AnalyticsPage: React.FC = () => {
+    const { loading, analyticsFilters, customers } = useApp();
+
+    const selectedCustomerData = useMemo(() => {
+        if (analyticsFilters.selectedCustomer === 'all') return null;
+        return customers.find(c => c.id === analyticsFilters.selectedCustomer);
+    }, [analyticsFilters.selectedCustomer, customers]);
+
+    if (loading) {
+        return <DashboardSkeleton />;
+    }
+
     return (
-                    </FadeIn >
-                    
+        <div className="space-y-6">
+            <FadeIn>
+                <AnalyticsFilters />
+            </FadeIn>
+
+            {selectedCustomerData ? (
+                <FadeIn>
+                    <CustomerPerformanceDetail customer={selectedCustomerData} />
+                </FadeIn>
+            ) : (
+                <>
+                    {/* Executive Summary - Full Width */}
+                    <FadeIn>
+                        <ExecutiveSummary />
+                    </FadeIn>
+
+                    {/* Customer Segmentation - Full Width */}
+                    <FadeIn>
+                        <CustomerSegmentation />
+                    </FadeIn>
+
+                    <FadeIn>
+                        <KPIRow />
+                    </FadeIn>
+                    <FadeIn>
+                        <OverallSalesTrendChart />
+                    </FadeIn>
+                    <FadeIn>
+                        <OverallPerformanceTable />
+                    </FadeIn>
+                    <FadeIn>
+                        <ActionableInsights />
+                    </FadeIn>
+
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         <FadeIn className="card-base p-4">
                             <SalesByStateChart />
@@ -30,10 +73,10 @@ const AnalyticsPage: React.FC = () => {
                         </FadeIn>
                     </div>
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                         <FadeIn className="card-base p-4">
+                        <FadeIn className="card-base p-4">
                             <SalesLeaderboard />
                         </FadeIn>
-                         <FadeIn className="card-base p-4">
+                        <FadeIn className="card-base p-4">
                             <AIAnalyticsInsight />
                         </FadeIn>
                         <FadeIn className="card-base p-4">
