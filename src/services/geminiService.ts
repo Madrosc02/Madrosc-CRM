@@ -474,25 +474,30 @@ export const suggestGoalsAndMilestones = async (customer: Customer, sales: Sale[
 export const generateEmailDraft = async (
     customer: Customer,
     context: string,
-    tone: 'Formal' | 'Friendly' | 'Urgent'
+    tone: 'Formal' | 'Friendly' | 'Urgent',
+    promotedProducts?: string,
+    samplesGiven?: string
 ): Promise<{ subject: string; body: string } | null> => {
     try {
         const prompt = `
-            You are an expert sales assistant. Draft a professional email for a customer based on the following details.
+            You are an expert Pharma sales assistant. Draft a professional follow-up email for a doctor/chemist based on the following details.
             
             **Customer Profile:**
             - Name: ${customer.name}
-            - Company/Location: ${customer.district}, ${customer.state}
+            - Location: ${customer.district}, ${customer.state}
             - Tier: ${customer.tier}
             
-            **Email Context:**
-            ${context}
+            **Visit Details:**
+            - Context/Purpose: ${context}
+            - Promoted Products: ${promotedProducts || 'General Portfolio'}
+            - Samples/Gifts Left: ${samplesGiven || 'None'}
             
             **Tone:**
             ${tone}
             
             **Requirements:**
-            - The email should be personalized and engaging.
+            - The email should be personalized, professional, and concise.
+            - Explicitly mention the promoted products and samples left (if any) to reinforce recall.
             - Use placeholders like [Your Name] for the sender's details.
             - Return a JSON object with "subject" and "body" fields.
             - The body should be in plain text (not markdown), ready to copy-paste.
@@ -514,7 +519,7 @@ export const generateEmailDraft = async (
             }
         });
 
-        const jsonText = response.text.trim();
+        const jsonText = (response.text || '{}').trim();
         return JSON.parse(jsonText);
     } catch (error) {
         console.error("Error generating email draft:", error);

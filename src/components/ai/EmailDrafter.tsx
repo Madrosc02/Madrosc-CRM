@@ -14,6 +14,8 @@ interface EmailDrafterProps {
 const EmailDrafter: React.FC<EmailDrafterProps> = ({ isOpen, onClose, customer }) => {
     const { addToast } = useToast();
     const [context, setContext] = useState('');
+    const [promotedProducts, setPromotedProducts] = useState('');
+    const [samplesGiven, setSamplesGiven] = useState('');
     const [tone, setTone] = useState<'Formal' | 'Friendly' | 'Urgent'>('Friendly');
     const [draft, setDraft] = useState<{ subject: string; body: string } | null>(null);
     const [isLoading, setIsLoading] = useState(false);
@@ -25,7 +27,7 @@ const EmailDrafter: React.FC<EmailDrafterProps> = ({ isOpen, onClose, customer }
         }
         setIsLoading(true);
         try {
-            const result = await generateEmailDraft(customer, context, tone);
+            const result = await generateEmailDraft(customer, context, tone, promotedProducts, samplesGiven);
             if (result) {
                 setDraft(result);
             } else {
@@ -52,10 +54,34 @@ const EmailDrafter: React.FC<EmailDrafterProps> = ({ isOpen, onClose, customer }
                         <textarea
                             value={context}
                             onChange={(e) => setContext(e.target.value)}
-                            placeholder="e.g., Follow up on last week's meeting regarding the new product catalog..."
+                            placeholder="e.g., Follow up on last week's meeting..."
                             className="input-base h-24 resize-none"
                         />
                     </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-sm font-medium mb-1 text-[var(--color-text-primary-light)] dark:text-[var(--color-text-primary-dark)]">Promoted Products</label>
+                            <input
+                                type="text"
+                                value={promotedProducts}
+                                onChange={(e) => setPromotedProducts(e.target.value)}
+                                placeholder="e.g., Azithromycin 500"
+                                className="input-base"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium mb-1 text-[var(--color-text-primary-light)] dark:text-[var(--color-text-primary-dark)]">Samples / Gifts Left</label>
+                            <input
+                                type="text"
+                                value={samplesGiven}
+                                onChange={(e) => setSamplesGiven(e.target.value)}
+                                placeholder="e.g., 2 boxes, Pen stand"
+                                className="input-base"
+                            />
+                        </div>
+                    </div>
+
                     <div>
                         <label className="block text-sm font-medium mb-1 text-[var(--color-text-primary-light)] dark:text-[var(--color-text-primary-dark)]">Tone</label>
                         <div className="flex gap-2">
@@ -64,8 +90,8 @@ const EmailDrafter: React.FC<EmailDrafterProps> = ({ isOpen, onClose, customer }
                                     key={t}
                                     onClick={() => setTone(t)}
                                     className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors border ${tone === t
-                                            ? 'bg-[var(--color-primary)] text-white border-[var(--color-primary)]'
-                                            : 'bg-white dark:bg-[var(--color-surface-dark)] text-[var(--color-text-secondary-light)] dark:text-[var(--color-text-secondary-dark)] border-[var(--color-border-light)] dark:border-[var(--color-border-dark)] hover:bg-gray-50 dark:hover:bg-white/5'
+                                        ? 'bg-[var(--color-primary)] text-white border-[var(--color-primary)]'
+                                        : 'bg-white dark:bg-[var(--color-surface-dark)] text-[var(--color-text-secondary-light)] dark:text-[var(--color-text-secondary-dark)] border-[var(--color-border-light)] dark:border-[var(--color-border-dark)] hover:bg-gray-50 dark:hover:bg-white/5'
                                         }`}
                                 >
                                     {t}

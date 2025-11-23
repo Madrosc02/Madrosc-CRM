@@ -168,13 +168,49 @@ export const CustomerRemarks: React.FC<{ customer: Customer, remarks: Remark[], 
             </div>
 
             <div className="mb-4">
-                <textarea
-                    value={newRemark}
-                    onChange={e => setNewRemark(e.target.value)}
-                    placeholder="Add a new remark..."
-                    className={`${inputStyle} mb-2`}
-                    rows={3}
-                />
+                <div className="relative">
+                    <textarea
+                        value={newRemark}
+                        onChange={e => setNewRemark(e.target.value)}
+                        placeholder="Add a new remark (or use voice)..."
+                        className={`${inputStyle} mb-2 pr-10`}
+                        rows={3}
+                    />
+                    <button
+                        onClick={() => {
+                            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                                addToast('Voice input not supported in this browser.', 'error');
+                                return;
+                            }
+
+                            // @ts-ignore
+                            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                            const recognition = new SpeechRecognition();
+                            recognition.lang = 'en-US';
+                            recognition.interimResults = false;
+                            recognition.maxAlternatives = 1;
+
+                            recognition.start();
+
+                            recognition.onstart = () => {
+                                addToast('Listening...', 'info');
+                            };
+
+                            recognition.onresult = (event: any) => {
+                                const transcript = event.results[0][0].transcript;
+                                setNewRemark(prev => prev + (prev ? ' ' : '') + transcript);
+                            };
+
+                            recognition.onerror = (event: any) => {
+                                addToast('Voice error: ' + event.error, 'error');
+                            };
+                        }}
+                        className="absolute right-2 bottom-4 text-gray-400 hover:text-[var(--color-primary)] transition-colors"
+                        title="Dictate Remark"
+                    >
+                        <i className="fas fa-microphone text-xl"></i>
+                    </button>
+                </div>
                 <button onClick={handleAddRemark} disabled={isSubmitting} className={btnPrimary}>
                     {isSubmitting ? 'Adding...' : 'Add Remark'}
                 </button>
