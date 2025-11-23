@@ -4,6 +4,7 @@ import UpcomingTasks from './UpcomingTasks';
 import KPIRow from './analytics/KPIRow';
 import SalesTrendChart from './analytics/SalesTrendChart';
 import ExecutiveSummary from './analytics/ExecutiveSummary';
+import CustomerSegmentation from './analytics/CustomerSegmentation';
 import FadeIn from './ui/FadeIn';
 
 const Dashboard: React.FC = () => {
@@ -17,6 +18,11 @@ const Dashboard: React.FC = () => {
             {/* Executive Summary */}
             <FadeIn>
                 <ExecutiveSummary />
+            </FadeIn>
+
+            {/* Customer Segmentation */}
+            <FadeIn>
+                <CustomerSegmentation />
             </FadeIn>
 
             {/* Sales Chart & Tasks Section */}

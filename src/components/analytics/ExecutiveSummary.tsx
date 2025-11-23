@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { useApp } from '../../contexts/AppContext';
-import { Customer, Sale } from '../../types';
+import { Sale } from '../../types';
 
 interface HealthMetrics {
     score: number;
