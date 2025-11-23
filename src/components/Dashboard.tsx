@@ -13,20 +13,20 @@ const Dashboard: React.FC = () => {
                 <KPIRow />
             </FadeIn>
 
-            {/* Sales Trend Chart - Full Width */}
-            <FadeIn>
-                <SalesTrendChart />
-            </FadeIn>
-
-            {/* Customer Table & Tasks Section */}
+            {/* Sales Chart & Tasks Section */}
             <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
                 <FadeIn className="xl:col-span-2">
-                    <CustomerTable />
+                    <SalesTrendChart />
                 </FadeIn>
                 <FadeIn>
                     <UpcomingTasks />
                 </FadeIn>
             </div>
+
+            {/* Customer Table - Full Width */}
+            <FadeIn>
+                <CustomerTable />
+            </FadeIn>
         </div>
     );
 };
