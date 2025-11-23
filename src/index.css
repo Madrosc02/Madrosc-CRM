@@ -18,62 +18,23 @@
   --color-danger: #EF4444;
 
   /* Light Theme Colors */
-  --color-bg-light: #F8FAFC;
-  --color-surface-light: #ffffff;
-  --color-text-primary-light: #1E293B;
-  --color-text-secondary-light: #64748B;
-  --color-border-light: #E2E8F0;
-
-  /* Dark Theme Colors */
-  --color-bg-dark: #0F172A;
-  --color-surface-dark: #1E293B;
-  --color-text-primary-dark: #F1F5F9;
-  --color-text-secondary-dark: #94A3B8;
-  --color-border-dark: #334155;
+  /* Fallback/Direct reference */
 }
 
-@layer base {
-  :root {
-    /* Semantic Variables - Light Mode Default */
-    --text-primary: var(--color-text-primary-light);
-    --text-secondary: var(--color-text-secondary-light);
-    --bg-surface: var(--color-surface-light);
-    --bg-background: var(--color-bg-light);
-    --border-color: var(--color-border-light);
-    --chart-grid: #e2e8f0;
-    --color-primary: #008080;
-    /* Fallback/Direct reference */
-  }
+.dark {
+  /* Semantic Variables - Dark Mode Override */
+  --text-primary: var(--color-text-primary-dark);
+  --text-secondary: var(--color-text-secondary-dark);
+  --bg-surface: var(--color-surface-dark);
+  --bg-background: var(--color-bg-dark);
+  --border-color: var(--color-border-dark);
+  --chart-grid: #334155;
+}
 
-  .dark {
-    /* Semantic Variables - Dark Mode Override */
-    --text-primary: var(--color-text-primary-dark);
-    --text-secondary: var(--color-text-secondary-dark);
-    --bg-surface: var(--color-surface-dark);
-    --bg-background: var(--color-bg-dark);
-    --border-color: var(--color-border-dark);
-    --chart-grid: #334155;
-  }
+body {
+  font-family: var(--font-sans);
+  background: linear-gradient(135deg, #F0F4F8 0%, #E6E9F0 100%);
 
-  body {
-    font-family: var(--font-sans);
-    background: linear-gradient(135deg, #F0F4F8 0%, #E6E9F0 100%);
-    background-attachment: fixed;
-    color: var(--text-primary);
-    transition: background 0.3s ease, color 0.3s ease;
-    -webkit-font-smoothing: antialiased;
-  }
-
-  body.dark {
-    background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
-    color: var(--text-primary);
-  }
-
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
   h6 {
     font-family: var(--font-serif);
     font-weight: 700;
@@ -83,25 +44,6 @@
 }
 
 @layer components {
-
-  /* Glassmorphism */
-  .glass-panel {
-    @apply backdrop-blur-xl bg-white/80 dark:bg-slate-900/80 border border-white/40 dark:border-slate-700/40 shadow-2xl;
-  }
-
-  .glass-card,
-  .card-base {
-    @apply backdrop-blur-md bg-white/70 dark:bg-slate-800/60 border border-white/50 dark:border-slate-700/30 shadow-lg rounded-2xl transition-all duration-300 hover:shadow-xl hover:bg-white/90 dark:hover:bg-slate-800/80 hover:-translate-y-1;
-  }
-
-  .glass-sidebar {
-    @apply backdrop-blur-xl bg-white/90 dark:bg-slate-900/90 border-r border-white/20 dark:border-slate-700/30 shadow-2xl;
-  }
-
-  /* Buttons */
-  .btn-primary {
-    @apply px-5 py-2.5 bg-gradient-to-r from-[var(--color-primary)] to-[#00A3A3] text-white rounded-xl font-bold shadow-lg shadow-teal-500/20 transition-all hover:shadow-teal-500/40 hover:scale-[1.02] active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100;
-  }
 
   .btn-secondary {
     @apply px-5 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 rounded-xl font-semibold shadow-sm transition-all hover:bg-slate-50 dark:hover:bg-slate-700 hover:border-slate-300 dark:hover:border-slate-600 active:scale-95;
