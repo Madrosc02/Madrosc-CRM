@@ -26,8 +26,8 @@ interface AppContextType extends CrmDataHook {
   setSearchQuery: (query: string) => void;
 
   // KPI Filter
-  kpiFilter: 'all' | 'total' | 'pending' | 'sales' | 'outstanding' | null;
-  setKpiFilter: (filter: 'all' | 'total' | 'pending' | 'sales' | 'outstanding' | null) => void;
+  kpiFilter: 'all' | 'total' | 'pending' | 'sales' | 'outstanding' | 'ai-search' | null;
+  setKpiFilter: (filter: 'all' | 'total' | 'pending' | 'sales' | 'outstanding' | 'ai-search' | null) => void;
 
   // View management
   currentView: 'dashboard' | 'analytics';
@@ -75,7 +75,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [searchQuery, setSearchQuery] = useState('');
 
   // KPI Filter state
-  const [kpiFilter, setKpiFilter] = useState<'all' | 'total' | 'pending' | 'sales' | 'outstanding' | null>(null);
+  const [kpiFilter, setKpiFilter] = useState<'all' | 'total' | 'pending' | 'sales' | 'outstanding' | 'ai-search' | null>(null);
 
   // Sync searchQuery with useCrmData's searchTerm
   useEffect(() => {

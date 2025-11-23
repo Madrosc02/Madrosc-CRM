@@ -97,6 +97,16 @@ const CustomerTable: React.FC = () => {
     const kpiFilteredCustomers = useMemo(() => {
         if (!kpiFilter || kpiFilter === 'all') return customers;
 
+        // Handle AI search results
+        if (kpiFilter === 'ai-search') {
+            const aiResults = sessionStorage.getItem('aiSearchResults');
+            if (aiResults) {
+                const matchingIds = JSON.parse(aiResults) as string[];
+                return customers.filter(c => matchingIds.includes(c.id));
+            }
+            return customers;
+        }
+
         switch (kpiFilter) {
             case 'total':
                 return customers; // Show all customers
@@ -131,6 +141,7 @@ const CustomerTable: React.FC = () => {
             case 'pending': return 'Customers with Pending Orders (No Sales This Month)';
             case 'sales': return 'Customers with Sales This Month';
             case 'outstanding': return 'Customers with Outstanding Balance';
+            case 'ai-search': return `AI Search Results (${sortedCustomers.length} found)`;
             default: return 'Customer Overview';
         }
     };
