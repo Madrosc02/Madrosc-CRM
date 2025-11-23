@@ -1,4 +1,3 @@
-```javascript
 import React, { useMemo, useState } from 'react';
 import { ComposableMap, Geographies, Geography, ZoomableGroup } from 'react-simple-maps';
 import { scaleLinear } from 'd3-scale';
@@ -118,7 +117,7 @@ const TerritoryHeatmap: React.FC = () => {
                                                 }}
                                                 onClick={() => handleStateClick(stateName)}
                                                 onMouseEnter={() => {
-                                                    setTooltipContent(`${ stateName }: ₹${ cur.sales.toLocaleString() } (${ cur.customerCount } customers)`);
+                                                    setTooltipContent(`${stateName}: ₹${cur.sales.toLocaleString()} (${cur.customerCount} customers)`);
                                                 }}
                                                 onMouseLeave={() => {
                                                     setTooltipContent("");
@@ -136,10 +135,10 @@ const TerritoryHeatmap: React.FC = () => {
                 </div>
             </div>
 
-            <DrillDownModal 
+            <DrillDownModal
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
-                title={selectedState ? `Customers in ${ selectedState } ` : 'State Details'}
+                title={selectedState ? `Customers in ${selectedState}` : 'State Details'}
                 customers={selectedState ? (stateData[selectedState]?.customers || []) : []}
                 onCustomerClick={handleCustomerClick}
             />
@@ -148,4 +147,3 @@ const TerritoryHeatmap: React.FC = () => {
 };
 
 export default TerritoryHeatmap;
-```
