@@ -258,8 +258,9 @@ const CallMode: React.FC = () => {
                 </div>
             </div>
 
+
             {/* --- Main Content Area --- */}
-            <div className={`container mx-auto px-4 pt-24 pb-36 transition-all duration-500 ease-in-out ${isAnimating ? 'opacity-0 translate-x-8' : 'opacity-100 translate-x-0'}`}>
+            <div className={`container mx-auto px-4 pt-16 pb-24 transition-all duration-500 ease-in-out ${isAnimating ? 'opacity-0 translate-x-8' : 'opacity-100 translate-x-0'}`}>
 
                 {/* Summary Metrics Row - Smaller & Colorful */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
@@ -340,7 +341,7 @@ const CallMode: React.FC = () => {
                 </div>
 
                 {/* --- 3-Column Grid Layout --- */}
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-[calc(100vh-380px)] min-h-[450px]">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-[calc(100vh-260px)] min-h-[500px]">
 
                     {/* LEFT COLUMN (3/12): KPIs, Contact, ACTION BUTTONS */}
                     <div className="lg:col-span-3 flex flex-col gap-4 h-full overflow-y-auto pr-1 custom-scrollbar">
