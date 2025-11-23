@@ -115,57 +115,24 @@ export const CustomerRemarks: React.FC<{ customer: Customer, remarks: Remark[], 
 
     const InputSection = () => (
         <div className={variant === 'chat' ? "pt-4 border-t border-[var(--border-light)] dark:border-[var(--border-dark)] bg-white dark:bg-[#1e293b] sticky bottom-0 z-10" : "mb-4"}>
-            {/* AI Note Summarizer - Now available in all variants */}
-            <div className="border border-[var(--border-light)] dark:border-[var(--border-dark)] rounded-lg mb-4">
-                <button
-                    onClick={() => setShowSummarizer(!showSummarizer)}
-                    className="w-full p-3 text-left font-semibold flex justify-between items-center"
-                >
-                    <span><i className="fas fa-magic-wand-sparkles mr-2 text-purple-500"></i> AI Note Summarizer</span>
-                    <i className={`fas fa-chevron-down transition-transform ${showSummarizer ? 'rotate-180' : ''}`}></i>
-                </button>
-                {showSummarizer && (
-                    <div className="p-4 border-t border-[var(--border-light)] dark:border-[var(--border-dark)] space-y-3">
-                        <textarea
-                            value={rawNotes}
-                            onChange={e => setRawNotes(e.target.value)}
-                            placeholder="Paste your raw meeting or call notes here..."
-                            className={inputStyle}
-                            rows={5}
-                        />
-                        <button onClick={handleSummarize} disabled={isSummarizing || !rawNotes.trim()} className={btnPrimary}>
-                            {isSummarizing ? <><Spinner size="sm" className="mr-2" /> Summarizing...</> : 'Summarize Notes'}
-                        </button>
-                        {isSummarizing && <p className="text-sm text-[var(--text-secondary-light)] dark:text-[var(--text-secondary-dark)]">AI is reading your notes...</p>}
-                        {summaryResult && (
-                            <div className="mt-4 space-y-4">
-                                <div>
-                                    <h5 className="font-bold">Summary:</h5>
-                                    <div className="p-2 bg-gray-50 dark:bg-white/5 rounded-md">
-                                        <MarkdownRenderer content={summaryResult.summary} />
-                                    </div>
-                                </div>
-                                {summaryResult.actionItems.length > 0 && (
-                                    <div>
-                                        <h5 className="font-bold">Action Items:</h5>
-                                        <ul className="space-y-2">
-                                            {summaryResult.actionItems.map((item, index) => (
-                                                <li key={index} className="flex justify-between items-center p-2 bg-gray-50 dark:bg-white/5 rounded-md">
-                                                    <div>
-                                                        <p className="font-medium text-sm">{item.task}</p>
-                                                        <p className="text-xs text-[var(--text-secondary-light)] dark:text-[var(--text-secondary-dark)]">Due: {new Date(item.dueDate).toLocaleDateString()}</p>
-                                                    </div>
-                                                    <button onClick={() => handleCreateTaskFromSummary(item)} className={btnSecondarySm}>Create Task</button>
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    </div>
-                                )}
-                            </div>
-                        )}
+            {/* AI Note Summarizer Button - Opens Modal */}
+            <button
+                onClick={() => setShowSummarizer(true)}
+                className="w-full mb-4 p-3 rounded-xl border-2 border-purple-200 dark:border-purple-900 bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-950/50 dark:to-indigo-950/50 hover:from-purple-100 hover:to-indigo-100 dark:hover:from-purple-900/50 dark:hover:to-indigo-900/50 transition-all duration-300 flex items-center justify-between group shadow-sm hover:shadow-md"
+            >
+                <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-white shadow-lg">
+                        <i className="fas fa-wand-magic-sparkles text-sm"></i>
                     </div>
-                )}
-            </div>
+                    <div className="text-left">
+                        <p className="font-bold text-sm text-purple-900 dark:text-purple-100">AI Note Summarizer</p>
+                        <p className="text-xs text-purple-600 dark:text-purple-300">Transform raw notes into insights</p>
+                    </div>
+                </div>
+                <div className="px-3 py-1 rounded-full bg-white dark:bg-gray-800 text-xs font-bold text-purple-600 dark:text-purple-400 shadow-sm">
+                    Open
+                </div>
+            </button>
 
             <div className="relative">
                 <textarea
@@ -233,34 +200,160 @@ export const CustomerRemarks: React.FC<{ customer: Customer, remarks: Remark[], 
         </div>
     );
 
-    if (variant === 'chat') {
-        return (
-            <div className="flex flex-col h-full overflow-hidden">
-                <HistorySection />
-                <InputSection />
-            </div>
-        );
-    }
-
     return (
-        <div>
-            <InputSection />
-            {suggestedTask && (
-                <div className="bg-yellow-100 dark:bg-yellow-900/50 border-l-4 border-yellow-500 text-yellow-800 dark:text-yellow-200 p-4 mb-4 rounded-r-lg">
-                    <div className="flex justify-between items-center">
-                        <div>
-                            <p className="font-bold flex items-center"><i className="fas fa-lightbulb mr-2"></i>AI Suggestion</p>
-                            <p className="text-sm mt-1">Create task: "{suggestedTask.task}"</p>
-                            <p className="text-xs">Due: {new Date(suggestedTask.dueDate).toLocaleString()}</p>
+        <>
+            {/* AI Note Summarizer Modal */}
+            {showSummarizer && (
+                <div 
+                    className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4" 
+                    onClick={() => setShowSummarizer(false)}
+                >
+                    <div 
+                        className="bg-white dark:bg-[#1e293b] rounded-2xl shadow-2xl max-w-3xl w-full max-h-[85vh] overflow-y-auto" 
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        {/* Modal Header with Gradient */}
+                        <div className="sticky top-0 bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-700 text-white p-6 rounded-t-2xl shadow-lg z-10">
+                            <div className="flex justify-between items-start">
+                                <div>
+                                    <div className="flex items-center gap-3 mb-2">
+                                        <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                                            <i className="fas fa-wand-magic-sparkles text-lg"></i>
+                                        </div>
+                                        <div>
+                                            <h2 className="text-2xl font-bold">AI Note Summarizer</h2>
+                                            <p className="text-purple-100 text-sm">Transform your raw notes into actionable insights</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button
+                                    onClick={() => setShowSummarizer(false)}
+                                    className="w-8 h-8 rounded-lg bg-white/20 hover:bg-white/30 transition-colors flex items-center justify-center"
+                                >
+                                    <i className="fas fa-times"></i>
+                                </button>
+                            </div>
                         </div>
-                        <div className="flex gap-2">
-                            <button onClick={handleAcceptSuggestion} className={`${btnPrimary} text-xs !bg-yellow-600`}>Create Task</button>
-                            <button onClick={() => setSuggestedTask(null)} className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 text-xl">&times;</button>
+                        {/* Modal Content */}
+                        <div className="p-6 space-y-6">
+                            {/* Input Section */}
+                            <div className="space-y-3">
+                                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                                    <i className="fas fa-file-alt mr-2 text-purple-500"></i>
+                                    Paste Your Raw Notes
+                                </label>
+                                <textarea
+                                    value={rawNotes}
+                                    onChange={e => setRawNotes(e.target.value)}
+                                    placeholder="Paste your raw meeting or call notes here... AI will extract key insights and action items."
+                                    className={`${inputStyle} min-h-[150px]`}
+                                    rows={8}
+                                />
+                                <button 
+                                    onClick={handleSummarize} 
+                                    disabled={isSummarizing || !rawNotes.trim()} 
+                                    className="w-full px-6 py-3 font-bold text-white bg-gradient-to-r from-purple-600 to-indigo-600 rounded-xl hover:from-purple-700 hover:to-indigo-700 disabled:opacity-60 disabled:cursor-not-allowed transition-all shadow-lg hover:shadow-xl"
+                                >
+                                    {isSummarizing ? (
+                                        <>
+                                            <Spinner size="sm" className="mr-2" /> 
+                                            <span>AI is Analyzing...</span>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <i className="fas fa-sparkles mr-2"></i>
+                                            Generate Summary & Action Items
+                                        </>
+                                    )}
+                                </button>
+                            </div>
+                            {/* Loading State */}
+                            {isSummarizing && (
+                                <div className="p-6 bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-950/30 dark:to-indigo-950/30 rounded-xl border border-purple-200 dark:border-purple-800">
+                                    <div className="flex items-center gap-3 mb-3">
+                                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center animate-pulse">
+                                            <i className="fas fa-brain text-white text-lg"></i>
+                                        </div>
+                                        <div>
+                                            <p className="font-bold text-purple-900 dark:text-purple-100">AI Processing</p>
+                                            <p className="text-sm text-purple-600 dark:text-purple-300">Analyzing your notes and extracting insights...</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                            {/* Results Section */}
+                            {summaryResult && (
+                                <div className="space-y-6">
+                                    {/* Summary Card */}
+                                    <div className="bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/30 dark:to-teal-950/30 rounded-xl p-6 border-2 border-emerald-200 dark:border-emerald-800 shadow-lg">
+                                        <div className="flex items-center gap-2 mb-4">
+                                            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white">
+                                                <i className="fas fa-file-alt text-sm"></i>
+                                            </div>
+                                            <h3 className="text-lg font-bold text-emerald-900 dark:text-emerald-100">Summary</h3>
+                                        </div>
+                                        <div className="prose dark:prose-invert max-w-none bg-white dark:bg-gray-900/50 p-4 rounded-lg">
+                                            <MarkdownRenderer content={summaryResult.summary} />
+                                        </div>
+                                    </div>
+                                    {/* Action Items Card */}
+                                    {summaryResult.actionItems.length > 0 && (
+                                        <div className="bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30 rounded-xl p-6 border-2 border-amber-200 dark:border-amber-800 shadow-lg">
+                                            <div className="flex items-center gap-2 mb-4">
+                                                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center text-white">
+                                                    <i className="fas fa-tasks text-sm"></i>
+                                                </div>
+                                                <h3 className="text-lg font-bold text-amber-900 dark:text-amber-100">
+                                                    Action Items ({summaryResult.actionItems.length})
+                                                </h3>
+                                            </div>
+                                            <ul className="space-y-3">
+                                                {summaryResult.actionItems.map((item, index) => (
+                                                    <li key={index} className="bg-white dark:bg-gray-900/50 p-4 rounded-lg border border-amber-200 dark:border-amber-800 hover:shadow-md transition-shadow">
+                                                        <div className="flex justify-between items-start gap-4">
+                                                            <div className="flex-1">
+                                                                <div className="flex items-start gap-2 mb-2">
+                                                                    <span className="w-6 h-6 rounded-full bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center text-white text-xs font-bold shrink-0">
+                                                                        {index + 1}
+                                                                    </span>
+                                                                    <p className="font-semibold text-gray-900 dark:text-gray-100">{item.task}</p>
+                                                                </div>
+                                                                <p className="text-xs text-gray-600 dark:text-gray-400 ml-8">
+                                                                    <i className="far fa-calendar-alt mr-1"></i>
+                                                                    Due: {new Date(item.dueDate).toLocaleDateString()}
+                                                                </p>
+                                                            </div>
+                                                            <button 
+                                                                onClick={() => handleCreateTaskFromSummary(item)} 
+                                                                className="px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-600 text-white rounded-lg font-semibold hover:from-amber-600 hover:to-orange-700 transition-all shadow-md hover:shadow-lg whitespace-nowrap"
+                                                            >
+                                                                <i className="fas fa-plus mr-1"></i>
+                                                                Create Task
+                                                            </button>
+                                                        </div>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
             )}
-            <HistorySection />
-        </div>
+            {/* Main Component Content */}
+            {variant === 'chat' ? (
+                <div className="flex flex-col h-full">
+                    <HistorySection />
+                    <InputSection />
+                </div>
+            ) : (
+                <>
+                    <InputSection />
+                    <HistorySection />
+                </>
+            )}
+        </>
     );
-}
+};
