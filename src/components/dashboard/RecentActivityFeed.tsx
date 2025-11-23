@@ -72,9 +72,9 @@ const RecentActivityFeed: React.FC = () => {
     }, [sales, filteredCustomers, tasks]);
 
     return (
-        <div className="card-base p-6 h-full">
+        <div className="card-base p-6 h-full flex flex-col">
             <h3 className="text-xl font-bold text-[var(--text-primary-light)] dark:text-[var(--text-primary-dark)] mb-6">Recent Activity</h3>
-            <div className="space-y-6">
+            <div className="space-y-6 overflow-y-auto flex-1 pr-2">
                 {activities.length > 0 ? (
                     activities.map((activity, index) => (
                         <div key={activity.id} className="flex gap-4 relative">
@@ -86,9 +86,9 @@ const RecentActivityFeed: React.FC = () => {
                             <div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${activity.color} z-10`}>
                                 <i className={`fas ${activity.icon}`}></i>
                             </div>
-                            <div className="flex-1">
-                                <p className="text-sm font-semibold text-[var(--text-primary-light)] dark:text-[var(--text-primary-dark)]">{activity.title}</p>
-                                <p className="text-xs text-[var(--text-secondary-light)] dark:text-[var(--text-secondary-dark)] mt-0.5">{activity.description}</p>
+                            <div className="flex-1 min-w-0">
+                                <p className="text-sm font-semibold text-[var(--text-primary-light)] dark:text-[var(--text-primary-dark)] truncate">{activity.title}</p>
+                                <p className="text-xs text-[var(--text-secondary-light)] dark:text-[var(--text-secondary-dark)] mt-0.5 truncate">{activity.description}</p>
                                 <p className="text-[10px] text-gray-400 mt-1">{activity.timestamp.toLocaleDateString()} • {activity.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
                             </div>
                         </div>

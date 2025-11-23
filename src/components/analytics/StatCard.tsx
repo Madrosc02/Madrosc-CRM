@@ -8,11 +8,15 @@ interface StatCardProps {
   trend?: 'up' | 'down' | 'neutral';
   trendValue?: string;
   className?: string;
+  onClick?: () => void;
 }
 
-const StatCard: React.FC<StatCardProps> = ({ icon, label, value, gradient, trend, trendValue, className = '' }) => {
+const StatCard: React.FC<StatCardProps> = ({ icon, label, value, gradient, trend, trendValue, className = '', onClick }) => {
   return (
-    <div className={`relative overflow-hidden rounded-2xl p-6 shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl ${gradient} ${className}`}>
+    <div
+      onClick={onClick}
+      className={`relative overflow-hidden rounded-2xl p-6 shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl ${gradient} ${onClick ? 'cursor-pointer' : ''} ${className}`}
+    >
       {/* Background Pattern */}
       <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 rounded-full bg-white opacity-10 blur-2xl"></div>
       <div className="absolute bottom-0 left-0 -mb-4 -ml-4 w-20 h-20 rounded-full bg-black opacity-5 blur-xl"></div>

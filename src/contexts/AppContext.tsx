@@ -1,5 +1,5 @@
 // contexts/AppContext.tsx
-import React, { createContext, useContext, ReactNode, useState } from 'react';
+import React, { createContext, useContext, ReactNode, useState, useEffect } from 'react';
 import { useCrmData } from '../hooks/useCrmData';
 import { Customer } from '../types';
 
@@ -21,6 +21,10 @@ interface AddTaskInitialData {
 }
 
 interface AppContextType extends CrmDataHook {
+  // Search
+  searchQuery: string;
+  setSearchQuery: (query: string) => void;
+
   // View management
   currentView: 'dashboard' | 'analytics';
   setCurrentView: (view: 'dashboard' | 'analytics') => void;
@@ -34,7 +38,7 @@ interface AppContextType extends CrmDataHook {
   isAddCustomerModalOpen: boolean;
   openAddCustomerModal: () => void;
   closeAddCustomerModal: () => void;
-  
+
   isBulkImportModalOpen: boolean;
   openBulkImportModal: () => void;
   closeBulkImportModal: () => void;
@@ -47,7 +51,7 @@ interface AppContextType extends CrmDataHook {
   isCommandPaletteOpen: boolean;
   openCommandPalette: () => void;
   closeCommandPalette: () => void;
-  
+
   // Analytics filters
   analyticsFilters: AnalyticsFilters;
   setAnalyticsFilters: React.Dispatch<React.SetStateAction<AnalyticsFilters>>;
@@ -57,12 +61,20 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 
 // Helper function to get the start of the current month
 const getMonthStart = (date: Date) => {
-    return new Date(date.getFullYear(), date.getMonth(), 1);
+  return new Date(date.getFullYear(), date.getMonth(), 1);
 }
 
 export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const crmData = useCrmData();
-  
+
+  // Search state
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // Sync searchQuery with useCrmData's searchTerm
+  useEffect(() => {
+    crmData.setSearchTerm(searchQuery);
+  }, [searchQuery, crmData.setSearchTerm]);
+
   // View state
   const [currentView, setCurrentView] = useState<'dashboard' | 'analytics'>('dashboard');
 
@@ -94,7 +106,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   const openAddCustomerModal = () => setIsAddCustomerModalOpen(true);
   const closeAddCustomerModal = () => setIsAddCustomerModalOpen(false);
-  
+
   const openBulkImportModal = () => setIsBulkImportModalOpen(true);
   const closeBulkImportModal = () => setIsBulkImportModalOpen(false);
 
@@ -108,12 +120,14 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setIsAddTaskModalOpen(false);
     setAddTaskInitialData(null); // Clear data on close
   };
-  
+
   const openCommandPalette = () => setIsCommandPaletteOpen(true);
   const closeCommandPalette = () => setIsCommandPaletteOpen(false);
 
   const value: AppContextType = {
     ...crmData,
+    searchQuery,
+    setSearchQuery,
     currentView,
     setCurrentView,
     isDetailModalOpen,

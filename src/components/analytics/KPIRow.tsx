@@ -18,7 +18,6 @@ const StatCardSkeleton: React.FC = () => (
 
 const KPIRow: React.FC = () => {
     const { customers, loading, getAllSales, analyticsFilters } = useApp();
-    const [allSales, setAllSales] = useState<Sale[]>([]);
     const [salesLoading, setSalesLoading] = useState(true);
 
     useEffect(() => {
@@ -47,15 +46,19 @@ const KPIRow: React.FC = () => {
     }, [allSales, analyticsFilters.dateRange]);
 
     const kpis = useMemo(() => {
-        const activeCustomerIds = new Set(dateFilteredSales.map(sale => sale.customerId));
+        // Calculate pending orders (customers with sales this month but outstanding balance > 0)
+        const pendingOrderCustomers = customers.filter(c => {
+            const hasSalesThisMonth = c.salesThisMonth > 0;
+            const hasOutstanding = c.outstandingBalance > 0;
+            return hasSalesThisMonth && hasOutstanding;
+        });
 
         const totalSales = dateFilteredSales.reduce((sum, sale) => sum + sale.amount, 0);
-
         const totalOutstanding = customers.reduce((acc, c) => acc + c.outstandingBalance, 0);
 
         return {
             totalCustomers: customers.length,
-            activeCustomers: activeCustomerIds.size,
+            pendingOrders: pendingOrderCustomers.length,
             totalSales,
             totalOutstanding
         };
@@ -79,14 +82,16 @@ const KPIRow: React.FC = () => {
                 gradient="bg-gradient-to-br from-blue-500 to-blue-600"
                 trend="up"
                 trendValue="+12%"
+                onClick={() => alert(`Total Clients: ${kpis.totalCustomers}\n\nAll registered customers in the system.`)}
             />
             <StatCard
-                icon="fa-user-check"
-                label="Active Clients"
-                value={kpis.activeCustomers}
+                icon="fa-clock"
+                label="Pending Orders"
+                value={kpis.pendingOrders}
                 gradient="bg-gradient-to-br from-emerald-500 to-teal-600"
                 trend="up"
                 trendValue="+5%"
+                onClick={() => alert(`Pending Orders: ${kpis.pendingOrders}\n\nCustomers with sales this month who still have outstanding balances.`)}
             />
             <StatCard
                 icon="fa-chart-line"
@@ -95,6 +100,7 @@ const KPIRow: React.FC = () => {
                 gradient="bg-gradient-to-br from-violet-500 to-purple-600"
                 trend="up"
                 trendValue="+8%"
+                onClick={() => alert(`Sales in Period: ₹${kpis.totalSales.toLocaleString('en-IN')}\n\nTotal sales within the selected date range.`)}
             />
             <StatCard
                 icon="fa-file-invoice-dollar"
@@ -103,6 +109,7 @@ const KPIRow: React.FC = () => {
                 gradient="bg-gradient-to-br from-rose-500 to-pink-600"
                 trend="down"
                 trendValue="-2%"
+                onClick={() => alert(`Total Outstanding: ₹${kpis.totalOutstanding.toLocaleString('en-IN')}\n\nTotal unpaid balances across all customers.`)}
             />
         </div>
     );

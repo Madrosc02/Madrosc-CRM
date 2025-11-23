@@ -112,22 +112,22 @@ const CustomerTable: React.FC = () => {
                 <table className="w-full text-sm text-left text-[var(--text-secondary-light)] dark:text-[var(--text-secondary-dark)]">
                     <thead className="text-xs uppercase bg-gray-50 dark:bg-white/5">
                         <tr>
-                            <th scope="col" className="p-4 font-semibold min-w-[250px] cursor-pointer hover:text-blue-600 transition-colors" onClick={() => handleSort('name')}>
+                            <th scope="col" className="p-4 font-semibold min-w-[280px] cursor-pointer hover:text-blue-600 transition-colors" onClick={() => handleSort('name')}>
                                 Customer <SortIcon columnKey="name" />
                             </th>
-                            <th scope="col" className="p-4 font-semibold text-center cursor-pointer hover:text-blue-600 transition-colors" onClick={() => handleSort('tier')}>
+                            <th scope="col" className="p-4 font-semibold text-center min-w-[100px] cursor-pointer hover:text-blue-600 transition-colors" onClick={() => handleSort('tier')}>
                                 Tier <SortIcon columnKey="tier" />
                             </th>
-                            <th scope="col" className="p-4 font-semibold text-right cursor-pointer hover:text-blue-600 transition-colors" onClick={() => handleSort('salesThisMonth')}>
+                            <th scope="col" className="p-4 font-semibold text-right min-w-[120px] cursor-pointer hover:text-blue-600 transition-colors" onClick={() => handleSort('salesThisMonth')}>
                                 Month's Sales <SortIcon columnKey="salesThisMonth" />
                             </th>
-                            <th scope="col" className="p-4 font-semibold text-right cursor-pointer hover:text-blue-600 transition-colors" onClick={() => handleSort('outstandingBalance')}>
+                            <th scope="col" className="p-4 font-semibold text-right min-w-[120px] cursor-pointer hover:text-blue-600 transition-colors" onClick={() => handleSort('outstandingBalance')}>
                                 Balance <SortIcon columnKey="outstandingBalance" />
                             </th>
-                            <th scope="col" className="p-4 font-semibold text-center cursor-pointer hover:text-blue-600 transition-colors" onClick={() => handleSort('daysSinceLastOrder')}>
+                            <th scope="col" className="p-4 font-semibold text-center min-w-[100px] cursor-pointer hover:text-blue-600 transition-colors" onClick={() => handleSort('daysSinceLastOrder')}>
                                 Last Order <SortIcon columnKey="daysSinceLastOrder" />
                             </th>
-                            <th scope="col" className="p-4 font-semibold text-center">Actions</th>
+                            <th scope="col" className="p-4 font-semibold text-center min-w-[120px]">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
