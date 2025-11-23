@@ -113,8 +113,8 @@ export const CustomerDetailDrawer: React.FC = () => {
                                 key={tab.id}
                                 onClick={() => { setActiveTab(tab.id); setIsEditMode(false); }}
                                 className={`py-2 px-4 font-medium text-sm rounded-t-md transition-colors duration-200 flex-shrink-0 border-b-2 ${activeTab === tab.id
-                                        ? 'border-[var(--color-primary)] text-[var(--color-primary)] bg-[var(--color-primary)]/5'
-                                        : 'border-transparent text-[var(--color-text-secondary-light)] dark:text-[var(--color-text-secondary-dark)] hover:text-[var(--color-text-primary-light)] dark:hover:text-[var(--color-text-primary-dark)] hover:bg-gray-50 dark:hover:bg-white/5'
+                                    ? 'border-[var(--color-primary)] text-[var(--color-primary)] bg-[var(--color-primary)]/5'
+                                    : 'border-transparent text-[var(--color-text-secondary-light)] dark:text-[var(--color-text-secondary-dark)] hover:text-[var(--color-text-primary-light)] dark:hover:text-[var(--color-text-primary-dark)] hover:bg-gray-50 dark:hover:bg-white/5'
                                     }`}
                             >
                                 <i className={`fas ${tab.icon} mr-2`}></i>{tab.label}
@@ -123,8 +123,9 @@ export const CustomerDetailDrawer: React.FC = () => {
                     </div>
                 </div>
 
+
                 {/* Body */}
-                <div className="flex-grow">
+                <div className="flex-grow overflow-y-auto">
                     {isLoading ? (
                         <div className="flex items-center justify-center h-64">
                             <Spinner />
