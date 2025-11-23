@@ -2,7 +2,8 @@ import React from 'react';
 import CustomerTable from './CustomerTable';
 import UpcomingTasks from './UpcomingTasks';
 import KPIRow from './analytics/KPIRow';
-import { useApp } from '../contexts/AppContext';
+import SalesTrendChart from './analytics/SalesTrendChart';
+import RecentActivityFeed from './dashboard/RecentActivityFeed';
 import FadeIn from './ui/FadeIn';
 
 const Dashboard: React.FC = () => {
@@ -12,6 +13,18 @@ const Dashboard: React.FC = () => {
             <FadeIn>
                 <KPIRow />
             </FadeIn>
+
+            {/* Analytics & Activity Section */}
+            <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                <FadeIn className="xl:col-span-2 h-[400px]">
+                    <SalesTrendChart />
+                </FadeIn>
+                <FadeIn className="h-[400px]">
+                    <RecentActivityFeed />
+                </FadeIn>
+            </div>
+
+            {/* Management Section */}
             <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
                 <FadeIn className="xl:col-span-2">
                     <CustomerTable />

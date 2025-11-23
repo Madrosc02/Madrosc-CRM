@@ -1,6 +1,6 @@
 
 
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { useApp } from '../contexts/AppContext';
 import TableSkeleton from './skeletons/TableSkeleton';
 import { Customer } from '../types';
@@ -14,20 +14,41 @@ const CustomerRow: React.FC<{ customer: Customer }> = ({ customer }) => {
         Dead: 'bg-slate-200 text-slate-600 dark:bg-slate-700 dark:text-slate-300',
     };
 
+    const handleWhatsApp = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        const message = `Hi ${customer.name}, checking in regarding your recent order.`;
+        const url = `https://wa.me/91${customer.contact}?text=${encodeURIComponent(message)}`;
+        window.open(url, '_blank');
+    };
+
+    const handleCall = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        window.location.href = `tel:${customer.contact}`;
+    };
+
     return (
-        <tr 
-            className="border-b border-[var(--border-light)] dark:border-[var(--border-dark)] hover:bg-gray-50 dark:hover:bg-white/5 transition-colors duration-150"
+        <tr
+            className="group border-b border-[var(--border-light)] dark:border-[var(--border-dark)] hover:bg-gray-50 dark:hover:bg-white/5 transition-colors duration-150 cursor-pointer"
             onClick={() => openDetailModal(customer)}
-            style={{ cursor: 'pointer' }}
         >
             <td className="p-4">
                 <div className="flex items-center">
                     <img className="h-10 w-10 rounded-full object-cover ring-2 ring-white dark:ring-gray-800" src={customer.avatar} alt={customer.name} />
                     <div className="ml-4">
                         <p className="font-semibold text-[var(--text-primary-light)] dark:text-[var(--text-primary-dark)]">{customer.name}</p>
-                        <p className="text-sm text-[var(--text-secondary-light)] dark:text-[var(--text-secondary-dark)]">{customer.contact}</p>
-                        {customer.alternateContact && <p className="text-xs text-[var(--text-secondary-light)] dark:text-[var(--text-secondary-dark)]">Alt: {customer.alternateContact}</p>}
-                        <p className="text-xs text-[var(--text-secondary-light)] dark:text-[var(--text-secondary-dark)] mt-1">{customer.district}, {customer.state}</p>
+                        <div className="flex items-center gap-2">
+                            <p className="text-sm text-[var(--text-secondary-light)] dark:text-[var(--text-secondary-dark)]">{customer.contact}</p>
+                            {/* Quick Actions (Visible on Hover) */}
+                            <div className="hidden group-hover:flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                <button onClick={handleCall} className="p-1 text-blue-600 hover:bg-blue-100 rounded-full" title="Call">
+                                    <i className="fas fa-phone text-xs"></i>
+                                </button>
+                                <button onClick={handleWhatsApp} className="p-1 text-green-600 hover:bg-green-100 rounded-full" title="WhatsApp">
+                                    <i className="fab fa-whatsapp text-xs"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <p className="text-xs text-[var(--text-secondary-light)] dark:text-[var(--text-secondary-dark)] mt-0.5">{customer.district}, {customer.state}</p>
                     </div>
                 </div>
             </td>
@@ -56,33 +77,67 @@ const CustomerRow: React.FC<{ customer: Customer }> = ({ customer }) => {
     );
 };
 
+type SortKey = 'name' | 'tier' | 'salesThisMonth' | 'outstandingBalance' | 'daysSinceLastOrder';
 
 const CustomerTable: React.FC = () => {
     const { filteredCustomers: customers, loading } = useApp();
+    const [sortConfig, setSortConfig] = useState<{ key: SortKey; direction: 'asc' | 'desc' } | null>(null);
+
+    const handleSort = (key: SortKey) => {
+        let direction: 'asc' | 'desc' = 'asc';
+        if (sortConfig && sortConfig.key === key && sortConfig.direction === 'asc') {
+            direction = 'desc';
+        }
+        setSortConfig({ key, direction });
+    };
+
+    const sortedCustomers = useMemo(() => {
+        if (!sortConfig) return customers;
+        return [...customers].sort((a, b) => {
+            if (a[sortConfig.key] < b[sortConfig.key]) return sortConfig.direction === 'asc' ? -1 : 1;
+            if (a[sortConfig.key] > b[sortConfig.key]) return sortConfig.direction === 'asc' ? 1 : -1;
+            return 0;
+        });
+    }, [customers, sortConfig]);
+
+    const SortIcon = ({ columnKey }: { columnKey: SortKey }) => {
+        if (sortConfig?.key !== columnKey) return <i className="fas fa-sort text-gray-300 ml-1"></i>;
+        return <i className={`fas fa-sort-${sortConfig.direction === 'asc' ? 'up' : 'down'} text-blue-500 ml-1`}></i>;
+    };
 
     return (
         <div className="card-base p-4">
-             <h3 className="text-xl font-bold text-[var(--text-primary-light)] dark:text-[var(--text-primary-dark)] mb-4 px-2">Customer Overview</h3>
-            <div className="overflow-x-auto">
+            <h3 className="text-xl font-bold text-[var(--text-primary-light)] dark:text-[var(--text-primary-dark)] mb-4 px-2">Customer Overview</h3>
+            <div className="overflow-x-auto pr-2">
                 <table className="w-full text-sm text-left text-[var(--text-secondary-light)] dark:text-[var(--text-secondary-dark)]">
                     <thead className="text-xs uppercase bg-gray-50 dark:bg-white/5">
                         <tr>
-                            <th scope="col" className="p-4 font-semibold min-w-[250px]">Customer</th>
-                            <th scope="col" className="p-4 font-semibold text-center">Tier</th>
-                            <th scope="col" className="p-4 font-semibold text-right">Month's Sales</th>
-                            <th scope="col" className="p-4 font-semibold text-right">Balance</th>
-                            <th scope="col" className="p-4 font-semibold text-center">Last Order</th>
+                            <th scope="col" className="p-4 font-semibold min-w-[250px] cursor-pointer hover:text-blue-600 transition-colors" onClick={() => handleSort('name')}>
+                                Customer <SortIcon columnKey="name" />
+                            </th>
+                            <th scope="col" className="p-4 font-semibold text-center cursor-pointer hover:text-blue-600 transition-colors" onClick={() => handleSort('tier')}>
+                                Tier <SortIcon columnKey="tier" />
+                            </th>
+                            <th scope="col" className="p-4 font-semibold text-right cursor-pointer hover:text-blue-600 transition-colors" onClick={() => handleSort('salesThisMonth')}>
+                                Month's Sales <SortIcon columnKey="salesThisMonth" />
+                            </th>
+                            <th scope="col" className="p-4 font-semibold text-right cursor-pointer hover:text-blue-600 transition-colors" onClick={() => handleSort('outstandingBalance')}>
+                                Balance <SortIcon columnKey="outstandingBalance" />
+                            </th>
+                            <th scope="col" className="p-4 font-semibold text-center cursor-pointer hover:text-blue-600 transition-colors" onClick={() => handleSort('daysSinceLastOrder')}>
+                                Last Order <SortIcon columnKey="daysSinceLastOrder" />
+                            </th>
                             <th scope="col" className="p-4 font-semibold text-center">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {loading ? <TableSkeleton rows={5} cols={6} /> : customers.map(customer => (
+                        {loading ? <TableSkeleton rows={5} cols={6} /> : sortedCustomers.map(customer => (
                             <CustomerRow key={customer.id} customer={customer} />
                         ))}
                     </tbody>
                 </table>
             </div>
-             {!loading && customers.length === 0 && (
+            {!loading && sortedCustomers.length === 0 && (
                 <div className="text-center py-16 text-[var(--text-secondary-light)] dark:text-[var(--text-secondary-dark)]">
                     <i className="fas fa-users-slash text-4xl mb-3"></i>
                     <p className="font-medium">No customers found.</p>

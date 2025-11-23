@@ -56,7 +56,7 @@ const UpcomingTasks: React.FC = () => {
         <div className="card-base p-4 h-full flex flex-col">
             <div className="flex justify-between items-center mb-4 px-2">
                 <h3 className="text-xl font-bold text-[var(--text-primary-light)] dark:text-[var(--text-primary-dark)]">Tasks & Reminders</h3>
-                 <button onClick={() => openAddTaskModal()} className="btn-primary-sm">
+                <button onClick={() => openAddTaskModal()} className="btn-primary-sm">
                     <i className="fas fa-plus mr-1"></i> New
                 </button>
             </div>
@@ -67,14 +67,13 @@ const UpcomingTasks: React.FC = () => {
                         <button
                             key={key}
                             onClick={() => setActiveTab(key as any)}
-                            className={`${
-                                activeTab === key
+                            className={`${activeTab === key
                                     ? tab.color
                                     : 'border-transparent text-[var(--text-secondary-light)] dark:text-[var(--text-secondary-dark)] hover:text-gray-700 hover:border-gray-300 dark:hover:text-gray-300'
-                            } whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm flex items-center gap-2`}
+                                } whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm flex items-center gap-2`}
                         >
                             {tab.label}
-                            {tab.data.length > 0 && <span className={`px-2 py-0.5 text-xs rounded-full ${activeTab === key ? tab.color.replace('border-', 'bg-').replace('text-','text-white dark:text-gray-900') : 'bg-gray-200 dark:bg-gray-600'}`}>{tab.data.length}</span>}
+                            {tab.data.length > 0 && <span className={`px-2 py-0.5 text-xs rounded-full ${activeTab === key ? tab.color.replace('border-', 'bg-').replace('text-', 'text-white dark:text-gray-900') : 'bg-gray-200 dark:bg-gray-600'}`}>{tab.data.length}</span>}
                         </button>
                     ))}
                 </nav>
@@ -85,13 +84,18 @@ const UpcomingTasks: React.FC = () => {
                     currentTasks.length > 0 ? (
                         currentTasks.map(task => <TaskItem key={task.id} task={task} />)
                     ) : (
-                        <div className="text-center py-10 text-[var(--text-secondary-light)] dark:text-[var(--text-secondary-dark)]">
-                            <i className="fas fa-check-circle text-3xl mb-2"></i>
-                            <p>No {activeTab} tasks. All clear!</p>
+                        <div className="flex flex-col items-center justify-center py-12 text-center">
+                            <div className="w-24 h-24 bg-green-50 dark:bg-green-900/20 rounded-full flex items-center justify-center mb-4">
+                                <i className="fas fa-check text-4xl text-green-500"></i>
+                            </div>
+                            <h4 className="text-lg font-semibold text-[var(--text-primary-light)] dark:text-[var(--text-primary-dark)]">All Caught Up!</h4>
+                            <p className="text-sm text-[var(--text-secondary-light)] dark:text-[var(--text-secondary-dark)] mt-1">
+                                No {activeTab} tasks. Enjoy your day!
+                            </p>
                         </div>
                     )}
             </div>
-             <style>{`
+            <style>{`
                 .btn-primary-sm { 
                   padding: 0.3rem 0.8rem; font-size: 0.8rem; font-weight: 500; color: white; background-color: var(--primary-light, #0d6efd); 
                   border-radius: 0.375rem; transition: background-color 0.2s; 

@@ -4,7 +4,7 @@ import StatCard from './StatCard';
 import { useApp } from '../../contexts/AppContext';
 import Skeleton from '../ui/Skeleton';
 import { Sale } from '../../types';
-import FadeIn from '../ui/FadeIn';
+
 
 const StatCardSkeleton: React.FC = () => (
     <div className="bg-white dark:bg-gray-800 p-5 rounded-xl shadow-lg flex items-center gap-4">
@@ -39,7 +39,7 @@ const KPIRow: React.FC = () => {
         startDate.setHours(0, 0, 0, 0);
         const endDate = new Date(end);
         endDate.setHours(23, 59, 59, 999);
-        
+
         return allSales.filter(sale => {
             const saleDate = new Date(sale.date);
             return saleDate >= startDate && saleDate <= endDate;
@@ -72,29 +72,37 @@ const KPIRow: React.FC = () => {
 
     return (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <StatCard 
-                icon="fa-users" 
-                label="Total Clients" 
-                value={kpis.totalCustomers} 
-                color="text-blue-500"
+            <StatCard
+                icon="fa-users"
+                label="Total Clients"
+                value={kpis.totalCustomers}
+                gradient="bg-gradient-to-br from-blue-500 to-blue-600"
+                trend="up"
+                trendValue="+12%"
             />
-            <StatCard 
-                icon="fa-user-check" 
-                label="Active Clients in Period" 
-                value={kpis.activeCustomers} 
-                color="text-green-500"
+            <StatCard
+                icon="fa-user-check"
+                label="Active Clients"
+                value={kpis.activeCustomers}
+                gradient="bg-gradient-to-br from-emerald-500 to-teal-600"
+                trend="up"
+                trendValue="+5%"
             />
-            <StatCard 
-                icon="fa-chart-line" 
-                label="Sales in Period" 
+            <StatCard
+                icon="fa-chart-line"
+                label="Sales in Period"
                 value={`₹${(kpis.totalSales / 1000).toFixed(1)}k`}
-                color="text-purple-500"
+                gradient="bg-gradient-to-br from-violet-500 to-purple-600"
+                trend="up"
+                trendValue="+8%"
             />
-            <StatCard 
-                icon="fa-file-invoice-dollar" 
-                label="Total Outstanding" 
+            <StatCard
+                icon="fa-file-invoice-dollar"
+                label="Outstanding"
                 value={`₹${(kpis.totalOutstanding / 1000).toFixed(1)}k`}
-                color="text-red-500"
+                gradient="bg-gradient-to-br from-rose-500 to-pink-600"
+                trend="down"
+                trendValue="-2%"
             />
         </div>
     );
