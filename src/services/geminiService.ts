@@ -2,8 +2,9 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { Customer, Sale, Remark, Task } from '../types';
 
-// Per instructions, API key must be from process.env.API_KEY
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+// Per instructions, API key must be from env
+const apiKey = import.meta.env.VITE_GOOGLE_AI_KEY || '';
+const ai = new GoogleGenAI({ apiKey });
 
 export const generateAIPerformanceReview = async (
     customer: Customer,

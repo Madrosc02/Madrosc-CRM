@@ -6,6 +6,7 @@ import { ThemeProvider } from './contexts/ThemeContext';
 import { ToastProvider } from './contexts/ToastContext';
 import './pwa-register';
 import './index.css';
+import ErrorBoundary from './components/ErrorBoundary';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -13,12 +14,14 @@ const root = ReactDOM.createRoot(
 
 root.render(
   <React.StrictMode>
-    <ThemeProvider>
-      <ToastProvider>
-        <AppProvider>
-          <App />
-        </AppProvider>
-      </ToastProvider>
-    </ThemeProvider>
+    <ErrorBoundary>
+      <ThemeProvider>
+        <ToastProvider>
+          <AppProvider>
+            <App />
+          </AppProvider>
+        </ToastProvider>
+      </ThemeProvider>
+    </ErrorBoundary>
   </React.StrictMode>
 );
