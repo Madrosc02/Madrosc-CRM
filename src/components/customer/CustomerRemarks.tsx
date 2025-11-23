@@ -115,58 +115,57 @@ export const CustomerRemarks: React.FC<{ customer: Customer, remarks: Remark[], 
 
     const InputSection = () => (
         <div className={variant === 'chat' ? "pt-4 border-t border-[var(--border-light)] dark:border-[var(--border-dark)] bg-white dark:bg-[#1e293b] sticky bottom-0 z-10" : "mb-4"}>
-            {variant !== 'chat' && (
-                <div className="border border-[var(--border-light)] dark:border-[var(--border-dark)] rounded-lg mb-4">
-                    <button
-                        onClick={() => setShowSummarizer(!showSummarizer)}
-                        className="w-full p-3 text-left font-semibold flex justify-between items-center"
-                    >
-                        <span><i className="fas fa-magic-wand-sparkles mr-2 text-purple-500"></i> AI Note Summarizer</span>
-                        <i className={`fas fa-chevron-down transition-transform ${showSummarizer ? 'rotate-180' : ''}`}></i>
-                    </button>
-                    {showSummarizer && (
-                        <div className="p-4 border-t border-[var(--border-light)] dark:border-[var(--border-dark)] space-y-3">
-                            <textarea
-                                value={rawNotes}
-                                onChange={e => setRawNotes(e.target.value)}
-                                placeholder="Paste your raw meeting or call notes here..."
-                                className={inputStyle}
-                                rows={5}
-                            />
-                            <button onClick={handleSummarize} disabled={isSummarizing || !rawNotes.trim()} className={btnPrimary}>
-                                {isSummarizing ? <><Spinner size="sm" className="mr-2" /> Summarizing...</> : 'Summarize Notes'}
-                            </button>
-                            {isSummarizing && <p className="text-sm text-[var(--text-secondary-light)] dark:text-[var(--text-secondary-dark)]">AI is reading your notes...</p>}
-                            {summaryResult && (
-                                <div className="mt-4 space-y-4">
-                                    <div>
-                                        <h5 className="font-bold">Summary:</h5>
-                                        <div className="p-2 bg-gray-50 dark:bg-white/5 rounded-md">
-                                            <MarkdownRenderer content={summaryResult.summary} />
-                                        </div>
+            {/* AI Note Summarizer - Now available in all variants */}
+            <div className="border border-[var(--border-light)] dark:border-[var(--border-dark)] rounded-lg mb-4">
+                <button
+                    onClick={() => setShowSummarizer(!showSummarizer)}
+                    className="w-full p-3 text-left font-semibold flex justify-between items-center"
+                >
+                    <span><i className="fas fa-magic-wand-sparkles mr-2 text-purple-500"></i> AI Note Summarizer</span>
+                    <i className={`fas fa-chevron-down transition-transform ${showSummarizer ? 'rotate-180' : ''}`}></i>
+                </button>
+                {showSummarizer && (
+                    <div className="p-4 border-t border-[var(--border-light)] dark:border-[var(--border-dark)] space-y-3">
+                        <textarea
+                            value={rawNotes}
+                            onChange={e => setRawNotes(e.target.value)}
+                            placeholder="Paste your raw meeting or call notes here..."
+                            className={inputStyle}
+                            rows={5}
+                        />
+                        <button onClick={handleSummarize} disabled={isSummarizing || !rawNotes.trim()} className={btnPrimary}>
+                            {isSummarizing ? <><Spinner size="sm" className="mr-2" /> Summarizing...</> : 'Summarize Notes'}
+                        </button>
+                        {isSummarizing && <p className="text-sm text-[var(--text-secondary-light)] dark:text-[var(--text-secondary-dark)]">AI is reading your notes...</p>}
+                        {summaryResult && (
+                            <div className="mt-4 space-y-4">
+                                <div>
+                                    <h5 className="font-bold">Summary:</h5>
+                                    <div className="p-2 bg-gray-50 dark:bg-white/5 rounded-md">
+                                        <MarkdownRenderer content={summaryResult.summary} />
                                     </div>
-                                    {summaryResult.actionItems.length > 0 && (
-                                        <div>
-                                            <h5 className="font-bold">Action Items:</h5>
-                                            <ul className="space-y-2">
-                                                {summaryResult.actionItems.map((item, index) => (
-                                                    <li key={index} className="flex justify-between items-center p-2 bg-gray-50 dark:bg-white/5 rounded-md">
-                                                        <div>
-                                                            <p className="font-medium text-sm">{item.task}</p>
-                                                            <p className="text-xs text-[var(--text-secondary-light)] dark:text-[var(--text-secondary-dark)]">Due: {new Date(item.dueDate).toLocaleDateString()}</p>
-                                                        </div>
-                                                        <button onClick={() => handleCreateTaskFromSummary(item)} className={btnSecondarySm}>Create Task</button>
-                                                    </li>
-                                                ))}
-                                            </ul>
-                                        </div>
-                                    )}
                                 </div>
-                            )}
-                        </div>
-                    )}
-                </div>
-            )}
+                                {summaryResult.actionItems.length > 0 && (
+                                    <div>
+                                        <h5 className="font-bold">Action Items:</h5>
+                                        <ul className="space-y-2">
+                                            {summaryResult.actionItems.map((item, index) => (
+                                                <li key={index} className="flex justify-between items-center p-2 bg-gray-50 dark:bg-white/5 rounded-md">
+                                                    <div>
+                                                        <p className="font-medium text-sm">{item.task}</p>
+                                                        <p className="text-xs text-[var(--text-secondary-light)] dark:text-[var(--text-secondary-dark)]">Due: {new Date(item.dueDate).toLocaleDateString()}</p>
+                                                    </div>
+                                                    <button onClick={() => handleCreateTaskFromSummary(item)} className={btnSecondarySm}>Create Task</button>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                    </div>
+                )}
+            </div>
 
             <div className="relative">
                 <textarea

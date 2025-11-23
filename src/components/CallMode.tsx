@@ -543,6 +543,7 @@ const CallMode: React.FC = () => {
                     </div>
                 </div>
 
+
                 {/* --- Bottom Floating Action Bar --- */}
                 <div className="fixed bottom-0 left-0 right-0 p-3 bg-white/90 backdrop-blur-xl border-t border-[#E1E7F0] z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.1)]">
                     <div className="container mx-auto flex justify-between items-center max-w-6xl">
