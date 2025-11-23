@@ -302,6 +302,17 @@ export const fetchRemarksForCustomer = async (customerId: string): Promise<Remar
     return (data || []).map(mapRemark);
 };
 
+export const fetchRemarks = async (): Promise<Remark[]> => {
+    const { data, error } = await supabase
+        .from('remarks')
+        .select('*')
+        .order('timestamp', { ascending: false })
+        .limit(500); // Limit to recent 500 remarks for performance
+
+    if (error) throw error;
+    return (data || []).map(mapRemark);
+};
+
 export const addRemark = async (customerId: string, remarkText: string): Promise<Remark> => {
     const sentimentResult = await analyzeRemarkSentiment(remarkText);
 

@@ -20,45 +20,23 @@ interface AddTaskInitialData {
   dueDate: string; // Should be in 'YYYY-MM-DDTHH:mm' format for datetime-local input
 }
 
-interface AppContextType extends CrmDataHook {
-  // Search
-  searchQuery: string;
-  setSearchQuery: (query: string) => void;
 
-  // KPI Filter
-  kpiFilter: 'all' | 'total' | 'pending' | 'sales' | 'outstanding' | 'ai-search' | null;
-  setKpiFilter: (filter: 'all' | 'total' | 'pending' | 'sales' | 'outstanding' | 'ai-search' | null) => void;
+isBulkImportModalOpen: boolean;
+openBulkImportModal: () => void;
+closeBulkImportModal: () => void;
 
-  // View management
-  currentView: 'dashboard' | 'analytics';
-  setCurrentView: (view: 'dashboard' | 'analytics') => void;
+isAddTaskModalOpen: boolean;
+openAddTaskModal: (initialData?: AddTaskInitialData) => void;
+closeAddTaskModal: () => void;
+addTaskInitialData: AddTaskInitialData | null;
 
-  // Modal states and handlers
-  isDetailModalOpen: boolean;
-  detailModalCustomer: Customer | null;
-  openDetailModal: (customer: Customer) => void;
-  closeDetailModal: () => void;
+isCommandPaletteOpen: boolean;
+openCommandPalette: () => void;
+closeCommandPalette: () => void;
 
-  isAddCustomerModalOpen: boolean;
-  openAddCustomerModal: () => void;
-  closeAddCustomerModal: () => void;
-
-  isBulkImportModalOpen: boolean;
-  openBulkImportModal: () => void;
-  closeBulkImportModal: () => void;
-
-  isAddTaskModalOpen: boolean;
-  openAddTaskModal: (initialData?: AddTaskInitialData) => void;
-  closeAddTaskModal: () => void;
-  addTaskInitialData: AddTaskInitialData | null;
-
-  isCommandPaletteOpen: boolean;
-  openCommandPalette: () => void;
-  closeCommandPalette: () => void;
-
-  // Analytics filters
-  analyticsFilters: AnalyticsFilters;
-  setAnalyticsFilters: React.Dispatch<React.SetStateAction<AnalyticsFilters>>;
+// Analytics filters
+analyticsFilters: AnalyticsFilters;
+setAnalyticsFilters: React.Dispatch<React.SetStateAction<AnalyticsFilters>>;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -158,6 +136,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     closeCommandPalette,
     analyticsFilters,
     setAnalyticsFilters,
+    remarks: crmData.remarks, // Explicitly expose remarks
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

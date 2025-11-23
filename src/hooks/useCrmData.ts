@@ -13,6 +13,7 @@ export interface Filters {
 export const useCrmData = () => {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [remarks, setRemarks] = useState<Remark[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filters, setFilters] = useState<Filters>({
@@ -26,12 +27,14 @@ export const useCrmData = () => {
     const loadData = async () => {
       setLoading(true);
       try {
-        const [customersData, tasksData] = await Promise.all([
+        const [customersData, tasksData, remarksData] = await Promise.all([
           api.fetchCustomers(),
           api.fetchTasks(),
+          api.fetchRemarks(),
         ]);
         setCustomers(customersData);
         setTasks(tasksData.sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()));
+        setRemarks(remarksData);
       } catch (error) {
         console.error("Failed to load CRM data", error);
       } finally {
@@ -200,6 +203,7 @@ export const useCrmData = () => {
     loading,
     customers,
     tasks,
+    remarks,
     filteredCustomers,
     searchTerm,
     setSearchTerm,
