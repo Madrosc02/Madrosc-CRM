@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Customer, Sale, Remark, CustomerFormData } from '../../types';
+import { Customer, Sale, Remark, CustomerFormData, CustomerTerritory } from '../../types';
 import { generateAIPerformanceReview, suggestBestContactTime, calculateWinProbability } from '../../services/geminiService';
 import Spinner from '../ui/Spinner';
 import MarkdownRenderer from '../ui/MarkdownRenderer';
@@ -110,6 +110,23 @@ export const CustomerOverview: React.FC<{ customer: Customer, sales: Sale[], rem
     const [aiReview, setAiReview] = useState('');
     const [isLoading, setIsLoading] = useState(true);
     const [showTerritoriesModal, setShowTerritoriesModal] = useState(false);
+    const [territories, setTerritories] = useState<CustomerTerritory[]>([]);
+    const [territoriesLoading, setTerritoriesLoading] = useState(true);
+
+    useEffect(() => {
+        const loadTerritories = async () => {
+            try {
+                const { fetchTerritoriesForCustomer } = await import('../../services/api');
+                const data = await fetchTerritoriesForCustomer(customer.id);
+                setTerritories(data);
+            } catch (error) {
+                console.error('Failed to load territories:', error);
+            } finally {
+                setTerritoriesLoading(false);
+            }
+        };
+        loadTerritories();
+    }, [customer.id, showTerritoriesModal]); // Reload when modal closes
 
     const handleRegenerate = useCallback(async () => {
         setIsLoading(true);
@@ -155,6 +172,35 @@ export const CustomerOverview: React.FC<{ customer: Customer, sales: Sale[], rem
                         </div>
                     </div>
 
+                    {/* Territories Section */}
+                    {!territoriesLoading && territories.length > 0 && (
+                        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
+                            <div className="flex justify-between items-center mb-3">
+                                <h4 className="font-semibold text-base flex items-center text-blue-900 dark:text-blue-100">
+                                    <i className="fas fa-map-marked-alt mr-2 text-blue-600 dark:text-blue-400"></i>
+                                    Working Territories ({territories.length})
+                                </h4>
+                            </div>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                {territories.map((territory) => (
+                                    <div key={territory.id} className="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded-md border border-blue-100 dark:border-blue-900">
+                                        <div>
+                                            <p className="font-medium text-sm text-gray-900 dark:text-white">
+                                                {territory.district}, {territory.state}
+                                            </p>
+                                            <span className={`text-xs px-2 py-0.5 rounded-full ${territory.monopolyStatus === 'Monopoly'
+                                                ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300'
+                                                : 'bg-gray-200 text-gray-700 dark:bg-gray-600 dark:text-gray-300'
+                                                }`}>
+                                                {territory.monopolyStatus}
+                                            </span>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
                     <WinProbability customer={customer} sales={sales} remarks={remarks} />
                 </div>
                 <div className="space-y-4">
@@ -185,6 +231,7 @@ export const CustomerOverview: React.FC<{ customer: Customer, sales: Sale[], rem
         </>
     )
 }
+
 
 export const EditDetailsForm: React.FC<{ customer: Customer, onCancel: () => void, onSave: (data: CustomerFormData) => Promise<void> }> = ({ customer, onCancel, onSave }) => {
     const [formData, setFormData] = useState<CustomerFormData>({
@@ -222,7 +269,7 @@ export const EditDetailsForm: React.FC<{ customer: Customer, onCancel: () => voi
     }
 
     return (
-        <div className="space-y-4">
+        <div className="space-y-4 pb-24">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                     <label className="block text-sm font-medium mb-1">Firm/Business Name *</label>
@@ -274,7 +321,7 @@ export const EditDetailsForm: React.FC<{ customer: Customer, onCancel: () => voi
                     </select>
                 </div>
             </div>
-            <div className="flex justify-end gap-3 pt-4 mt-6">
+            <div className="flex justify-end gap-3 pt-4 sticky bottom-0 bg-white dark:bg-gray-800 pb-4 border-t border-gray-200 dark:border-gray-700 mt-6">
                 <button onClick={onCancel} className={btnSecondary}>Cancel</button>
                 <button onClick={handleSubmit} disabled={isSubmitting} className={`${btnPrimary} flex items-center`}>
                     {isSubmitting && <Spinner size="sm" className="mr-2" />}
