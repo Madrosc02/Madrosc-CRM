@@ -218,9 +218,9 @@ export const CustomerRemarks: React.FC<{ customer: Customer, remarks: Remark[], 
     );
 
     const HistorySection = () => (
-        <div className={variant === 'chat' ? "flex-1 overflow-y-auto min-h-0 pr-2 custom-scrollbar" : ""}>
+        <div className={variant === 'chat' ? "flex-1 overflow-hidden min-h-0 pr-2" : ""}>
             {variant !== 'chat' && <h4 className="font-semibold mb-2 text-lg">History</h4>}
-            <ul className={`space-y-3 text-sm ${variant === 'chat' ? '' : 'max-h-80 overflow-y-auto'}`}>
+            <ul className={`space-y-3 text-sm ${variant === 'chat' ? 'max-h-[350px] overflow-y-auto custom-scrollbar' : 'max-h-80 overflow-y-auto'}`}>
                 {remarks.length > 0 ? remarks.map(remark => (
                     <li key={remark.id} className="p-3 border-l-4 border-blue-400 bg-gray-50 dark:bg-white/5 rounded-r-md">
                         <MarkdownRenderer className="prose-p:italic prose-p:my-0" content={remark.remark} />
