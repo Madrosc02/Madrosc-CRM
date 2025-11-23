@@ -1,41 +1,47 @@
 @import "tailwindcss";
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Merriweather:wght@300;400;700&display=swap');
-
 @theme {
-  --font-sans: 'Inter', sans-serif;
-  --font-serif: 'Merriweather', serif;
+  --font-sans: 'Open Sans', sans-serif;
+  --font-serif: 'Lato', sans-serif;
 
-  /* Brand Colors */
-  --color-primary: #2563eb;
-  /* Blue 600 */
-  --color-primary-hover: #1d4ed8;
-  /* Blue 700 */
-  --color-secondary: #475569;
-  /* Slate 600 */
+  /* Brand Colors - Medical Trust Palette */
+  --color-primary: #008080;
+  /* Deep Teal */
+  --color-primary-hover: #006666;
+  --color-secondary: #FF6B6B;
+  /* Coral */
 
   /* Light Theme */
-  --color-bg-light: #f8fafc;
-  /* Slate 50 */
+  --color-bg-light: #F0F2F5;
+  /* Soft Gray */
   --color-surface-light: #ffffff;
-  --color-text-primary-light: #0f172a;
-  /* Slate 900 */
-  --color-text-secondary-light: #64748b;
-  /* Slate 500 */
+  --color-text-primary-light: #1a202c;
+  --color-text-secondary-light: #4a5568;
   --color-border-light: #e2e8f0;
-  /* Slate 200 */
 
   /* Dark Theme */
   --color-bg-dark: #0f172a;
-  /* Slate 900 */
   --color-surface-dark: #1e293b;
-  /* Slate 800 */
   --color-text-primary-dark: #f8fafc;
-  /* Slate 50 */
   --color-text-secondary-dark: #94a3b8;
-  /* Slate 400 */
   --color-border-dark: #334155;
-  /* Slate 700 */
+
+  /* Aliases for Components (Legacy Support) */
+  --primary-light: var(--color-primary);
+  --primary-hover-light: var(--color-primary-hover);
+  --text-primary-light: var(--color-text-primary-light);
+  --text-secondary-light: var(--color-text-secondary-light);
+  --border-light: var(--color-border-light);
+  --bg-light: var(--color-bg-light);
+  --surface-light: var(--color-surface-light);
+
+  --primary-dark: var(--color-primary);
+  --primary-hover-dark: var(--color-primary-hover);
+  --text-primary-dark: var(--color-text-primary-dark);
+  --text-secondary-dark: var(--color-text-secondary-dark);
+  --border-dark: var(--color-border-dark);
+  --bg-dark: var(--color-bg-dark);
+  --surface-dark: var(--color-surface-dark);
 }
 
 @layer base {
@@ -62,30 +68,32 @@
 }
 
 @layer components {
+  .glass-panel {
+    @apply backdrop-blur-xl bg-white/70 dark:bg-slate-900/70 border border-white/20 dark:border-slate-700/30 shadow-xl;
+  }
+
+  .glass-card {
+    @apply backdrop-blur-md bg-white/60 dark:bg-slate-800/60 border border-white/30 dark:border-slate-700/30 shadow-lg rounded-xl transition-all hover:shadow-xl hover:bg-white/80 dark:hover:bg-slate-800/80;
+  }
+
   .card-base {
-    background-color: var(--color-surface-light);
-    border: 1px solid var(--color-border-light);
-    border-radius: 0.75rem;
-    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-    transition: all 0.2s ease-in-out;
+    @apply glass-card;
   }
 
   .dark .card-base {
-    background-color: var(--color-surface-dark);
-    border-color: var(--color-border-dark);
-    box-shadow: none;
+    /* Inherits glass-card dark styles */
   }
 
   .btn-primary {
-    @apply px-4 py-2 bg-[var(--color-primary)] text-white rounded-md font-medium transition-colors hover:bg-[var(--color-primary-hover)] disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply px-4 py-2 bg-[var(--color-primary)] text-white rounded-lg font-semibold shadow-md transition-all hover:bg-[var(--color-primary-hover)] hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed active:scale-95;
   }
 
   .btn-secondary {
-    @apply px-4 py-2 bg-white dark:bg-[var(--color-surface-dark)] border border-[var(--color-border-light)] dark:border-[var(--color-border-dark)] text-[var(--color-text-primary-light)] dark:text-[var(--color-text-primary-dark)] rounded-md font-medium transition-colors hover:bg-gray-50 dark:hover:bg-white/5;
+    @apply px-4 py-2 bg-white/80 dark:bg-slate-800/80 border border-[var(--color-border-light)] dark:border-[var(--color-border-dark)] text-[var(--color-text-primary-light)] dark:text-[var(--color-text-primary-dark)] rounded-lg font-medium transition-all hover:bg-gray-50 dark:hover:bg-white/5 hover:shadow-md active:scale-95;
   }
 
   .input-base {
-    @apply block w-full px-3 py-2 rounded-md bg-white dark:bg-[var(--color-surface-dark)] border border-[var(--color-border-light)] dark:border-[var(--color-border-dark)] text-[var(--color-text-primary-light)] dark:text-[var(--color-text-primary-dark)] shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)] transition-all;
+    @apply block w-full px-4 py-2.5 rounded-lg bg-white/50 dark:bg-slate-900/50 border border-[var(--color-border-light)] dark:border-[var(--color-border-dark)] text-[var(--color-text-primary-light)] dark:text-[var(--color-text-primary-dark)] shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 focus:border-[var(--color-primary)] transition-all backdrop-blur-sm;
   }
 
   /* Drawer Animations */
@@ -95,7 +103,7 @@
 
   .drawer-enter-active {
     transform: translateX(0);
-    transition: transform 300ms ease-out;
+    transition: transform 300ms cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .drawer-exit {
@@ -104,7 +112,7 @@
 
   .drawer-exit-active {
     transform: translateX(100%);
-    transition: transform 300ms ease-in;
+    transition: transform 300ms cubic-bezier(0.4, 0, 0.2, 1);
   }
 }
 
