@@ -5,7 +5,7 @@ import SalesByStateChart from './SalesByStateChart';
 import TierDistributionChart from './TierDistributionChart';
 import OverallSalesTrendChart from './OverallSalesTrendChart';
 import AIAnalyticsInsight from './AIAnalyticsInsight';
-import SalesLeaderboard from '../gamification/SalesLeaderboard';
+// import SalesLeaderboard from '../gamification/SalesLeaderboard'; // Replaced by PerformanceLeaderboard
 import { useApp } from '../../contexts/AppContext';
 import DashboardSkeleton from '../skeletons/DashboardSkeleton';
 import AnalyticsFilters from './AnalyticsFilters';
@@ -20,6 +20,7 @@ import ChurnRiskDashboard from './ChurnRiskDashboard';
 import SmartAlerts from './SmartAlerts';
 import RevenueOpportunityAnalyzer from './RevenueOpportunityAnalyzer';
 import TerritoryHeatmap from './TerritoryHeatmap';
+import PerformanceLeaderboard from './PerformanceLeaderboard';
 
 const AnalyticsPage: React.FC = () => {
     const { loading, analyticsFilters, customers } = useApp();
@@ -70,10 +71,15 @@ const AnalyticsPage: React.FC = () => {
                         </FadeIn>
                     </div>
 
-                    {/* Risk & Churn */}
-                    <FadeIn>
-                        <ChurnRiskDashboard />
-                    </FadeIn>
+                    {/* Risk & Leaderboard */}
+                    <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                        <FadeIn>
+                            <ChurnRiskDashboard />
+                        </FadeIn>
+                        <FadeIn>
+                            <PerformanceLeaderboard />
+                        </FadeIn>
+                    </div>
 
                     {/* Customer Segmentation - Full Width */}
                     <FadeIn>
