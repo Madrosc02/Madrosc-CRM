@@ -1,5 +1,4 @@
-// components/analytics/AnalyticsPage.tsx
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import KPIRow from './KPIRow';
 import SalesByStateChart from './SalesByStateChart';
 import TierDistributionChart from './TierDistributionChart';
@@ -21,9 +20,11 @@ import RevenueOpportunityAnalyzer from './RevenueOpportunityAnalyzer';
 import TerritoryHeatmap from './TerritoryHeatmap';
 import PerformanceLeaderboard from './PerformanceLeaderboard';
 import CohortAnalysis from './CohortAnalysis';
+import Tabs from '../common/Tabs';
 
 const AnalyticsPage: React.FC = () => {
     const { loading, analyticsFilters, customers } = useApp();
+    const [activeTab, setActiveTab] = useState('overview');
 
     const selectedCustomerData = useMemo(() => {
         if (analyticsFilters.selectedCustomer === 'all') return null;
@@ -34,11 +35,21 @@ const AnalyticsPage: React.FC = () => {
         return <DashboardSkeleton />;
     }
 
+    const tabs = [
+        { id: 'overview', label: 'Overview', icon: 'fa-chart-pie' },
+        { id: 'sales', label: 'Sales & Revenue', icon: 'fa-chart-line' },
+        { id: 'customers', label: 'Clients & Risk', icon: 'fa-users' },
+        { id: 'territory', label: 'Territory & Performance', icon: 'fa-map-marked-alt' },
+    ];
+
     return (
         <div className="space-y-6">
-            <FadeIn>
-                <AnalyticsFilters />
-            </FadeIn>
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <h1 className="text-2xl font-bold text-slate-800 dark:text-white">Analytics Hub</h1>
+                <div className="w-full md:w-auto">
+                    <AnalyticsFilters />
+                </div>
+            </div>
 
             {selectedCustomerData ? (
                 <FadeIn>
@@ -46,79 +57,77 @@ const AnalyticsPage: React.FC = () => {
                 </FadeIn>
             ) : (
                 <>
-                    {/* Executive Summary & Alerts */}
-                    <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-                        <FadeIn className="xl:col-span-2">
+                    <Tabs
+                        tabs={tabs}
+                        activeTab={activeTab}
+                        onChange={setActiveTab}
+                        className="max-w-4xl mx-auto mb-8"
+                    />
+
+                    {/* OVERVIEW TAB */}
+                    {activeTab === 'overview' && (
+                        <FadeIn className="space-y-6">
                             <ExecutiveSummary />
+                            <KPIRow />
+                            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                                <div className="lg:col-span-2">
+                                    <ActionableInsights />
+                                </div>
+                                <div>
+                                    <SmartAlerts />
+                                </div>
+                            </div>
+                            <AIAnalyticsInsight />
                         </FadeIn>
-                        <FadeIn>
-                            <SmartAlerts />
+                    )}
+
+                    {/* SALES TAB */}
+                    {activeTab === 'sales' && (
+                        <FadeIn className="space-y-6">
+                            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                                <SalesForecast />
+                                <RevenueOpportunityAnalyzer />
+                            </div>
+                            <OverallSalesTrendChart />
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="glass-card p-4">
+                                    <SalesByStateChart />
+                                </div>
+                                <div className="glass-card p-4">
+                                    <h3 className="text-lg font-bold mb-4 text-slate-800 dark:text-white">Sales Distribution</h3>
+                                    {/* Placeholder for future distribution chart or keeping existing layout */}
+                                </div>
+                            </div>
                         </FadeIn>
-                    </div>
+                    )}
 
-                    {/* Revenue Opportunities - Full Width */}
-                    <FadeIn>
-                        <RevenueOpportunityAnalyzer />
-                    </FadeIn>
-
-                    {/* Territory Map & Forecast */}
-                    <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-                        <FadeIn>
-                            <TerritoryHeatmap />
+                    {/* CUSTOMERS TAB */}
+                    {activeTab === 'customers' && (
+                        <FadeIn className="space-y-6">
+                            <CustomerSegmentation />
+                            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                                <ChurnRiskDashboard />
+                                <div className="glass-card p-4">
+                                    <TierDistributionChart />
+                                </div>
+                            </div>
+                            <CohortAnalysis />
                         </FadeIn>
-                        <FadeIn>
-                            <SalesForecast />
+                    )}
+
+                    {/* TERRITORY TAB */}
+                    {activeTab === 'territory' && (
+                        <FadeIn className="space-y-6">
+                            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                                <TerritoryHeatmap />
+                                <PerformanceLeaderboard />
+                            </div>
+                            <OverallPerformanceTable />
                         </FadeIn>
-                    </div>
-
-                    {/* Risk & Leaderboard */}
-                    <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-                        <FadeIn>
-                            <ChurnRiskDashboard />
-                        </FadeIn>
-                        <FadeIn>
-                            <PerformanceLeaderboard />
-                        </FadeIn>
-                    </div>
-
-                    {/* Cohort Analysis - Full Width */}
-                    <FadeIn>
-                        <CohortAnalysis />
-                    </FadeIn>
-
-                    {/* Customer Segmentation - Full Width */}
-                    <FadeIn>
-                        <CustomerSegmentation />
-                    </FadeIn>
-
-                    <FadeIn>
-                        <KPIRow />
-                    </FadeIn>
-                    <FadeIn>
-                        <OverallSalesTrendChart />
-                    </FadeIn>
-                    <FadeIn>
-                        <OverallPerformanceTable />
-                    </FadeIn>
-                    <FadeIn>
-                        <ActionableInsights />
-                    </FadeIn>
-
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        <FadeIn className="card-base p-4">
-                            <SalesByStateChart />
-                        </FadeIn>
-                        <FadeIn className="card-base p-4">
-                            <TierDistributionChart />
-                        </FadeIn>
-                    </div>
-
-                    <FadeIn className="card-base p-4">
-                        <AIAnalyticsInsight />
-                    </FadeIn>
+                    )}
                 </>
             )}
-        </div >
+        </div>
     );
 };
 
