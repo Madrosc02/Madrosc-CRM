@@ -4,6 +4,8 @@ import { generateAIPerformanceReview, suggestBestContactTime, calculateWinProbab
 import Spinner from '../ui/Spinner';
 import MarkdownRenderer from '../ui/MarkdownRenderer';
 import { indianStatesAndDistricts } from '../../data/indianStatesAndDistricts';
+import ManageTerritoriesModal from '../ManageTerritoriesModal';
+import { useApp } from '../../contexts/AppContext';
 
 const inputStyle = "block w-full px-3 py-2 rounded-md bg-card-bg-light dark:bg-card-bg-dark border border-border-light dark:border-border-dark text-text-primary-light dark:text-text-primary-dark transition-colors shadow-sm focus:outline-none focus:border-primary-light dark:focus:border-primary-dark focus:ring-2 focus:ring-primary-light/30 dark:focus:ring-primary-dark/30";
 const btnPrimary = "px-4 py-2 font-medium text-white bg-primary-light dark:bg-primary-dark rounded-md transition-colors hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark disabled:opacity-60 disabled:cursor-not-allowed";
@@ -104,8 +106,10 @@ const WinProbability: React.FC<{ customer: Customer, sales: Sale[], remarks: Rem
 };
 
 export const CustomerOverview: React.FC<{ customer: Customer, sales: Sale[], remarks: Remark[], onEditMode: () => void }> = ({ customer, sales, remarks, onEditMode }) => {
+    const { customers } = useApp();
     const [aiReview, setAiReview] = useState('');
     const [isLoading, setIsLoading] = useState(true);
+    const [showTerritoriesModal, setShowTerritoriesModal] = useState(false);
 
     const handleRegenerate = useCallback(async () => {
         setIsLoading(true);
@@ -122,49 +126,63 @@ export const CustomerOverview: React.FC<{ customer: Customer, sales: Sale[], rem
     }, [handleRegenerate]);
 
     return (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2 space-y-6">
-                <div>
-                    <div className="flex justify-between items-center mb-2">
-                        <h4 className="font-semibold text-lg">Key Metrics</h4>
-                        <button onClick={onEditMode} className={btnSecondarySm}>
-                            <i className="fas fa-pencil-alt mr-2"></i>Edit Details
-                        </button>
-                    </div>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                        <DetailCard title="Firm Name" value={customer.firmName} />
-                        <DetailCard title="Contact Person" value={customer.personName} />
-                        {customer.email && <DetailCard title="Email" value={customer.email} />}
-                        <DetailCard title="Contact" value={<>{customer.contact}{customer.alternateContact && <span className="block text-xs mt-1">Alt: {customer.alternateContact}</span>}</>} />
-                        <DetailCard title="Location" value={`${customer.district}, ${customer.state}`} />
-                        <DetailCard title="Tier" value={customer.tier} />
-                        <DetailCard title="Territory Status" value={customer.monopolyStatus} />
-                        <DetailCard title="Sales This Month" value={`₹${customer.salesThisMonth.toLocaleString('en-IN')}`} />
-                        <DetailCard title="Outstanding" value={`₹${customer.outstandingBalance.toLocaleString('en-IN')}`} className="text-red-600 dark:text-red-400" />
-                        <DetailCard title="Last Order" value={`${customer.daysSinceLastOrder} days ago`} />
-                    </div>
-                </div>
-
-                <WinProbability customer={customer} sales={sales} remarks={remarks} />
-            </div>
-            <div className="space-y-4">
-                <AIContactSuggestion remarks={remarks} />
-                <div className="bg-blue-50 dark:bg-blue-900/40 p-4 rounded-lg">
-                    <div className="flex justify-between items-center mb-3">
-                        <h4 className="font-semibold flex items-center"><i className="fas fa-brain mr-2 text-blue-500"></i> AI Review</h4>
-                        <button onClick={handleRegenerate} disabled={isLoading} className="text-xs text-blue-600 hover:underline disabled:opacity-50">Regenerate</button>
-                    </div>
-                    {isLoading ? (
-                        <div className="flex flex-col items-center justify-center h-48">
-                            <Spinner />
-                            <p className="mt-2 text-sm text-[var(--text-secondary-light)] dark:text-[var(--text-secondary-dark)]">Generating insights...</p>
+        <>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="lg:col-span-2 space-y-6">
+                    <div>
+                        <div className="flex justify-between items-center mb-2">
+                            <h4 className="font-semibold text-lg">Key Metrics</h4>
+                            <div className="flex gap-2">
+                                <button onClick={() => setShowTerritoriesModal(true)} className={`${btnSecondarySm} text-blue-600`}>
+                                    <i className="fas fa-map-marked-alt mr-2"></i>Manage Territories
+                                </button>
+                                <button onClick={onEditMode} className={btnSecondarySm}>
+                                    <i className="fas fa-pencil-alt mr-2"></i>Edit Details
+                                </button>
+                            </div>
                         </div>
-                    ) : (
-                        <MarkdownRenderer content={aiReview} />
-                    )}
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                            <DetailCard title="Firm Name" value={customer.firmName} />
+                            <DetailCard title="Contact Person" value={customer.personName} />
+                            {customer.email && <DetailCard title="Email" value={customer.email} />}
+                            <DetailCard title="Contact" value={<>{customer.contact}{customer.alternateContact && <span className="block text-xs mt-1">Alt: {customer.alternateContact}</span>}</>} />
+                            <DetailCard title="Location" value={`${customer.district}, ${customer.state}`} />
+                            <DetailCard title="Tier" value={customer.tier} />
+                            <DetailCard title="Territory Status" value={customer.monopolyStatus} />
+                            <DetailCard title="Sales This Month" value={`₹${customer.salesThisMonth.toLocaleString('en-IN')}`} />
+                            <DetailCard title="Outstanding" value={`₹${customer.outstandingBalance.toLocaleString('en-IN')}`} className="text-red-600 dark:text-red-400" />
+                            <DetailCard title="Last Order" value={`${customer.daysSinceLastOrder} days ago`} />
+                        </div>
+                    </div>
+
+                    <WinProbability customer={customer} sales={sales} remarks={remarks} />
+                </div>
+                <div className="space-y-4">
+                    <AIContactSuggestion remarks={remarks} />
+                    <div className="bg-blue-50 dark:bg-blue-900/40 p-4 rounded-lg">
+                        <div className="flex justify-between items-center mb-3">
+                            <h4 className="font-semibold flex items-center"><i className="fas fa-brain mr-2 text-blue-500"></i> AI Review</h4>
+                            <button onClick={handleRegenerate} disabled={isLoading} className="text-xs text-blue-600 hover:underline disabled:opacity-50">Regenerate</button>
+                        </div>
+                        {isLoading ? (
+                            <div className="flex flex-col items-center justify-center h-48">
+                                <Spinner />
+                                <p className="mt-2 text-sm text-[var(--text-secondary-light)] dark:text-[var(--text-secondary-dark)]">Generating insights...</p>
+                            </div>
+                        ) : (
+                            <MarkdownRenderer content={aiReview} />
+                        )}
+                    </div>
                 </div>
             </div>
-        </div>
+
+            <ManageTerritoriesModal
+                customer={customer}
+                isOpen={showTerritoriesModal}
+                onClose={() => setShowTerritoriesModal(false)}
+                allCustomers={customers}
+            />
+        </>
     )
 }
 
