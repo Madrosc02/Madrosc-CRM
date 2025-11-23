@@ -3,16 +3,19 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import Layout from './components/layout/Layout';
 import Login from './components/Login';
-import CustomerDetailDrawer from './components/CustomerDetailDrawer';
-import AddCustomerModal from './components/AddCustomerModal';
-import BulkImportModal from './components/BulkImportModal';
-import AddTaskModal from './components/AddTaskModal';
-import CommandPalette from './components/command/CommandPalette';
 import { useApp } from './contexts/AppContext';
 import Spinner from './components/ui/Spinner';
 
+// Lazy load main pages
 const Dashboard = React.lazy(() => import('./components/Dashboard'));
 const AnalyticsPage = React.lazy(() => import('./components/analytics/AnalyticsPage'));
+
+// Lazy load heavy modals
+const CustomerDetailDrawer = React.lazy(() => import('./components/CustomerDetailDrawer'));
+const AddCustomerModal = React.lazy(() => import('./components/AddCustomerModal'));
+const BulkImportModal = React.lazy(() => import('./components/BulkImportModal'));
+const AddTaskModal = React.lazy(() => import('./components/AddTaskModal'));
+const CommandPalette = React.lazy(() => import('./components/command/CommandPalette'));
 
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -52,12 +55,14 @@ const AuthenticatedApp: React.FC = () => {
                 </Routes>
             </Suspense>
 
-            {/* Modals & Overlays */}
-            {isDetailModalOpen && <CustomerDetailDrawer />}
-            {isAddCustomerModalOpen && <AddCustomerModal />}
-            {isBulkImportModalOpen && <BulkImportModal />}
-            {isAddTaskModalOpen && <AddTaskModal />}
-            <CommandPalette />
+            {/* Modals & Overlays - Lazy Loaded */}
+            <Suspense fallback={null}>
+                {isDetailModalOpen && <CustomerDetailDrawer />}
+                {isAddCustomerModalOpen && <AddCustomerModal />}
+                {isBulkImportModalOpen && <BulkImportModal />}
+                {isAddTaskModalOpen && <AddTaskModal />}
+                <CommandPalette />
+            </Suspense>
         </Layout>
     );
 };
