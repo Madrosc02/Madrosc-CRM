@@ -36,7 +36,8 @@ interface AppContextType extends CrmDataHook {
   // Modal states and handlers
   isDetailModalOpen: boolean;
   detailModalCustomer: Customer | null;
-  openDetailModal: (customer: Customer) => void;
+  detailModalInitialTab: string;
+  openDetailModal: (customer: Customer, initialTab?: string) => void;
   closeDetailModal: () => void;
 
   isAddCustomerModalOpen: boolean;
@@ -88,6 +89,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   // Modal states
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [detailModalCustomer, setDetailModalCustomer] = useState<Customer | null>(null);
+  const [detailModalInitialTab, setDetailModalInitialTab] = useState<string>('overview');
   const [isAddCustomerModalOpen, setIsAddCustomerModalOpen] = useState(false);
   const [isBulkImportModalOpen, setIsBulkImportModalOpen] = useState(false);
   const [isAddTaskModalOpen, setIsAddTaskModalOpen] = useState(false);
@@ -105,8 +107,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
 
   // Modal handlers
-  const openDetailModal = (customer: Customer) => {
+  const openDetailModal = (customer: Customer, initialTab: string = 'overview') => {
     setDetailModalCustomer(customer);
+    setDetailModalInitialTab(initialTab);
     setIsDetailModalOpen(true);
   };
   const closeDetailModal = () => setIsDetailModalOpen(false);
@@ -141,6 +144,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setCurrentView,
     isDetailModalOpen,
     detailModalCustomer,
+    detailModalInitialTab,
     openDetailModal,
     closeDetailModal,
     isAddCustomerModalOpen,

@@ -12,7 +12,7 @@ import { CustomerRemarks } from './customer/CustomerRemarks';
 import { CustomerActions } from './customer/CustomerActions';
 
 export const CustomerDetailDrawer: React.FC = () => {
-    const { detailModalCustomer, closeDetailModal, getSalesForCustomer, getRemarksForCustomer, updateCustomer, deleteCustomer, customers } = useApp();
+    const { detailModalCustomer, closeDetailModal, getSalesForCustomer, getRemarksForCustomer, updateCustomer, deleteCustomer, customers, detailModalInitialTab } = useApp();
     const { addToast } = useToast();
 
     const [activeTab, setActiveTab] = useState('overview');
@@ -51,9 +51,13 @@ export const CustomerDetailDrawer: React.FC = () => {
         }
         if (detailModalCustomer?.id !== customer?.id) {
             setIsEditMode(false);
-            setActiveTab('overview');
+            // Set active tab from context, default to overview
+            setActiveTab(detailModalInitialTab || 'overview');
+        } else {
+            // If customer is same (re-render), ensure tab is updated if it changed in context
+            setActiveTab(detailModalInitialTab || 'overview');
         }
-    }, [customer, detailModalCustomer, fetchData]);
+    }, [customer, detailModalCustomer, fetchData, detailModalInitialTab]);
 
     const handleSave = async (data: CustomerFormData) => {
         if (!customer) return;
