@@ -16,6 +16,7 @@ import FadeIn from '../ui/FadeIn';
 import SalesForecast from './SalesForecast';
 import ExecutiveSummary from './ExecutiveSummary';
 import CustomerSegmentation from './CustomerSegmentation';
+import ChurnRiskDashboard from './ChurnRiskDashboard';
 
 const AnalyticsPage: React.FC = () => {
     const { loading, analyticsFilters, customers } = useApp();
@@ -45,6 +46,16 @@ const AnalyticsPage: React.FC = () => {
                     <FadeIn>
                         <ExecutiveSummary />
                     </FadeIn>
+
+                    {/* Risk & Forecast Row */}
+                    <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                        <FadeIn>
+                            <ChurnRiskDashboard />
+                        </FadeIn>
+                        <FadeIn>
+                            <SalesForecast />
+                        </FadeIn>
+                    </div>
 
                     {/* Customer Segmentation - Full Width */}
                     <FadeIn>
