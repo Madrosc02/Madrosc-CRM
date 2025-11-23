@@ -328,9 +328,10 @@ const CallMode: React.FC = () => {
                             <div className="h-full bg-[#F59E0B] w-[10%] rounded-full shadow-[0_0_10px_rgba(245,158,11,0.3)]"></div>
                         </div>
                     </div>
+                </div>
             </GlassCard>
         </div>
-        </div >
+    </div >
 
     {/* --- Bottom Floating Action Bar --- */ }
     < div className = "fixed bottom-0 left-0 right-0 p-4 bg-white/90 backdrop-blur-xl border-t border-[#E1E7F0] z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.1)]" >
@@ -353,9 +354,9 @@ const CallMode: React.FC = () => {
                 </button>
             </div>
         </div>
-        </div >
     </div >
-    );
+</div >
+);
 };
 
 export default CallMode;
