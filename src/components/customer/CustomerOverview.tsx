@@ -132,9 +132,13 @@ export const CustomerOverview: React.FC<{ customer: Customer, sales: Sale[], rem
                         </button>
                     </div>
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                        <DetailCard title="Firm Name" value={customer.firmName} />
+                        <DetailCard title="Contact Person" value={customer.personName} />
+                        {customer.email && <DetailCard title="Email" value={customer.email} />}
                         <DetailCard title="Contact" value={<>{customer.contact}{customer.alternateContact && <span className="block text-xs mt-1">Alt: {customer.alternateContact}</span>}</>} />
                         <DetailCard title="Location" value={`${customer.district}, ${customer.state}`} />
                         <DetailCard title="Tier" value={customer.tier} />
+                        <DetailCard title="Territory Status" value={customer.monopolyStatus} />
                         <DetailCard title="Sales This Month" value={`₹${customer.salesThisMonth.toLocaleString('en-IN')}`} />
                         <DetailCard title="Outstanding" value={`₹${customer.outstandingBalance.toLocaleString('en-IN')}`} className="text-red-600 dark:text-red-400" />
                         <DetailCard title="Last Order" value={`${customer.daysSinceLastOrder} days ago`} />
@@ -166,12 +170,15 @@ export const CustomerOverview: React.FC<{ customer: Customer, sales: Sale[], rem
 
 export const EditDetailsForm: React.FC<{ customer: Customer, onCancel: () => void, onSave: (data: CustomerFormData) => Promise<void> }> = ({ customer, onCancel, onSave }) => {
     const [formData, setFormData] = useState<CustomerFormData>({
-        name: customer.name,
+        firmName: customer.firmName,
+        personName: customer.personName,
+        email: customer.email || '',
         contact: customer.contact,
         alternateContact: customer.alternateContact || '',
         state: customer.state,
         district: customer.district,
         tier: customer.tier,
+        monopolyStatus: customer.monopolyStatus,
     });
     const [districts, setDistricts] = useState<string[]>([]);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -200,29 +207,24 @@ export const EditDetailsForm: React.FC<{ customer: Customer, onCancel: () => voi
         <div className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                    <label className="block text-sm font-medium mb-1">Name</label>
-                    <input type="text" name="name" value={formData.name} onChange={handleChange} className={inputStyle} />
+                    <label className="block text-sm font-medium mb-1">Firm/Business Name *</label>
+                    <input type="text" name="firmName" value={formData.firmName} onChange={handleChange} className={inputStyle} required />
                 </div>
                 <div>
-                    <label className="block text-sm font-medium mb-1">Contact</label>
-                    <input type="tel" name="contact" value={formData.contact} onChange={handleChange} className={inputStyle} />
+                    <label className="block text-sm font-medium mb-1">Contact Person Name *</label>
+                    <input type="text" name="personName" value={formData.personName} onChange={handleChange} className={inputStyle} required />
+                </div>
+                <div>
+                    <label className="block text-sm font-medium mb-1">Email Address</label>
+                    <input type="email" name="email" value={formData.email} onChange={handleChange} className={inputStyle} placeholder="example@company.com" />
+                </div>
+                <div>
+                    <label className="block text-sm font-medium mb-1">Contact *</label>
+                    <input type="tel" name="contact" value={formData.contact} onChange={handleChange} className={inputStyle} maxLength={10} required />
                 </div>
                 <div>
                     <label className="block text-sm font-medium mb-1">Alternate Contact</label>
-                    <input type="tel" name="alternateContact" value={formData.alternateContact} onChange={handleChange} className={inputStyle} />
-                </div>
-                <div>
-                    <label className="block text-sm font-medium mb-1">State</label>
-                    <select name="state" value={formData.state} onChange={handleChange} className={inputStyle}>
-                        {Object.keys(indianStatesAndDistricts).sort().map(s => <option key={s} value={s}>{s}</option>)}
-                    </select>
-                </div>
-                <div>
-                    <label className="block text-sm font-medium mb-1">District</label>
-                    <select name="district" value={formData.district} onChange={handleChange} className={inputStyle} disabled={!formData.state}>
-                        <option value="">Select District</option>
-                        {districts.map(d => <option key={d} value={d}>{d}</option>)}
-                    </select>
+                    <input type="tel" name="alternateContact" value={formData.alternateContact} onChange={handleChange} className={inputStyle} maxLength={10} />
                 </div>
                 <div>
                     <label className="block text-sm font-medium mb-1">Tier</label>
@@ -231,6 +233,26 @@ export const EditDetailsForm: React.FC<{ customer: Customer, onCancel: () => voi
                         <option value="Silver">Silver</option>
                         <option value="Gold">Gold</option>
                         <option value="Dead">Dead</option>
+                    </select>
+                </div>
+                <div>
+                    <label className="block text-sm font-medium mb-1">State *</label>
+                    <select name="state" value={formData.state} onChange={handleChange} className={inputStyle} required>
+                        {Object.keys(indianStatesAndDistricts).sort().map(s => <option key={s} value={s}>{s}</option>)}
+                    </select>
+                </div>
+                <div>
+                    <label className="block text-sm font-medium mb-1">District *</label>
+                    <select name="district" value={formData.district} onChange={handleChange} className={inputStyle} disabled={!formData.state} required>
+                        <option value="">Select District</option>
+                        {districts.map(d => <option key={d} value={d}>{d}</option>)}
+                    </select>
+                </div>
+                <div>
+                    <label className="block text-sm font-medium mb-1">Territory Status *</label>
+                    <select name="monopolyStatus" value={formData.monopolyStatus} onChange={handleChange} className={inputStyle} required>
+                        <option value="Non-Monopoly">Non-Monopoly</option>
+                        <option value="Monopoly">Monopoly</option>
                     </select>
                 </div>
             </div>
