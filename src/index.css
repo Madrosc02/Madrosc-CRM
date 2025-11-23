@@ -72,7 +72,7 @@
     @apply backdrop-blur-xl bg-white/70 dark:bg-slate-900/70 border border-white/20 dark:border-slate-700/30 shadow-xl;
   }
 
-  /* Fix: Use comma-separated selectors instead of @apply glass-card to avoid build errors */
+
   .glass-card,
   .card-base {
     @apply backdrop-blur-md bg-white/60 dark:bg-slate-800/60 border border-white/30 dark:border-slate-700/30 shadow-lg rounded-xl transition-all hover:shadow-xl hover:bg-white/80 dark:hover:bg-slate-800/80;
