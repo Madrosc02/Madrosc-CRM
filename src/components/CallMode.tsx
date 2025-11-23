@@ -13,6 +13,7 @@ const CallMode: React.FC = () => {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isAnimating, setIsAnimating] = useState(false);
     const [selectedTier, setSelectedTier] = useState<string>('All');
+    const [showAICallPrep, setShowAICallPrep] = useState(false);
 
     // --- Metrics & Data Preparation ---
     const metrics = useMemo(() => {
@@ -353,11 +354,21 @@ const CallMode: React.FC = () => {
                                 <p className="text-[9px] text-[#6B7280] uppercase font-bold">YTD Sales</p>
                                 <p className="text-base font-bold mt-0.5 text-[#4C6FFF]">₹{currentCustomer.totalSales?.toLocaleString() || '0'}</p>
                             </GlassCard>
-                            <GlassCard className="p-3 flex flex-col justify-center items-center text-center border-t-4 border-amber-500 col-span-2">
+                            <GlassCard className="p-3 flex flex-col justify-center items-center text-center border-t-4 border-amber-500">
                                 <p className="text-[9px] text-[#6B7280] uppercase font-bold">Last Order</p>
                                 <p className="text-sm font-bold mt-0.5 text-[#111827]">
                                     {currentCustomer.lastOrderDate ? new Date(currentCustomer.lastOrderDate).toLocaleDateString() : 'Never'}
                                 </p>
+                            </GlassCard>
+                            <GlassCard
+                                onClick={() => setShowAICallPrep(true)}
+                                className="p-3 flex flex-col justify-center items-center text-center border-t-4 border-indigo-500 cursor-pointer hover:bg-indigo-50/50 transition-colors group"
+                            >
+                                <p className="text-[9px] text-[#6B7280] uppercase font-bold flex items-center gap-1">
+                                    <i className="fas fa-sparkles text-indigo-500"></i>
+                                    AI Prep
+                                </p>
+                                <p className="text-xs font-bold mt-0.5 text-indigo-600 group-hover:text-indigo-700">View</p>
                             </GlassCard>
                         </div>
 
@@ -413,30 +424,8 @@ const CallMode: React.FC = () => {
                         </GlassCard>
                     </div>
 
-                    {/* CENTER COLUMN (5/12): AI, Remarks */}
+                    {/* CENTER COLUMN (5/12): Remarks */}
                     <div className="lg:col-span-5 flex flex-col gap-4 h-full pr-1">
-
-                        {/* AI Call Prep - Fixed visibility */}
-                        <GlassCard className="p-4 bg-gradient-to-br from-indigo-50/80 to-purple-50/80 border-indigo-100 relative overflow-hidden shrink-0">
-                            <div className="absolute top-0 right-0 p-3 opacity-10 pointer-events-none">
-                                <i className="fas fa-robot text-6xl text-[#4C6FFF]"></i>
-                            </div>
-                            <div className="flex items-center gap-2 mb-2 relative z-10">
-                                <div className="w-6 h-6 rounded-md bg-[#4C6FFF] flex items-center justify-center text-white shadow-md shadow-indigo-500/30">
-                                    <i className="fas fa-sparkles text-xs"></i>
-                                </div>
-                                <h3 className="text-sm font-bold text-[#111827] uppercase tracking-wide">AI Call Prep</h3>
-                            </div>
-                            <div className="space-y-2 relative z-10">
-                                <div className="flex gap-3 items-start p-3 bg-white/60 rounded-xl border border-indigo-100">
-                                    <i className="fas fa-lightbulb text-[#F59E0B] mt-1 shrink-0"></i>
-                                    <div>
-                                        <p className="text-xs font-bold text-[#111827]">Talking Point</p>
-                                        <p className="text-sm text-[#6B7280] leading-snug">Sales dropped 15% vs last year. Ask about <strong>Amoxyclav</strong> stock.</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </GlassCard>
 
                         {/* Interaction History (Reusing CustomerRemarks) */}
                         <GlassCard className="flex-1 flex flex-col overflow-hidden min-h-[500px] relative">
@@ -575,6 +564,80 @@ const CallMode: React.FC = () => {
                         </div>
                     </div>
                 </div>
+
+                {/* AI Call Prep Modal */}
+                {showAICallPrep && (
+                    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setShowAICallPrep(false)}>
+                        <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[80vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+                            <div className="sticky top-0 bg-gradient-to-r from-indigo-500 to-purple-600 text-white p-6 rounded-t-2xl">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center">
+                                            <i className="fas fa-sparkles text-xl"></i>
+                                        </div>
+                                        <h2 className="text-2xl font-bold">AI Call Prep</h2>
+                                    </div>
+                                    <button
+                                        onClick={() => setShowAICallPrep(false)}
+                                        className="w-8 h-8 rounded-full hover:bg-white/20 transition-colors flex items-center justify-center"
+                                    >
+                                        <i className="fas fa-times text-xl"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div className="p-6 space-y-6">
+                                {/* Talking Point */}
+                                <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl p-5 border border-amber-200">
+                                    <div className="flex items-start gap-3">
+                                        <div className="w-10 h-10 rounded-lg bg-amber-500 flex items-center justify-center text-white shrink-0">
+                                            <i className="fas fa-lightbulb text-lg"></i>
+                                        </div>
+                                        <div className="flex-1">
+                                            <h3 className="text-lg font-bold text-amber-900 mb-2">Talking Point</h3>
+                                            <p className="text-amber-800 leading-relaxed">
+                                                Sales dropped 15% vs last year. Ask about <strong>Amoxyclav</strong> stock.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Opportunity */}
+                                <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-xl p-5 border border-emerald-200">
+                                    <div className="flex items-start gap-3">
+                                        <div className="w-10 h-10 rounded-lg bg-emerald-500 flex items-center justify-center text-white shrink-0">
+                                            <i className="fas fa-chart-line text-lg"></i>
+                                        </div>
+                                        <div className="flex-1">
+                                            <h3 className="text-lg font-bold text-emerald-900 mb-2">Opportunity</h3>
+                                            <p className="text-emerald-800 leading-relaxed">
+                                                Customer has high potential for upselling in the Cardio segment based on previous purchase patterns.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Quick Stats */}
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-200">
+                                        <div className="flex items-center gap-2 mb-2">
+                                            <i className="fas fa-trophy text-blue-600"></i>
+                                            <p className="text-xs font-bold text-blue-900 uppercase">Win Probability</p>
+                                        </div>
+                                        <p className="text-2xl font-bold text-blue-700">78%</p>
+                                    </div>
+                                    <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-4 border border-purple-200">
+                                        <div className="flex items-center gap-2 mb-2">
+                                            <i className="fas fa-clock text-purple-600"></i>
+                                            <p className="text-xs font-bold text-purple-900 uppercase">Best Time</p>
+                                        </div>
+                                        <p className="text-2xl font-bold text-purple-700">10-11 AM</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     );
