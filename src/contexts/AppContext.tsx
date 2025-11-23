@@ -25,6 +25,10 @@ interface AppContextType extends CrmDataHook {
   searchQuery: string;
   setSearchQuery: (query: string) => void;
 
+  // KPI Filter
+  kpiFilter: 'all' | 'total' | 'pending' | 'sales' | 'outstanding' | null;
+  setKpiFilter: (filter: 'all' | 'total' | 'pending' | 'sales' | 'outstanding' | null) => void;
+
   // View management
   currentView: 'dashboard' | 'analytics';
   setCurrentView: (view: 'dashboard' | 'analytics') => void;
@@ -69,6 +73,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   // Search state
   const [searchQuery, setSearchQuery] = useState('');
+
+  // KPI Filter state
+  const [kpiFilter, setKpiFilter] = useState<'all' | 'total' | 'pending' | 'sales' | 'outstanding' | null>(null);
 
   // Sync searchQuery with useCrmData's searchTerm
   useEffect(() => {
@@ -128,6 +135,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     ...crmData,
     searchQuery,
     setSearchQuery,
+    kpiFilter,
+    setKpiFilter,
     currentView,
     setCurrentView,
     isDetailModalOpen,
