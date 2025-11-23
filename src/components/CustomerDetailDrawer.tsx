@@ -97,7 +97,7 @@ export const CustomerDetailDrawer: React.FC = () => {
             title={customer.name}
             width="max-w-4xl"
         >
-            <div className="flex flex-col h-full">
+            <div className="flex flex-col">
                 {/* Header Actions */}
                 <div className="flex justify-end mb-4">
                     <button onClick={handleDelete} className="text-sm text-red-500 hover:underline flex items-center">
