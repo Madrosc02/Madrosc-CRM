@@ -2,24 +2,28 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../contexts/AppContext';
 import { useToast } from '../contexts/ToastContext';
-import { CustomerFormData, CustomerTier } from '../types';
+import { CustomerFormData, CustomerTier, MonopolyStatus } from '../types';
 import { indianStatesAndDistricts } from '../data/indianStatesAndDistricts';
 import Spinner from './ui/Spinner';
 
 const AddCustomerModal: React.FC = () => {
-    const { closeAddCustomerModal, addCustomer } = useApp();
+    const { closeAddCustomerModal, addCustomer, customers } = useApp();
     const { addToast } = useToast();
     const [formData, setFormData] = useState<CustomerFormData>({
-        name: '',
+        firmName: '',
+        personName: '',
+        email: '',
         contact: '',
         alternateContact: '',
         state: '',
         district: '',
         tier: 'Bronze',
+        monopolyStatus: 'Non-Monopoly',
     });
     const [districts, setDistricts] = useState<string[]>([]);
     const [errors, setErrors] = useState<Partial<Record<keyof CustomerFormData, string>>>({});
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [territoryWarning, setTerritoryWarning] = useState<string>('');
 
     useEffect(() => {
         if (formData.state && indianStatesAndDistricts[formData.state]) {
@@ -30,19 +34,43 @@ const AddCustomerModal: React.FC = () => {
         }
     }, [formData.state]);
 
+    // Check for monopoly territory conflicts
+    useEffect(() => {
+        if (formData.monopolyStatus === 'Monopoly' && formData.district) {
+            const existingMonopoly = customers.find(
+                c => c.district === formData.district && c.monopolyStatus === 'Monopoly'
+            );
+            if (existingMonopoly) {
+                setTerritoryWarning(
+                    `⚠️ Warning: ${existingMonopoly.firmName} already has monopoly in ${formData.district} district!`
+                );
+            } else {
+                setTerritoryWarning('');
+            }
+        } else {
+            setTerritoryWarning('');
+        }
+    }, [formData.monopolyStatus, formData.district, customers]);
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
         if (errors[name as keyof CustomerFormData]) {
-            setErrors(prev => ({...prev, [name]: undefined}));
+            setErrors(prev => ({ ...prev, [name]: undefined }));
         }
     };
 
     const validate = (): boolean => {
         const newErrors: Partial<Record<keyof CustomerFormData, string>> = {};
-        if (!formData.name.trim()) newErrors.name = "Customer name is required.";
+        if (!formData.firmName.trim()) newErrors.firmName = "Firm name is required.";
+        if (!formData.personName.trim()) newErrors.personName = "Person name is required.";
+        if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+            newErrors.email = "Please enter a valid email address.";
+        }
         if (!/^\d{10}$/.test(formData.contact)) newErrors.contact = "Contact must be a valid 10-digit number.";
-        if (formData.alternateContact && !/^\d{10}$/.test(formData.alternateContact)) newErrors.alternateContact = "Alternate contact must be a valid 10-digit number.";
+        if (formData.alternateContact && !/^\d{10}$/.test(formData.alternateContact)) {
+            newErrors.alternateContact = "Alternate contact must be a valid 10-digit number.";
+        }
         if (!formData.state) newErrors.state = "State is required.";
         if (!formData.district) newErrors.district = "District is required.";
         setErrors(newErrors);
@@ -55,7 +83,17 @@ const AddCustomerModal: React.FC = () => {
             addToast('Please correct the errors in the form.', 'error');
             return;
         }
-        
+
+        // Show confirmation if there's a territory warning
+        if (territoryWarning) {
+            const confirmed = window.confirm(
+                `${territoryWarning}\n\nThe area is not vacant. Do you still want to add this customer as Monopoly?`
+            );
+            if (!confirmed) {
+                return;
+            }
+        }
+
         setIsSubmitting(true);
         try {
             await addCustomer(formData);
@@ -71,8 +109,8 @@ const AddCustomerModal: React.FC = () => {
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={closeAddCustomerModal}>
-            <div className="card-base w-full max-w-md modal-content" onClick={e => e.stopPropagation()}>
-                <div className="p-5 border-b border-[var(--border-light)] dark:border-[var(--border-dark)] flex justify-between items-center">
+            <div className="card-base w-full max-w-2xl modal-content max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+                <div className="p-5 border-b border-[var(--border-light)] dark:border-[var(--border-dark)] flex justify-between items-center sticky top-0 bg-white dark:bg-gray-800 z-10">
                     <h3 className="text-xl font-semibold">Add New Client</h3>
                     <button onClick={closeAddCustomerModal} className="text-[var(--text-secondary-light)] dark:text-[var(--text-secondary-dark)] hover:text-red-500">
                         <i className="fas fa-times"></i>
@@ -80,21 +118,50 @@ const AddCustomerModal: React.FC = () => {
                 </div>
                 <form onSubmit={handleSubmit} noValidate>
                     <div className="p-6 space-y-4">
-                        <div>
-                            <label className="block text-sm font-medium mb-1">Name <span className="text-red-500">*</span></label>
-                            <input type="text" name="name" value={formData.name} onChange={handleChange} className="input-style" required/>
-                            {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
+                        {/* Territory Warning */}
+                        {territoryWarning && (
+                            <div className="p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-300 dark:border-yellow-700 rounded-lg text-yellow-800 dark:text-yellow-200 text-sm">
+                                <i className="fas fa-exclamation-triangle mr-2"></i>
+                                {territoryWarning}
+                            </div>
+                        )}
+
+                        {/* Firm Name & Person Name */}
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium mb-1">Firm/Business Name <span className="text-red-500">*</span></label>
+                                <input type="text" name="firmName" value={formData.firmName} onChange={handleChange} className="input-style" required />
+                                {errors.firmName && <p className="text-red-500 text-xs mt-1">{errors.firmName}</p>}
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium mb-1">Contact Person Name <span className="text-red-500">*</span></label>
+                                <input type="text" name="personName" value={formData.personName} onChange={handleChange} className="input-style" required />
+                                {errors.personName && <p className="text-red-500 text-xs mt-1">{errors.personName}</p>}
+                            </div>
                         </div>
+
+                        {/* Email */}
                         <div>
-                            <label className="block text-sm font-medium mb-1">Contact (10-digit) <span className="text-red-500">*</span></label>
-                            <input type="tel" name="contact" value={formData.contact} onChange={handleChange} className="input-style" maxLength={10} required/>
-                            {errors.contact && <p className="text-red-500 text-xs mt-1">{errors.contact}</p>}
+                            <label className="block text-sm font-medium mb-1">Email Address (Optional)</label>
+                            <input type="email" name="email" value={formData.email} onChange={handleChange} className="input-style" placeholder="example@company.com" />
+                            {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
                         </div>
-                        <div>
-                            <label className="block text-sm font-medium mb-1">Alternate Contact (Optional)</label>
-                            <input type="tel" name="alternateContact" value={formData.alternateContact} onChange={handleChange} className="input-style" maxLength={10} />
-                            {errors.alternateContact && <p className="text-red-500 text-xs mt-1">{errors.alternateContact}</p>}
+
+                        {/* Contact Numbers */}
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium mb-1">Contact (10-digit) <span className="text-red-500">*</span></label>
+                                <input type="tel" name="contact" value={formData.contact} onChange={handleChange} className="input-style" maxLength={10} required />
+                                {errors.contact && <p className="text-red-500 text-xs mt-1">{errors.contact}</p>}
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium mb-1">Alternate Contact (Optional)</label>
+                                <input type="tel" name="alternateContact" value={formData.alternateContact} onChange={handleChange} className="input-style" maxLength={10} />
+                                {errors.alternateContact && <p className="text-red-500 text-xs mt-1">{errors.alternateContact}</p>}
+                            </div>
                         </div>
+
+                        {/* State & District */}
                         <div className="grid grid-cols-2 gap-4">
                             <div>
                                 <label className="block text-sm font-medium mb-1">State <span className="text-red-500">*</span></label>
@@ -113,17 +180,28 @@ const AddCustomerModal: React.FC = () => {
                                 {errors.district && <p className="text-red-500 text-xs mt-1">{errors.district}</p>}
                             </div>
                         </div>
-                        <div>
-                            <label className="block text-sm font-medium mb-1">Tier</label>
-                            <select name="tier" value={formData.tier} onChange={handleChange} className="input-style">
-                                <option value="Bronze">Bronze</option>
-                                <option value="Silver">Silver</option>
-                                <option value="Gold">Gold</option>
-                                <option value="Dead">Dead</option>
-                            </select>
+
+                        {/* Tier & Monopoly Status */}
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium mb-1">Tier</label>
+                                <select name="tier" value={formData.tier} onChange={handleChange} className="input-style">
+                                    <option value="Bronze">Bronze</option>
+                                    <option value="Silver">Silver</option>
+                                    <option value="Gold">Gold</option>
+                                    <option value="Dead">Dead</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium mb-1">Territory Status <span className="text-red-500">*</span></label>
+                                <select name="monopolyStatus" value={formData.monopolyStatus} onChange={handleChange} className="input-style" required>
+                                    <option value="Non-Monopoly">Non-Monopoly</option>
+                                    <option value="Monopoly">Monopoly</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
-                    <div className="p-5 border-t border-[var(--border-light)] dark:border-[var(--border-dark)] flex justify-end gap-3">
+                    <div className="p-5 border-t border-[var(--border-light)] dark:border-[var(--border-dark)] flex justify-end gap-3 sticky bottom-0 bg-white dark:bg-gray-800">
                         <button type="button" onClick={closeAddCustomerModal} className="btn-secondary">
                             Cancel
                         </button>

@@ -1,13 +1,18 @@
 // types.ts
 export type CustomerTier = 'Gold' | 'Silver' | 'Bronze' | 'Dead';
+export type MonopolyStatus = 'Monopoly' | 'Non-Monopoly';
 
 export interface Customer {
   id: string;
-  name: string;
+  name: string; // Kept for backward compatibility, will be same as firmName
+  firmName: string; // Business/Firm name
+  personName: string; // Contact person name
+  email?: string; // Email address
   contact: string;
   alternateContact?: string;
   avatar: string;
   tier: CustomerTier;
+  monopolyStatus: MonopolyStatus; // Monopoly or Non-Monopoly
   state: string;
   district: string;
   salesThisMonth: number;
@@ -62,12 +67,15 @@ export interface Milestone {
 
 
 export interface CustomerFormData {
-  name: string;
+  firmName: string;
+  personName: string;
+  email?: string;
   contact: string;
   alternateContact?: string;
   state: string;
   district: string;
   tier: CustomerTier;
+  monopolyStatus: MonopolyStatus;
 }
 
 export interface ToastMessage {

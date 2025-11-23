@@ -50,30 +50,33 @@ export const useCrmData = () => {
       .filter(customer => {
         const searchLower = searchTerm.toLowerCase();
         const nameMatch = customer.name.toLowerCase().includes(searchLower);
+        const firmNameMatch = customer.firmName.toLowerCase().includes(searchLower);
+        const personNameMatch = customer.personName.toLowerCase().includes(searchLower);
+        const emailMatch = customer.email?.toLowerCase().includes(searchLower) || false;
         const contactMatch = customer.contact.toLowerCase().includes(searchLower);
         const stateMatch = customer.state.toLowerCase().includes(searchLower);
         const districtMatch = customer.district.toLowerCase().includes(searchLower);
         const tierMatch = filters.tier ? customer.tier === filters.tier : true;
         const filterStateMatch = filters.state ? customer.state === filters.state : true;
-        
-        return (nameMatch || contactMatch || stateMatch || districtMatch) && tierMatch && filterStateMatch;
+
+        return (nameMatch || firmNameMatch || personNameMatch || emailMatch || contactMatch || stateMatch || districtMatch) && tierMatch && filterStateMatch;
       })
       .sort((a, b) => {
         const field = filters.sortBy;
         const valA = a[field];
         const valB = b[field];
-        
+
         let comparison = 0;
         if (typeof valA === 'string' && typeof valB === 'string') {
-          if(field === 'lastUpdated') {
-             comparison = new Date(valB).getTime() - new Date(valA).getTime();
+          if (field === 'lastUpdated') {
+            comparison = new Date(valB).getTime() - new Date(valA).getTime();
           } else {
-             comparison = valA.localeCompare(valB);
+            comparison = valA.localeCompare(valB);
           }
         } else if (typeof valA === 'number' && typeof valB === 'number') {
           comparison = valB - valA; // Default number sort is descending
         }
-        
+
         return filters.sortOrder === 'asc' ? -comparison : comparison;
       });
   }, [customers, searchTerm, filters]);
@@ -128,7 +131,7 @@ export const useCrmData = () => {
       const newSale = await api.addSale(customerId, amount, date);
       // Refetch customer to get updated sales figures
       const updatedCustomer = await api.fetchCustomerById(customerId);
-      if(updatedCustomer) {
+      if (updatedCustomer) {
         setCustomers(prev => prev.map(c => c.id === customerId ? updatedCustomer : c));
       }
       return newSale;
@@ -202,7 +205,7 @@ export const useCrmData = () => {
     setSearchTerm,
     filters,
     setFilter,
-    
+
     // Actions
     addCustomer,
     updateCustomer,

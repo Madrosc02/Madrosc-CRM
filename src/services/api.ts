@@ -8,11 +8,15 @@ import { analyzeRemarkSentiment } from './geminiService';
 // Map DB snake_case to frontend camelCase
 const mapCustomer = (data: any): Customer => ({
     id: data.id,
-    name: data.name,
+    name: data.firm_name || data.name, // Use firm_name, fallback to name for backward compatibility
+    firmName: data.firm_name || data.name,
+    personName: data.person_name || '',
+    email: data.email,
     contact: data.contact,
     alternateContact: data.alternate_contact,
     avatar: data.avatar || `https://i.pravatar.cc/150?u=${data.id}`,
     tier: data.tier,
+    monopolyStatus: data.monopoly_status || 'Non-Monopoly',
     state: data.state,
     district: data.district,
     salesThisMonth: Number(data.sales_this_month),
@@ -93,10 +97,14 @@ export const addCustomer = async (formData: CustomerFormData): Promise<Customer>
     const { data, error } = await supabase
         .from('customers')
         .insert([{
-            name: formData.name,
+            name: formData.firmName, // Keep for backward compatibility
+            firm_name: formData.firmName,
+            person_name: formData.personName,
+            email: formData.email,
             contact: formData.contact,
             alternate_contact: formData.alternateContact,
             tier: formData.tier,
+            monopoly_status: formData.monopolyStatus,
             state: formData.state,
             district: formData.district,
             avatar: `https://i.pravatar.cc/150?u=${Date.now()}`, // Temporary avatar logic
@@ -111,10 +119,16 @@ export const addCustomer = async (formData: CustomerFormData): Promise<Customer>
 
 export const updateCustomer = async (customerId: string, updateData: Partial<CustomerFormData>): Promise<Customer> => {
     const dbUpdateData: any = {};
-    if (updateData.name) dbUpdateData.name = updateData.name;
+    if (updateData.firmName) {
+        dbUpdateData.name = updateData.firmName; // Keep for backward compatibility
+        dbUpdateData.firm_name = updateData.firmName;
+    }
+    if (updateData.personName) dbUpdateData.person_name = updateData.personName;
+    if (updateData.email !== undefined) dbUpdateData.email = updateData.email;
     if (updateData.contact) dbUpdateData.contact = updateData.contact;
     if (updateData.alternateContact) dbUpdateData.alternate_contact = updateData.alternateContact;
     if (updateData.tier) dbUpdateData.tier = updateData.tier;
+    if (updateData.monopolyStatus) dbUpdateData.monopoly_status = updateData.monopolyStatus;
     if (updateData.state) dbUpdateData.state = updateData.state;
     if (updateData.district) dbUpdateData.district = updateData.district;
     dbUpdateData.last_updated = new Date().toISOString();
@@ -142,10 +156,14 @@ export const deleteCustomer = async (customerId: string): Promise<boolean> => {
 
 export const bulkAddCustomers = async (newCustomersData: Omit<Customer, 'id' | 'avatar' | 'lastUpdated'>[]): Promise<Customer[]> => {
     const dbData = newCustomersData.map(c => ({
-        name: c.name,
+        name: c.firmName, // Keep for backward compatibility
+        firm_name: c.firmName,
+        person_name: c.personName,
+        email: c.email,
         contact: c.contact,
         alternate_contact: c.alternateContact,
         tier: c.tier,
+        monopoly_status: c.monopolyStatus,
         state: c.state,
         district: c.district,
         sales_this_month: c.salesThisMonth,

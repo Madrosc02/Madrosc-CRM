@@ -15,7 +15,7 @@ const CustomerRow: React.FC<{ customer: Customer }> = ({ customer }) => {
 
     const handleWhatsApp = (e: React.MouseEvent) => {
         e.stopPropagation();
-        const message = `Hi ${customer.name}, checking in regarding your recent order.`;
+        const message = `Hi ${customer.personName || customer.name}, checking in regarding your recent order.`;
         const url = `https://wa.me/91${customer.contact}?text=${encodeURIComponent(message)}`;
         window.open(url, '_blank');
     };
@@ -32,11 +32,11 @@ const CustomerRow: React.FC<{ customer: Customer }> = ({ customer }) => {
         >
             <td className="p-4">
                 <div className="flex items-center">
-                    <img className="h-10 w-10 rounded-full object-cover ring-2 ring-white dark:ring-gray-800" src={customer.avatar} alt={customer.name} />
+                    <img className="h-10 w-10 rounded-full object-cover ring-2 ring-white dark:ring-gray-800" src={customer.avatar} alt={customer.firmName} />
                     <div className="ml-4">
-                        <p className="font-semibold text-[var(--text-primary-light)] dark:text-[var(--text-primary-dark)]">{customer.name}</p>
+                        <p className="font-semibold text-[var(--text-primary-light)] dark:text-[var(--text-primary-dark)]">{customer.firmName}</p>
                         <div className="flex items-center gap-2">
-                            <p className="text-sm text-[var(--text-secondary-light)] dark:text-[var(--text-secondary-dark)]">{customer.contact}</p>
+                            <p className="text-sm text-[var(--text-secondary-light)] dark:text-[var(--text-secondary-dark)]">{customer.personName}</p>
                             {/* Quick Actions (Visible on Hover) */}
                             <div className="hidden group-hover:flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                                 <button onClick={handleCall} className="p-1 text-blue-600 hover:bg-blue-100 rounded-full" title="Call">
@@ -47,7 +47,7 @@ const CustomerRow: React.FC<{ customer: Customer }> = ({ customer }) => {
                                 </button>
                             </div>
                         </div>
-                        <p className="text-xs text-[var(--text-secondary-light)] dark:text-[var(--text-secondary-dark)] mt-0.5">{customer.district}, {customer.state}</p>
+                        <p className="text-xs text-[var(--text-secondary-light)] dark:text-[var(--text-secondary-dark)] mt-0.5">{customer.contact} • {customer.district}, {customer.state}</p>
                     </div>
                 </div>
             </td>
