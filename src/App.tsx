@@ -16,6 +16,7 @@ const AddCustomerModal = React.lazy(() => import('./components/AddCustomerModal'
 const BulkImportModal = React.lazy(() => import('./components/BulkImportModal'));
 const AddTaskModal = React.lazy(() => import('./components/AddTaskModal'));
 const CommandPalette = React.lazy(() => import('./components/command/CommandPalette'));
+const CallMode = React.lazy(() => import('./components/CallMode'));
 
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -51,6 +52,7 @@ const AuthenticatedApp: React.FC = () => {
                 <Routes>
                     <Route path="/" element={<Dashboard />} />
                     <Route path="/analytics" element={<AnalyticsPage />} />
+                    <Route path="/call-mode" element={<CallMode />} />
                     <Route path="*" element={<Navigate to="/" replace />} />
                 </Routes>
             </Suspense>

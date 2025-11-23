@@ -25,9 +25,14 @@ export interface Customer {
   monopolyStatus: MonopolyStatus; // Monopoly or Non-Monopoly (primary territory)
   state: string; // Primary state
   district: string; // Primary district
+  town?: string; // Added for Call Mode
   territories?: CustomerTerritory[]; // All territories (loaded separately)
   salesThisMonth: number;
   avg6MoSales: number;
+  totalSales?: number; // Added for Call Mode
+  lastOrderDate?: string; // Added for Call Mode
+  phone?: string; // Added for Call Mode
+  segment?: string; // Added for Call Mode
   outstandingBalance: number;
   daysSinceLastOrder: number;
   lastUpdated: string; // ISO string
