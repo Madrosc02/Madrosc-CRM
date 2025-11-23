@@ -18,6 +18,7 @@ const StatCardSkeleton: React.FC = () => (
 
 const KPIRow: React.FC = () => {
     const { customers, loading, getAllSales, analyticsFilters } = useApp();
+    const [allSales, setAllSales] = useState<Sale[]>([]);
     const [salesLoading, setSalesLoading] = useState(true);
 
     useEffect(() => {
