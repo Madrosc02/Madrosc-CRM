@@ -1,4 +1,3 @@
-```typescript
 import React from 'react';
 import CustomerTable from './CustomerTable';
 import UpcomingTasks from './UpcomingTasks';
@@ -13,7 +12,7 @@ const Dashboard: React.FC = () => {
             <FadeIn>
                 <KPIRow />
             </FadeIn>
-            
+
             {/* Sales Trend Chart - Full Width */}
             <FadeIn>
                 <SalesTrendChart />
