@@ -2,6 +2,16 @@
 export type CustomerTier = 'Gold' | 'Silver' | 'Bronze' | 'Dead';
 export type MonopolyStatus = 'Monopoly' | 'Non-Monopoly';
 
+export interface CustomerTerritory {
+  id?: string;
+  customerId?: string;
+  state: string;
+  district: string;
+  monopolyStatus: MonopolyStatus;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
 export interface Customer {
   id: string;
   name: string; // Kept for backward compatibility, will be same as firmName
@@ -12,9 +22,10 @@ export interface Customer {
   alternateContact?: string;
   avatar: string;
   tier: CustomerTier;
-  monopolyStatus: MonopolyStatus; // Monopoly or Non-Monopoly
-  state: string;
-  district: string;
+  monopolyStatus: MonopolyStatus; // Monopoly or Non-Monopoly (primary territory)
+  state: string; // Primary state
+  district: string; // Primary district
+  territories?: CustomerTerritory[]; // All territories (loaded separately)
   salesThisMonth: number;
   avg6MoSales: number;
   outstandingBalance: number;
@@ -76,6 +87,7 @@ export interface CustomerFormData {
   district: string;
   tier: CustomerTier;
   monopolyStatus: MonopolyStatus;
+  territories?: CustomerTerritory[]; // For multi-district support
 }
 
 export interface ToastMessage {
@@ -83,3 +95,4 @@ export interface ToastMessage {
   message: string;
   type: 'success' | 'error' | 'info';
 }
+

@@ -1,6 +1,6 @@
 // services/api.ts
 import { supabase } from '../lib/supabase';
-import { Customer, Sale, Remark, Task, CustomerFormData, Goal, Milestone } from '../types';
+import { Customer, Sale, Remark, Task, CustomerFormData, Goal, Milestone, CustomerTerritory } from '../types';
 import { analyzeRemarkSentiment } from './geminiService';
 
 // --- HELPERS ---
@@ -482,3 +482,71 @@ export const toggleMilestoneComplete = async (milestoneId: string): Promise<Mile
     if (updateError) throw updateError;
     return mapMilestone(updatedMilestone);
 };
+
+
+// --- TERRITORIES API ---
+
+const mapTerritory = (data: any): CustomerTerritory => ({
+    id: data.id,
+    customerId: data.customer_id,
+    state: data.state,
+    district: data.district,
+    monopolyStatus: data.monopoly_status,
+    createdAt: data.created_at,
+    updatedAt: data.updated_at,
+});
+
+export const fetchTerritoriesForCustomer = async (customerId: string): Promise<CustomerTerritory[]> => {
+    const { data, error } = await supabase
+        .from('customer_territories')
+        .select('*')
+        .eq('customer_id', customerId)
+        .order('created_at', { ascending: true });
+
+    if (error) throw error;
+    return (data || []).map(mapTerritory);
+};
+
+export const addTerritory = async (customerId: string, territory: Omit<CustomerTerritory, 'id' | 'customerId' | 'createdAt' | 'updatedAt'>): Promise<CustomerTerritory> => {
+    const { data, error } = await supabase
+        .from('customer_territories')
+        .insert([{
+            customer_id: customerId,
+            state: territory.state,
+            district: territory.district,
+            monopoly_status: territory.monopolyStatus,
+        }])
+        .select()
+        .single();
+
+    if (error) throw error;
+    return mapTerritory(data);
+};
+
+export const updateTerritory = async (territoryId: string, updates: Partial<Omit<CustomerTerritory, 'id' | 'customerId' | 'createdAt' | 'updatedAt'>>): Promise<CustomerTerritory> => {
+    const dbUpdates: any = {};
+    if (updates.state) dbUpdates.state = updates.state;
+    if (updates.district) dbUpdates.district = updates.district;
+    if (updates.monopolyStatus) dbUpdates.monopoly_status = updates.monopolyStatus;
+
+    const { data, error } = await supabase
+        .from('customer_territories')
+        .update(dbUpdates)
+        .eq('id', territoryId)
+        .select()
+        .single();
+
+    if (error) throw error;
+    return mapTerritory(data);
+};
+
+export const deleteTerritory = async (territoryId: string): Promise<boolean> => {
+    const { error } = await supabase
+        .from('customer_territories')
+        .delete()
+        .eq('id', territoryId);
+
+    if (error) throw error;
+    return true;
+};
+
