@@ -21,7 +21,7 @@ const ChurnRiskDashboard: React.FC = () => {
     }, [customers, sales, remarks]);
 
     const highRiskCustomers = riskData.filter(r => r.riskLevel === 'High');
-    const mediumRiskCustomers = riskData.filter(r => r.riskLevel === 'Medium');
+    // const mediumRiskCustomers = riskData.filter(r => r.riskLevel === 'Medium');
 
     const totalRiskRevenue = highRiskCustomers.reduce((sum, r) => {
         const customer = customers.find(c => c.id === r.customerId);
