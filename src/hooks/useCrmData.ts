@@ -14,6 +14,7 @@ export const useCrmData = () => {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [remarks, setRemarks] = useState<Remark[]>([]);
+  const [sales, setSales] = useState<Sale[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filters, setFilters] = useState<Filters>({
@@ -27,14 +28,16 @@ export const useCrmData = () => {
     const loadData = async () => {
       setLoading(true);
       try {
-        const [customersData, tasksData, remarksData] = await Promise.all([
+        const [customersData, tasksData, remarksData, salesData] = await Promise.all([
           api.fetchCustomers(),
           api.fetchTasks(),
           api.fetchRemarks(),
+          api.fetchAllSales(),
         ]);
         setCustomers(customersData);
         setTasks(tasksData.sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()));
         setRemarks(remarksData);
+        setSales(salesData);
       } catch (error) {
         console.error("Failed to load CRM data", error);
       } finally {
@@ -137,6 +140,8 @@ export const useCrmData = () => {
       if (updatedCustomer) {
         setCustomers(prev => prev.map(c => c.id === customerId ? updatedCustomer : c));
       }
+      // Also update sales list
+      setSales(prev => [newSale, ...prev].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
       return newSale;
     } catch (error) {
       console.error("Error adding sale:", error);
@@ -146,7 +151,9 @@ export const useCrmData = () => {
 
   const addRemark = async (customerId: string, remarkText: string): Promise<Remark> => {
     try {
-      return await api.addRemark(customerId, remarkText);
+      const newRemark = await api.addRemark(customerId, remarkText);
+      setRemarks(prev => [newRemark, ...prev].sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()));
+      return newRemark;
     } catch (error) {
       console.error("Error adding remark:", error);
       throw error;
@@ -204,6 +211,7 @@ export const useCrmData = () => {
     customers,
     tasks,
     remarks,
+    sales,
     filteredCustomers,
     searchTerm,
     setSearchTerm,
