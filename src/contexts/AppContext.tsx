@@ -20,23 +20,45 @@ interface AddTaskInitialData {
   dueDate: string; // Should be in 'YYYY-MM-DDTHH:mm' format for datetime-local input
 }
 
+interface AppContextType extends CrmDataHook {
+  // Search
+  searchQuery: string;
+  setSearchQuery: (query: string) => void;
 
-isBulkImportModalOpen: boolean;
-openBulkImportModal: () => void;
-closeBulkImportModal: () => void;
+  // KPI Filter
+  kpiFilter: 'all' | 'total' | 'pending' | 'sales' | 'outstanding' | 'ai-search' | null;
+  setKpiFilter: (filter: 'all' | 'total' | 'pending' | 'sales' | 'outstanding' | 'ai-search' | null) => void;
 
-isAddTaskModalOpen: boolean;
-openAddTaskModal: (initialData?: AddTaskInitialData) => void;
-closeAddTaskModal: () => void;
-addTaskInitialData: AddTaskInitialData | null;
+  // View management
+  currentView: 'dashboard' | 'analytics';
+  setCurrentView: (view: 'dashboard' | 'analytics') => void;
 
-isCommandPaletteOpen: boolean;
-openCommandPalette: () => void;
-closeCommandPalette: () => void;
+  // Modal states and handlers
+  isDetailModalOpen: boolean;
+  detailModalCustomer: Customer | null;
+  openDetailModal: (customer: Customer) => void;
+  closeDetailModal: () => void;
 
-// Analytics filters
-analyticsFilters: AnalyticsFilters;
-setAnalyticsFilters: React.Dispatch<React.SetStateAction<AnalyticsFilters>>;
+  isAddCustomerModalOpen: boolean;
+  openAddCustomerModal: () => void;
+  closeAddCustomerModal: () => void;
+
+  isBulkImportModalOpen: boolean;
+  openBulkImportModal: () => void;
+  closeBulkImportModal: () => void;
+
+  isAddTaskModalOpen: boolean;
+  openAddTaskModal: (initialData?: AddTaskInitialData) => void;
+  closeAddTaskModal: () => void;
+  addTaskInitialData: AddTaskInitialData | null;
+
+  isCommandPaletteOpen: boolean;
+  openCommandPalette: () => void;
+  closeCommandPalette: () => void;
+
+  // Analytics filters
+  analyticsFilters: AnalyticsFilters;
+  setAnalyticsFilters: React.Dispatch<React.SetStateAction<AnalyticsFilters>>;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);

@@ -64,7 +64,7 @@ export function calculateCustomerChurnRisk(
     // 4. Engagement Risk (Max 10 points)
     // Check for negative sentiment in recent remarks (if available)
     // This is a placeholder as we'd need to process remarks sentiment
-    const customerRemarks = remarks.filter(r => r.customerId === customer.id);
+    const customerRemarks = (remarks || []).filter(r => r.customerId === customer.id);
     if (customerRemarks.length === 0 && daysSinceLastOrder > 30) {
         score += 10;
         factors.push('No recent interactions');

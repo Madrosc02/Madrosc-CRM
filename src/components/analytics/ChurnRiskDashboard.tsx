@@ -17,8 +17,11 @@ const ChurnRiskDashboard: React.FC = () => {
     }, [getAllSales]);
 
     const riskData = useMemo(() => {
+        if (!customers || !sales || !remarks) return [];
         return analyzeChurnRisks(customers, sales, remarks);
     }, [customers, sales, remarks]);
+
+    if (!riskData) return null;
 
     const highRiskCustomers = riskData.filter(r => r.riskLevel === 'High');
     // const mediumRiskCustomers = riskData.filter(r => r.riskLevel === 'Medium');
