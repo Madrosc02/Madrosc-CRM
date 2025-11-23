@@ -321,12 +321,12 @@ export const EditDetailsForm: React.FC<{ customer: Customer, onCancel: () => voi
                     </select>
                 </div>
             </div>
-            <div className="flex justify-end gap-3 pt-4 sticky bottom-0 bg-white dark:bg-gray-800 pb-4 border-t border-gray-200 dark:border-gray-700 mt-6">
-                <button onClick={onCancel} className={btnSecondary}>Cancel</button>
+            <div className="flex justify-end gap-3 pt-4 sticky bottom-0 bg-white dark:bg-gray-800 pb-4 border-t border-gray-200 dark:border-gray-700 mt-6 -mx-4 px-4">
                 <button onClick={handleSubmit} disabled={isSubmitting} className={`${btnPrimary} flex items-center`}>
                     {isSubmitting && <Spinner size="sm" className="mr-2" />}
                     Save Changes
                 </button>
+                <button onClick={onCancel} className={btnSecondary}>Cancel</button>
             </div>
         </div>
     )
