@@ -14,46 +14,12 @@ import ActionableInsights from './ActionableInsights';
 import OverallPerformanceTable from './OverallPerformanceTable';
 import FadeIn from '../ui/FadeIn';
 import SalesForecast from './SalesForecast';
+import ExecutiveSummary from './ExecutiveSummary';
+import CustomerSegmentation from './CustomerSegmentation';
 
 const AnalyticsPage: React.FC = () => {
-    const { loading, analyticsFilters, customers } = useApp();
-
-    const selectedCustomerData = useMemo(() => {
-        if (analyticsFilters.selectedCustomer === 'all') return null;
-        return customers.find(c => c.id === analyticsFilters.selectedCustomer);
-    }, [analyticsFilters.selectedCustomer, customers]);
-
-    if (loading) {
-        return <DashboardSkeleton />;
-    }
-
     return (
-        <div className="space-y-6">
-            <FadeIn>
-              <AnalyticsFilters />
-            </FadeIn>
-            
-            {selectedCustomerData ? (
-                <FadeIn>
-                    <CustomerPerformanceDetail customer={selectedCustomerData} />
-                </FadeIn>
-            ) : (
-                <>
-                    <FadeIn>
-                      <KPIRow />
-                    </FadeIn>
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        <FadeIn className="lg:col-span-2 card-base p-4">
-                            <OverallSalesTrendChart />
-                        </FadeIn>
-                        <FadeIn className="card-base p-4">
-                            <OverallPerformanceTable />
-                        </FadeIn>
-                    </div>
-                    
-                    <FadeIn>
-                      <ActionableInsights />
-                    </FadeIn>
+                    </FadeIn >
                     
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         <FadeIn className="card-base p-4">
@@ -76,7 +42,7 @@ const AnalyticsPage: React.FC = () => {
                     </div>
                 </>
             )}
-        </div>
+        </div >
     );
 };
 

@@ -3,8 +3,6 @@ import CustomerTable from './CustomerTable';
 import UpcomingTasks from './UpcomingTasks';
 import KPIRow from './analytics/KPIRow';
 import SalesTrendChart from './analytics/SalesTrendChart';
-import ExecutiveSummary from './analytics/ExecutiveSummary';
-import CustomerSegmentation from './analytics/CustomerSegmentation';
 import FadeIn from './ui/FadeIn';
 
 const Dashboard: React.FC = () => {
@@ -13,16 +11,6 @@ const Dashboard: React.FC = () => {
         <div className="space-y-6 glass-panel p-6 rounded-2xl">
             <FadeIn>
                 <KPIRow />
-            </FadeIn>
-
-            {/* Executive Summary */}
-            <FadeIn>
-                <ExecutiveSummary />
-            </FadeIn>
-
-            {/* Customer Segmentation */}
-            <FadeIn>
-                <CustomerSegmentation />
             </FadeIn>
 
             {/* Sales Chart & Tasks Section */}
