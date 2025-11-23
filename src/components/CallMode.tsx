@@ -575,9 +575,8 @@ const CallMode: React.FC = () => {
                     </div>
                 </div>
             </div>
-            );
+        </div>
+    );
 };
 
-            export default CallMode;
-
-// Force update to ensure sync
+export default CallMode;
