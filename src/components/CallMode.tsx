@@ -4,6 +4,7 @@ import { useApp } from '../contexts/AppContext';
 import GlassCard from './common/GlassCard';
 import { Customer, Remark } from '../types';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
+import { CustomerRemarks } from './customer/CustomerRemarks';
 
 const CallMode: React.FC = () => {
     const { customers, remarks, addRemark, openAddTaskModal, openDetailModal } = useApp();
@@ -11,8 +12,6 @@ const CallMode: React.FC = () => {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isAnimating, setIsAnimating] = useState(false);
     const [selectedTier, setSelectedTier] = useState<string>('All');
-    const [newRemark, setNewRemark] = useState('');
-    const [isSubmittingRemark, setIsSubmittingRemark] = useState(false);
 
     // --- Metrics & Data Preparation ---
     const metrics = useMemo(() => {
@@ -85,19 +84,6 @@ const CallMode: React.FC = () => {
         setCurrentIndex(0);
     };
 
-    const handleAddRemark = async () => {
-        if (!newRemark.trim() || !currentCustomer) return;
-        setIsSubmittingRemark(true);
-        try {
-            await addRemark(currentCustomer.id, newRemark);
-            setNewRemark('');
-        } catch (error) {
-            console.error("Failed to add remark", error);
-        } finally {
-            setIsSubmittingRemark(false);
-        }
-    };
-
     const handleCreateTask = () => {
         if (currentCustomer) {
             openAddTaskModal({
@@ -125,6 +111,14 @@ const CallMode: React.FC = () => {
         if (currentCustomer) {
             openDetailModal(currentCustomer);
         }
+    };
+
+    // Callback when a remark is added via the child component
+    // In a real app with SWR/React Query, this might trigger a re-fetch.
+    // Here, context updates automatically, so we might just log or show a toast if needed.
+    const onRemarkAdded = () => {
+        // Context updates automatically, so the list will refresh.
+        console.log("Remark added in Call Mode");
     };
 
     if (!currentCustomer && filteredCustomers.length > 0) return <div>Loading...</div>;
@@ -351,66 +345,20 @@ const CallMode: React.FC = () => {
                             </div>
                         </GlassCard>
 
-                        {/* Interaction History Timeline */}
+                        {/* Interaction History (Reusing CustomerRemarks) */}
                         <GlassCard className="flex-1 flex flex-col overflow-hidden">
                             <div className="p-4 border-b border-[#E1E7F0] flex justify-between items-center bg-slate-50/50">
                                 <h3 className="text-sm font-bold uppercase tracking-wider text-[#6B7280]">Interaction History</h3>
                                 <button onClick={handleViewAllHistory} className="text-xs text-[#00B894] font-semibold hover:underline">View All</button>
                             </div>
 
-                            {/* Scrollable Timeline */}
+                            {/* Reused Remarks Component */}
                             <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
-                                <div className="space-y-6 relative pl-2">
-                                    {/* Vertical Line */}
-                                    <div className="absolute left-[11px] top-2 bottom-2 w-0.5 bg-[#E1E7F0]"></div>
-
-                                    {customerRemarks.length === 0 && (
-                                        <p className="text-center text-sm text-[#6B7280] py-4">No remarks found.</p>
-                                    )}
-
-                                    {customerRemarks.map((remark) => (
-                                        <div key={remark.id} className="relative pl-8 group">
-                                            {/* Dot */}
-                                            <div className="absolute left-0 top-1.5 w-6 h-6 rounded-full border-4 border-white z-10 flex items-center justify-center bg-[#4C6FFF]">
-                                                <i className="fas fa-comment text-[8px] text-white"></i>
-                                            </div>
-
-                                            {/* Content */}
-                                            <div className="bg-slate-50 p-3 rounded-xl border border-[#E1E7F0] hover:border-[#00B894] transition-colors">
-                                                <div className="flex justify-between items-start mb-1">
-                                                    <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-md bg-blue-100 text-blue-700">
-                                                        Note
-                                                    </span>
-                                                    <span className="text-[10px] text-[#6B7280]">{new Date(remark.timestamp).toLocaleDateString()}</span>
-                                                </div>
-                                                <p className="text-sm text-[#111827] leading-relaxed">{remark.remark}</p>
-                                                <p className="text-[10px] text-[#6B7280] mt-2 font-medium">By: {remark.user}</p>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-
-                            {/* Add Remark Input */}
-                            <div className="p-3 border-t border-[#E1E7F0] bg-white">
-                                <div className="relative flex items-center gap-2">
-                                    <input
-                                        type="text"
-                                        value={newRemark}
-                                        onChange={(e) => setNewRemark(e.target.value)}
-                                        placeholder="Add a new remark..."
-                                        className="w-full pl-4 pr-12 py-2.5 rounded-lg bg-slate-100 border-none focus:ring-2 focus:ring-[#00B894] text-sm text-[#111827]"
-                                        onKeyDown={(e) => e.key === 'Enter' && handleAddRemark()}
-                                        disabled={isSubmittingRemark}
-                                    />
-                                    <button
-                                        onClick={handleAddRemark}
-                                        disabled={isSubmittingRemark}
-                                        className="absolute right-1.5 p-1.5 bg-[#00B894] text-white rounded-md hover:bg-[#008C6E] transition-colors shadow-sm disabled:opacity-50"
-                                    >
-                                        {isSubmittingRemark ? <i className="fas fa-spinner fa-spin text-xs"></i> : <i className="fas fa-paper-plane text-xs"></i>}
-                                    </button>
-                                </div>
+                                <CustomerRemarks
+                                    customer={currentCustomer}
+                                    remarks={customerRemarks}
+                                    onRemarkAdded={onRemarkAdded}
+                                />
                             </div>
                         </GlassCard>
                     </div>
@@ -524,12 +472,6 @@ const CallMode: React.FC = () => {
                     </button>
 
                     <div className="flex gap-4">
-                        <button
-                            onClick={() => document.querySelector('input[placeholder="Add a new remark..."]')?.focus()}
-                            className="hidden sm:flex px-6 py-3 rounded-xl font-bold bg-slate-100 text-[#111827] hover:bg-slate-200 transition-all items-center gap-2"
-                        >
-                            <i className="fas fa-pen"></i> Log Remarks
-                        </button>
                         <button
                             onClick={handleNext}
                             disabled={currentIndex === filteredCustomers.length - 1}
