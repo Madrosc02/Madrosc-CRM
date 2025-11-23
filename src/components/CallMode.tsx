@@ -329,35 +329,35 @@ const CallMode: React.FC = () => {
                         </div>
                     </div>
                 </div>
-            </GlassCard>
         </div>
-                </div >
-            </div >
 
-    {/* --- Bottom Floating Action Bar --- */ }
-    < div className = "fixed bottom-0 left-0 right-0 p-4 bg-white/90 backdrop-blur-xl border-t border-[#E1E7F0] z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.1)]" >
-        <div className="container mx-auto flex justify-between items-center max-w-6xl">
-            <button
-                onClick={handlePrevious}
-                disabled={currentIndex === 0}
-                className="px-6 py-3 rounded-xl font-semibold text-[#6B7280] hover:bg-slate-100 disabled:opacity-30 transition-all flex items-center gap-2"
-            >
-                <i className="fas fa-chevron-left"></i> Previous
-            </button>
-
-            <div className="flex gap-4">
+        {/* --- Bottom Floating Action Bar --- */ }
+        <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/90 backdrop-blur-xl border-t border-[#E1E7F0] z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.1)]">
+            <div className="container mx-auto flex justify-between items-center max-w-6xl">
                 <button
-                    onClick={handleNext}
-                    disabled={currentIndex === filteredCustomers.length - 1}
-                    className="px-8 py-3 rounded-xl font-bold bg-[#00B894] text-white shadow-lg shadow-[#00B894]/30 hover:bg-[#008C6E] hover:scale-105 transition-all flex items-center gap-2"
+                    onClick={handlePrevious}
+                    disabled={currentIndex === 0}
+                    className="px-6 py-3 rounded-xl font-semibold text-[#6B7280] hover:bg-slate-100 disabled:opacity-30 transition-all flex items-center gap-2"
                 >
-                    Next Customer <i className="fas fa-chevron-right"></i>
+                    <i className="fas fa-chevron-left"></i> Previous
                 </button>
+
+                <div className="flex gap-4">
+                    <button
+                        onClick={handleNext}
+                        disabled={currentIndex === filteredCustomers.length - 1}
+                        className="px-8 py-3 rounded-xl font-bold bg-[#00B894] text-white shadow-lg shadow-[#00B894]/30 hover:bg-[#008C6E] hover:scale-105 transition-all flex items-center gap-2"
+                    >
+                        Next Customer <i className="fas fa-chevron-right"></i>
+                    </button>
+                </div>
             </div>
         </div>
-            </div >
         </div >
     );
+};
+
+export default CallMode;
 };
 
 export default CallMode;
