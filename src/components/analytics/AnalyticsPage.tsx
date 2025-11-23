@@ -20,6 +20,7 @@ import SmartAlerts from './SmartAlerts';
 import RevenueOpportunityAnalyzer from './RevenueOpportunityAnalyzer';
 import TerritoryHeatmap from './TerritoryHeatmap';
 import PerformanceLeaderboard from './PerformanceLeaderboard';
+import CohortAnalysis from './CohortAnalysis';
 
 const AnalyticsPage: React.FC = () => {
     const { loading, analyticsFilters, customers } = useApp();
@@ -79,6 +80,11 @@ const AnalyticsPage: React.FC = () => {
                             <PerformanceLeaderboard />
                         </FadeIn>
                     </div>
+
+                    {/* Cohort Analysis - Full Width */}
+                    <FadeIn>
+                        <CohortAnalysis />
+                    </FadeIn>
 
                     {/* Customer Segmentation - Full Width */}
                     <FadeIn>
