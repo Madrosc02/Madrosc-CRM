@@ -31,7 +31,7 @@ const SentimentIndicator: React.FC<{ sentiment?: Remark['sentiment'] }> = ({ sen
     );
 };
 
-export const CustomerRemarks: React.FC<{ customer: Customer, remarks: Remark[], onRemarkAdded: () => void }> = ({ customer, remarks, onRemarkAdded }) => {
+export const CustomerRemarks: React.FC<{ customer: Customer, remarks: Remark[], onRemarkAdded: () => void, variant?: 'default' | 'chat' }> = ({ customer, remarks, onRemarkAdded, variant = 'default' }) => {
     const { addRemark, addTask } = useApp();
     const { addToast } = useToast();
     const [newRemark, setNewRemark] = useState('');
@@ -113,109 +113,139 @@ export const CustomerRemarks: React.FC<{ customer: Customer, remarks: Remark[], 
         }
     };
 
+    const InputSection = () => (
+        <div className={variant === 'chat' ? "pt-4 border-t border-[var(--border-light)] dark:border-[var(--border-dark)] bg-white dark:bg-[#1e293b] sticky bottom-0 z-10" : "mb-4"}>
+            {variant !== 'chat' && (
+                <div className="border border-[var(--border-light)] dark:border-[var(--border-dark)] rounded-lg mb-4">
+                    <button
+                        onClick={() => setShowSummarizer(!showSummarizer)}
+                        className="w-full p-3 text-left font-semibold flex justify-between items-center"
+                    >
+                        <span><i className="fas fa-magic-wand-sparkles mr-2 text-purple-500"></i> AI Note Summarizer</span>
+                        <i className={`fas fa-chevron-down transition-transform ${showSummarizer ? 'rotate-180' : ''}`}></i>
+                    </button>
+                    {showSummarizer && (
+                        <div className="p-4 border-t border-[var(--border-light)] dark:border-[var(--border-dark)] space-y-3">
+                            <textarea
+                                value={rawNotes}
+                                onChange={e => setRawNotes(e.target.value)}
+                                placeholder="Paste your raw meeting or call notes here..."
+                                className={inputStyle}
+                                rows={5}
+                            />
+                            <button onClick={handleSummarize} disabled={isSummarizing || !rawNotes.trim()} className={btnPrimary}>
+                                {isSummarizing ? <><Spinner size="sm" className="mr-2" /> Summarizing...</> : 'Summarize Notes'}
+                            </button>
+                            {isSummarizing && <p className="text-sm text-[var(--text-secondary-light)] dark:text-[var(--text-secondary-dark)]">AI is reading your notes...</p>}
+                            {summaryResult && (
+                                <div className="mt-4 space-y-4">
+                                    <div>
+                                        <h5 className="font-bold">Summary:</h5>
+                                        <div className="p-2 bg-gray-50 dark:bg-white/5 rounded-md">
+                                            <MarkdownRenderer content={summaryResult.summary} />
+                                        </div>
+                                    </div>
+                                    {summaryResult.actionItems.length > 0 && (
+                                        <div>
+                                            <h5 className="font-bold">Action Items:</h5>
+                                            <ul className="space-y-2">
+                                                {summaryResult.actionItems.map((item, index) => (
+                                                    <li key={index} className="flex justify-between items-center p-2 bg-gray-50 dark:bg-white/5 rounded-md">
+                                                        <div>
+                                                            <p className="font-medium text-sm">{item.task}</p>
+                                                            <p className="text-xs text-[var(--text-secondary-light)] dark:text-[var(--text-secondary-dark)]">Due: {new Date(item.dueDate).toLocaleDateString()}</p>
+                                                        </div>
+                                                        <button onClick={() => handleCreateTaskFromSummary(item)} className={btnSecondarySm}>Create Task</button>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+                    )}
+                </div>
+            )}
+
+            <div className="relative">
+                <textarea
+                    value={newRemark}
+                    onChange={e => setNewRemark(e.target.value)}
+                    placeholder="Add a new remark (or use voice)..."
+                    className={`${inputStyle} mb-2 pr-10`}
+                    rows={variant === 'chat' ? 2 : 3}
+                />
+                <button
+                    onClick={() => {
+                        if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                            addToast('Voice input not supported in this browser.', 'error');
+                            return;
+                        }
+
+                        // @ts-ignore
+                        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                        const recognition = new SpeechRecognition();
+                        recognition.lang = 'en-US';
+                        recognition.interimResults = false;
+                        recognition.maxAlternatives = 1;
+
+                        recognition.start();
+
+                        recognition.onstart = () => {
+                            addToast('Listening...', 'info');
+                        };
+
+                        recognition.onresult = (event: any) => {
+                            const transcript = event.results[0][0].transcript;
+                            setNewRemark(prev => prev + (prev ? ' ' : '') + transcript);
+                        };
+
+                        recognition.onerror = (event: any) => {
+                            addToast('Voice error: ' + event.error, 'error');
+                        };
+                    }}
+                    className="absolute right-2 bottom-4 text-gray-400 hover:text-[var(--color-primary)] transition-colors"
+                    title="Dictate Remark"
+                >
+                    <i className="fas fa-microphone text-xl"></i>
+                </button>
+            </div>
+            <button onClick={handleAddRemark} disabled={isSubmitting} className={`${btnPrimary} w-full`}>
+                {isSubmitting ? 'Adding...' : 'Add Remark'}
+            </button>
+        </div>
+    );
+
+    const HistorySection = () => (
+        <div className={variant === 'chat' ? "flex-1 overflow-y-auto min-h-0 pr-2 custom-scrollbar" : ""}>
+            {variant !== 'chat' && <h4 className="font-semibold mb-2 text-lg">History</h4>}
+            <ul className={`space-y-3 text-sm ${variant === 'chat' ? '' : 'max-h-80 overflow-y-auto'}`}>
+                {remarks.length > 0 ? remarks.map(remark => (
+                    <li key={remark.id} className="p-3 border-l-4 border-blue-400 bg-gray-50 dark:bg-white/5 rounded-r-md">
+                        <MarkdownRenderer className="prose-p:italic prose-p:my-0" content={remark.remark} />
+                        <div className="flex justify-between items-center mt-1">
+                            <p className="text-xs text-[var(--text-secondary-light)] dark:text-[var(--text-secondary-dark)] text-right">- {remark.user} on {new Date(remark.timestamp).toLocaleString()}</p>
+                            <SentimentIndicator sentiment={remark.sentiment} />
+                        </div>
+                    </li>
+                )) : <p className="text-[var(--text-secondary-light)] dark:text-[var(--text-secondary-dark)] italic text-center py-4">No remarks found.</p>}
+            </ul>
+        </div>
+    );
+
+    if (variant === 'chat') {
+        return (
+            <div className="flex flex-col h-full overflow-hidden">
+                <HistorySection />
+                <InputSection />
+            </div>
+        );
+    }
 
     return (
         <div>
-            <div className="border border-[var(--border-light)] dark:border-[var(--border-dark)] rounded-lg mb-4">
-                <button
-                    onClick={() => setShowSummarizer(!showSummarizer)}
-                    className="w-full p-3 text-left font-semibold flex justify-between items-center"
-                >
-                    <span><i className="fas fa-magic-wand-sparkles mr-2 text-purple-500"></i> AI Note Summarizer</span>
-                    <i className={`fas fa-chevron-down transition-transform ${showSummarizer ? 'rotate-180' : ''}`}></i>
-                </button>
-                {showSummarizer && (
-                    <div className="p-4 border-t border-[var(--border-light)] dark:border-[var(--border-dark)] space-y-3">
-                        <textarea
-                            value={rawNotes}
-                            onChange={e => setRawNotes(e.target.value)}
-                            placeholder="Paste your raw meeting or call notes here..."
-                            className={inputStyle}
-                            rows={5}
-                        />
-                        <button onClick={handleSummarize} disabled={isSummarizing || !rawNotes.trim()} className={btnPrimary}>
-                            {isSummarizing ? <><Spinner size="sm" className="mr-2" /> Summarizing...</> : 'Summarize Notes'}
-                        </button>
-                        {isSummarizing && <p className="text-sm text-[var(--text-secondary-light)] dark:text-[var(--text-secondary-dark)]">AI is reading your notes...</p>}
-                        {summaryResult && (
-                            <div className="mt-4 space-y-4">
-                                <div>
-                                    <h5 className="font-bold">Summary:</h5>
-                                    <div className="p-2 bg-gray-50 dark:bg-white/5 rounded-md">
-                                        <MarkdownRenderer content={summaryResult.summary} />
-                                    </div>
-                                </div>
-                                {summaryResult.actionItems.length > 0 && (
-                                    <div>
-                                        <h5 className="font-bold">Action Items:</h5>
-                                        <ul className="space-y-2">
-                                            {summaryResult.actionItems.map((item, index) => (
-                                                <li key={index} className="flex justify-between items-center p-2 bg-gray-50 dark:bg-white/5 rounded-md">
-                                                    <div>
-                                                        <p className="font-medium text-sm">{item.task}</p>
-                                                        <p className="text-xs text-[var(--text-secondary-light)] dark:text-[var(--text-secondary-dark)]">Due: {new Date(item.dueDate).toLocaleDateString()}</p>
-                                                    </div>
-                                                    <button onClick={() => handleCreateTaskFromSummary(item)} className={btnSecondarySm}>Create Task</button>
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    </div>
-                                )}
-                            </div>
-                        )}
-                    </div>
-                )}
-            </div>
-
-            <div className="mb-4">
-                <div className="relative">
-                    <textarea
-                        value={newRemark}
-                        onChange={e => setNewRemark(e.target.value)}
-                        placeholder="Add a new remark (or use voice)..."
-                        className={`${inputStyle} mb-2 pr-10`}
-                        rows={3}
-                    />
-                    <button
-                        onClick={() => {
-                            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-                                addToast('Voice input not supported in this browser.', 'error');
-                                return;
-                            }
-
-                            // @ts-ignore
-                            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-                            const recognition = new SpeechRecognition();
-                            recognition.lang = 'en-US';
-                            recognition.interimResults = false;
-                            recognition.maxAlternatives = 1;
-
-                            recognition.start();
-
-                            recognition.onstart = () => {
-                                addToast('Listening...', 'info');
-                            };
-
-                            recognition.onresult = (event: any) => {
-                                const transcript = event.results[0][0].transcript;
-                                setNewRemark(prev => prev + (prev ? ' ' : '') + transcript);
-                            };
-
-                            recognition.onerror = (event: any) => {
-                                addToast('Voice error: ' + event.error, 'error');
-                            };
-                        }}
-                        className="absolute right-2 bottom-4 text-gray-400 hover:text-[var(--color-primary)] transition-colors"
-                        title="Dictate Remark"
-                    >
-                        <i className="fas fa-microphone text-xl"></i>
-                    </button>
-                </div>
-                <button onClick={handleAddRemark} disabled={isSubmitting} className={btnPrimary}>
-                    {isSubmitting ? 'Adding...' : 'Add Remark'}
-                </button>
-            </div>
-
+            <InputSection />
             {suggestedTask && (
                 <div className="bg-yellow-100 dark:bg-yellow-900/50 border-l-4 border-yellow-500 text-yellow-800 dark:text-yellow-200 p-4 mb-4 rounded-r-lg">
                     <div className="flex justify-between items-center">
@@ -231,19 +261,7 @@ export const CustomerRemarks: React.FC<{ customer: Customer, remarks: Remark[], 
                     </div>
                 </div>
             )}
-
-            <h4 className="font-semibold mb-2 text-lg">History</h4>
-            <ul className="space-y-3 text-sm max-h-80 overflow-y-auto">
-                {remarks.length > 0 ? remarks.map(remark => (
-                    <li key={remark.id} className="p-3 border-l-4 border-blue-400 bg-gray-50 dark:bg-white/5 rounded-r-md">
-                        <MarkdownRenderer className="prose-p:italic prose-p:my-0" content={remark.remark} />
-                        <div className="flex justify-between items-center mt-1">
-                            <p className="text-xs text-[var(--text-secondary-light)] dark:text-[var(--text-secondary-dark)] text-right">- {remark.user} on {new Date(remark.timestamp).toLocaleString()}</p>
-                            <SentimentIndicator sentiment={remark.sentiment} />
-                        </div>
-                    </li>
-                )) : <p className="text-[var(--text-secondary-light)] dark:text-[var(--text-secondary-dark)] italic text-center py-4">No remarks found.</p>}
-            </ul>
+            <HistorySection />
         </div>
-    )
+    );
 }

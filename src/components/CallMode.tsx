@@ -282,8 +282,8 @@ const CallMode: React.FC = () => {
 
                 {/* Customer Header - Redesigned & Colorful */}
                 <div className={`mb-6 rounded-2xl p-6 shadow-sm border border-white/50 relative overflow-hidden transition-colors duration-500 ${currentCustomer.flag === 'Red' ? 'bg-gradient-to-r from-red-50 to-white' :
-                        currentCustomer.flag === 'Green' ? 'bg-gradient-to-r from-emerald-50 to-white' :
-                            'bg-gradient-to-r from-indigo-50/50 via-white to-white'
+                    currentCustomer.flag === 'Green' ? 'bg-gradient-to-r from-emerald-50 to-white' :
+                        'bg-gradient-to-r from-indigo-50/50 via-white to-white'
                     }`}>
                     {/* Background Decoration */}
                     <div className="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-current opacity-5 rounded-full blur-3xl pointer-events-none text-indigo-500"></div>
@@ -292,8 +292,8 @@ const CallMode: React.FC = () => {
                         <div>
                             <div className="flex items-center gap-3 mb-2">
                                 <h2 className={`text-4xl font-black font-sans tracking-tight drop-shadow-sm ${currentCustomer.flag === 'Red' ? 'text-red-600' :
-                                        currentCustomer.flag === 'Green' ? 'text-emerald-600' :
-                                            'text-[#1E293B]'
+                                    currentCustomer.flag === 'Green' ? 'text-emerald-600' :
+                                        'text-[#1E293B]'
                                     }`}>
                                     {currentCustomer.name}
                                 </h2>
@@ -317,8 +317,8 @@ const CallMode: React.FC = () => {
                                 </span>
 
                                 <span className={`px-3 py-1 rounded-lg border shadow-sm flex items-center gap-2 ${currentCustomer.tier === 'Platinum' ? 'bg-purple-50 border-purple-100 text-purple-700' :
-                                        currentCustomer.tier === 'Gold' ? 'bg-amber-50 border-amber-100 text-amber-700' :
-                                            'bg-slate-50 border-slate-100 text-slate-700'
+                                    currentCustomer.tier === 'Gold' ? 'bg-amber-50 border-amber-100 text-amber-700' :
+                                        'bg-slate-50 border-slate-100 text-slate-700'
                                     }`}>
                                     <i className="fas fa-crown text-xs"></i>
                                     <span className="font-bold uppercase">{currentCustomer.tier}</span>
@@ -414,7 +414,7 @@ const CallMode: React.FC = () => {
                     </div>
 
                     {/* CENTER COLUMN (5/12): AI, Remarks */}
-                    <div className="lg:col-span-5 flex flex-col gap-4 h-full overflow-y-auto pr-1 custom-scrollbar">
+                    <div className="lg:col-span-5 flex flex-col gap-4 h-full pr-1">
 
                         {/* AI Call Prep - Fixed visibility */}
                         <GlassCard className="p-4 bg-gradient-to-br from-indigo-50/80 to-purple-50/80 border-indigo-100 relative overflow-hidden shrink-0">
@@ -439,18 +439,19 @@ const CallMode: React.FC = () => {
                         </GlassCard>
 
                         {/* Interaction History (Reusing CustomerRemarks) */}
-                        <GlassCard className="flex-1 flex flex-col overflow-hidden min-h-[500px]">
+                        <GlassCard className="flex-1 flex flex-col overflow-hidden min-h-[500px] relative">
                             <div className="p-4 border-b border-[#E1E7F0] flex justify-between items-center bg-slate-50/50 shrink-0">
                                 <h3 className="text-sm font-bold uppercase tracking-wider text-[#6B7280]">Interaction History</h3>
                                 <button onClick={handleViewCustomerDetails} className="text-xs text-[#00B894] font-semibold hover:underline">View Customer Details</button>
                             </div>
 
                             {/* Reused Remarks Component */}
-                            <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
+                            <div className="flex-1 overflow-hidden p-4 custom-scrollbar flex flex-col">
                                 <CustomerRemarks
                                     customer={currentCustomer}
                                     remarks={customerRemarks}
                                     onRemarkAdded={onRemarkAdded}
+                                    variant="chat"
                                 />
                             </div>
                         </GlassCard>
