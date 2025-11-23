@@ -240,6 +240,15 @@ export const useCrmData = () => {
     deleteGoal: api.deleteGoal,
     addMilestone: api.addMilestone,
     toggleMilestoneComplete: api.toggleMilestoneComplete,
-    updateCustomerFlag: api.updateCustomerFlag,
+    updateCustomerFlag: async (customerId: string, flag: 'Green' | 'Red' | null) => {
+      try {
+        const updatedCustomer = await api.updateCustomerFlag(customerId, flag);
+        setCustomers(prev => prev.map(c => c.id === customerId ? updatedCustomer : c));
+        return updatedCustomer;
+      } catch (error) {
+        console.error("Error updating customer flag:", error);
+        throw error;
+      }
+    },
   };
 };
