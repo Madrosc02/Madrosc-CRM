@@ -17,6 +17,8 @@ export default defineConfig({
         background_color: '#F0F2F5',
         display: 'standalone',
         orientation: 'portrait',
+        start_url: '/',
+        id: 'madrosc-crm-v1.1', // Force update
         icons: [
           {
             src: 'icon.svg',
