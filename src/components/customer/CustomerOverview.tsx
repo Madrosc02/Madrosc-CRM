@@ -256,7 +256,7 @@ export const EditDetailsForm: React.FC<{ customer: Customer, onCancel: () => voi
                     </select>
                 </div>
             </div>
-            <div className="flex justify-end gap-3 pt-4">
+            <div className="flex justify-end gap-3 pt-4 mt-6">
                 <button onClick={onCancel} className={btnSecondary}>Cancel</button>
                 <button onClick={handleSubmit} disabled={isSubmitting} className={`${btnPrimary} flex items-center`}>
                     {isSubmitting && <Spinner size="sm" className="mr-2" />}
