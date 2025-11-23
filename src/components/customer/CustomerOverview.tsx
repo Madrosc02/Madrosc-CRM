@@ -324,7 +324,7 @@ export const EditDetailsForm: React.FC<{ customer: Customer, onCancel: () => voi
 
             {/* Fixed button bar at bottom */}
             <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 p-4 flex justify-end gap-3 z-10">
-                <button onClick={handleSubmit} disabled={isSubmitting} className={`${btnPrimary} flex items-center`}>
+                <button onClick={handleSubmit} disabled={isSubmitting} className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg disabled:opacity-50 flex items-center">
                     {isSubmitting && <Spinner size="sm" className="mr-2" />}
                     Save Changes
                 </button>
