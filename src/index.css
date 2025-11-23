@@ -6,50 +6,59 @@
 
   /* Brand Colors - Medical Trust Palette */
   --color-primary: #008080;
-  /* Deep Teal */
+  /* Deep Teal - Trust & Authority */
   --color-primary-hover: #006666;
+  --color-primary-light: #E0F2F2;
+
   --color-secondary: #FF6B6B;
-  /* Coral */
+  /* Coral - Action & Urgency */
+  --color-secondary-hover: #E65A5A;
 
-  /* Light Theme */
-  --color-bg-light: #F0F2F5;
-  /* Soft Gray */
+  --color-accent: #3B82F6;
+  /* Blue - Information */
+  --color-success: #10B981;
+  /* Emerald - Positive Status */
+  --color-warning: #F59E0B;
+  /* Amber - Alerts */
+  --color-danger: #EF4444;
+  /* Red - Critical */
+
+  /* Light Theme - Clean & Clinical */
+  --color-bg-light: #F8FAFC;
+  /* Very light slate */
   --color-surface-light: #ffffff;
-  --color-text-primary-light: #1a202c;
-  --color-text-secondary-light: #4a5568;
-  --color-border-light: #e2e8f0;
+  --color-text-primary-light: #1E293B;
+  /* Slate 800 */
+  --color-text-secondary-light: #64748B;
+  /* Slate 500 */
+  --color-border-light: #E2E8F0;
+  /* Slate 200 */
 
-  /* Dark Theme */
-  --color-bg-dark: #0f172a;
-  --color-surface-dark: #1e293b;
-  --color-text-primary-dark: #f8fafc;
-  --color-text-secondary-dark: #94a3b8;
+  /* Dark Theme - Professional & Easy on Eyes */
+  --color-bg-dark: #0F172A;
+  /* Slate 900 */
+  --color-surface-dark: #1E293B;
+  /* Slate 800 */
+  --color-text-primary-dark: #F1F5F9;
+  /* Slate 100 */
+  --color-text-secondary-dark: #94A3B8;
+  /* Slate 400 */
   --color-border-dark: #334155;
+  /* Slate 700 */
 
-  /* Aliases for Components (Legacy Support) */
-  --primary-light: var(--color-primary);
-  --primary-hover-light: var(--color-primary-hover);
-  --text-primary-light: var(--color-text-primary-light);
-  --text-secondary-light: var(--color-text-secondary-light);
-  --border-light: var(--color-border-light);
-  --bg-light: var(--color-bg-light);
-  --surface-light: var(--color-surface-light);
-
-  --primary-dark: var(--color-primary);
-  --primary-hover-dark: var(--color-primary-hover);
-  --text-primary-dark: var(--color-text-primary-dark);
-  --text-secondary-dark: var(--color-text-secondary-dark);
-  --border-dark: var(--color-border-dark);
-  --bg-dark: var(--color-bg-dark);
-  --surface-dark: var(--color-surface-dark);
+  /* Aliases */
+  --primary: var(--color-primary);
+  --secondary: var(--color-secondary);
 }
 
 @layer base {
   body {
     font-family: var(--font-sans);
-    background-color: var(--color-bg-light);
+    background: linear-gradient(135deg, #F0F4F8 0%, #E6E9F0 100%);
+    background-attachment: fixed;
     color: var(--color-text-primary-light);
-    transition: background-color 0.3s ease, color 0.3s ease;
+    transition: background 0.3s ease, color 0.3s ease;
+    -webkit-font-smoothing: antialiased;
   }
 
   h1,
@@ -59,54 +68,79 @@
   h5,
   h6 {
     font-family: var(--font-serif);
+    font-weight: 700;
+    letter-spacing: -0.025em;
   }
 
   body.dark {
-    background-color: var(--color-bg-dark);
+    background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
     color: var(--color-text-primary-dark);
   }
 }
 
 @layer components {
-  .glass-panel {
-    @apply backdrop-blur-xl bg-white/70 dark:bg-slate-900/70 border border-white/20 dark:border-slate-700/30 shadow-xl;
-  }
 
+  /* Glassmorphism 2.0 */
+  .glass-panel {
+    @apply backdrop-blur-xl bg-white/80 dark:bg-slate-900/80 border border-white/40 dark:border-slate-700/40 shadow-2xl;
+  }
 
   .glass-card,
   .card-base {
-    @apply backdrop-blur-md bg-white/60 dark:bg-slate-800/60 border border-white/30 dark:border-slate-700/30 shadow-lg rounded-xl transition-all hover:shadow-xl hover:bg-white/80 dark:hover:bg-slate-800/80;
+    @apply backdrop-blur-md bg-white/70 dark:bg-slate-800/60 border border-white/50 dark:border-slate-700/30 shadow-lg rounded-2xl transition-all duration-300 hover:shadow-xl hover:bg-white/90 dark:hover:bg-slate-800/80 hover:-translate-y-1;
   }
 
+  .glass-sidebar {
+    @apply backdrop-blur-xl bg-white/90 dark:bg-slate-900/90 border-r border-white/20 dark:border-slate-700/30 shadow-2xl;
+  }
+
+  /* Buttons */
   .btn-primary {
-    @apply px-4 py-2 bg-[var(--color-primary)] text-white rounded-lg font-semibold shadow-md transition-all hover:bg-[var(--color-primary-hover)] hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed active:scale-95;
+    @apply px-5 py-2.5 bg-gradient-to-r from-[var(--color-primary)] to-[#00A3A3] text-white rounded-xl font-bold shadow-lg shadow-teal-500/20 transition-all hover:shadow-teal-500/40 hover:scale-[1.02] active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100;
   }
 
   .btn-secondary {
-    @apply px-4 py-2 bg-white/80 dark:bg-slate-800/80 border border-[var(--color-border-light)] dark:border-[var(--color-border-dark)] text-[var(--color-text-primary-light)] dark:text-[var(--color-text-primary-dark)] rounded-lg font-medium transition-all hover:bg-gray-50 dark:hover:bg-white/5 hover:shadow-md active:scale-95;
+    @apply px-5 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 rounded-xl font-semibold shadow-sm transition-all hover:bg-slate-50 dark:hover:bg-slate-700 hover:border-slate-300 dark:hover:border-slate-600 active:scale-95;
   }
 
+  .btn-danger {
+    @apply px-5 py-2.5 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl font-bold shadow-lg shadow-red-500/20 transition-all hover:shadow-red-500/40 hover:scale-[1.02] active:scale-95;
+  }
+
+  /* Inputs */
   .input-base {
-    @apply block w-full px-4 py-2.5 rounded-lg bg-white/50 dark:bg-slate-900/50 border border-[var(--color-border-light)] dark:border-[var(--color-border-dark)] text-[var(--color-text-primary-light)] dark:text-[var(--color-text-primary-dark)] shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 focus:border-[var(--color-primary)] transition-all backdrop-blur-sm;
+    @apply block w-full px-4 py-3 rounded-xl bg-white/60 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all backdrop-blur-sm placeholder:text-slate-400;
   }
 
-  /* Drawer Animations */
-  .drawer-enter {
-    transform: translateX(100%);
+  /* Animations */
+  .animate-fade-in {
+    animation: fadeIn 0.5s ease-out forwards;
   }
 
-  .drawer-enter-active {
-    transform: translateX(0);
-    transition: transform 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  .animate-slide-up {
+    animation: slideUp 0.5s ease-out forwards;
   }
 
-  .drawer-exit {
-    transform: translateX(0);
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+
+    to {
+      opacity: 1;
+    }
   }
 
-  .drawer-exit-active {
-    transform: translateX(100%);
-    transition: transform 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 }
 
@@ -124,17 +158,19 @@
 
   ::-webkit-scrollbar-thumb {
     background: #cbd5e1;
-    /* Slate 300 */
     border-radius: 10px;
   }
 
   .dark ::-webkit-scrollbar-thumb {
     background: #475569;
-    /* Slate 600 */
   }
 
   ::-webkit-scrollbar-thumb:hover {
     background: #94a3b8;
-    /* Slate 400 */
+  }
+
+  /* Text Gradients */
+  .text-gradient-primary {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-teal-600 to-teal-400;
   }
 }

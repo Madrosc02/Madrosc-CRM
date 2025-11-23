@@ -25,63 +25,113 @@ const Sidebar: React.FC = () => {
 
     return (
         <aside
-            className={`h-screen sticky top-0 flex flex-col bg-white dark:bg-[var(--color-surface-dark)] border-r border-[var(--color-border-light)] dark:border-[var(--color-border-dark)] transition-all duration-300 z-50 ${isCollapsed ? 'w-20' : 'w-64'}`}
+            className={`
+                fixed left-4 top-4 bottom-4 z-50 flex flex-col 
+                glass-sidebar rounded-2xl transition-all duration-500 ease-in-out
+                ${isCollapsed ? 'w-20' : 'w-64'}
+            `}
         >
             {/* Logo Area */}
-            <div className="h-16 flex items-center justify-between px-4 border-b border-[var(--color-border-light)] dark:border-[var(--color-border-dark)]">
+            <div className="h-20 flex items-center justify-between px-6 mb-2">
                 {!isCollapsed && (
-                    <div className="flex items-center gap-2 font-bold text-xl text-[var(--color-primary)]">
-                        <i className="fas fa-headset"></i>
-                        <span>CRM</span>
+                    <div className="flex items-center gap-3 font-bold text-2xl text-gradient-primary">
+                        <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-teal-500 to-teal-300 flex items-center justify-center text-white shadow-lg shadow-teal-500/30">
+                            <i className="fas fa-plus text-sm"></i>
+                        </div>
+                        <span className="tracking-tight">MedCRM</span>
                     </div>
                 )}
                 <button
                     onClick={toggleSidebar}
-                    className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-white/5 text-[var(--color-text-secondary-light)] dark:text-[var(--color-text-secondary-dark)]"
+                    className={`
+                        p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 
+                        text-slate-400 hover:text-teal-600 transition-all
+                        ${isCollapsed ? 'mx-auto' : ''}
+                    `}
                 >
                     <i className={`fas ${isCollapsed ? 'fa-chevron-right' : 'fa-chevron-left'}`}></i>
                 </button>
             </div>
 
             {/* Navigation */}
-            <nav className="flex-1 py-6 px-3 space-y-1">
+            <nav className="flex-1 px-4 space-y-2 overflow-y-auto py-4">
                 {navItems.map((item) => (
                     <NavLink
                         key={item.path}
                         to={item.path}
                         className={({ isActive }) => `
-                            flex items-center px-3 py-3 rounded-md transition-colors group
+                            flex items-center px-4 py-3.5 rounded-xl transition-all duration-300 group relative overflow-hidden
                             ${isActive
-                                ? 'bg-[var(--color-primary)] text-white'
-                                : 'text-[var(--color-text-secondary-light)] dark:text-[var(--color-text-secondary-dark)] hover:bg-gray-100 dark:hover:bg-white/5 hover:text-[var(--color-primary)]'
+                                ? 'bg-gradient-to-r from-teal-500 to-teal-600 text-white shadow-lg shadow-teal-500/25 translate-x-1'
+                                : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-teal-600 dark:hover:text-teal-400'
                             }
                         `}
                         title={isCollapsed ? item.label : ''}
                     >
-                        <i className={`fas ${item.icon} w-6 text-center text-lg ${isCollapsed ? 'mx-auto' : 'mr-3'}`}></i>
-                        {!isCollapsed && <span className="font-medium">{item.label}</span>}
+                        <i className={`
+                            fas ${item.icon} text-lg transition-all duration-300
+                            ${isCollapsed ? 'mx-auto' : 'mr-4'}
+                            ${!isCollapsed && 'group-hover:scale-110'}
+                        `}></i>
+
+                        {!isCollapsed && (
+                            <span className="font-semibold tracking-wide">{item.label}</span>
+                        )}
+
+                        {/* Active Indicator Dot */}
+                        {!isCollapsed && (
+                            <div className={`
+                                absolute right-3 w-1.5 h-1.5 rounded-full bg-white/80
+                                transition-all duration-300
+                                ${({ isActive }: { isActive: boolean }) => isActive ? 'opacity-100 scale-100' : 'opacity-0 scale-0'}
+                            `}></div>
+                        )}
                     </NavLink>
                 ))}
             </nav>
 
             {/* Footer Actions */}
-            <div className="p-4 border-t border-[var(--color-border-light)] dark:border-[var(--color-border-dark)] space-y-2">
+            <div className="p-4 mt-auto space-y-3">
                 <button
                     onClick={toggleTheme}
-                    className={`w-full flex items-center px-3 py-2 rounded-md text-[var(--color-text-secondary-light)] dark:text-[var(--color-text-secondary-dark)] hover:bg-gray-100 dark:hover:bg-white/5 transition-colors ${isCollapsed ? 'justify-center' : ''}`}
+                    className={`
+                        w-full flex items-center px-4 py-3 rounded-xl 
+                        text-slate-500 dark:text-slate-400 
+                        hover:bg-slate-50 dark:hover:bg-slate-800/50 
+                        transition-all duration-300
+                        ${isCollapsed ? 'justify-center' : ''}
+                    `}
                     title="Toggle Theme"
                 >
-                    <i className={`fas ${theme === 'light' ? 'fa-moon' : 'fa-sun'} w-6 text-center ${isCollapsed ? '' : 'mr-3'}`}></i>
-                    {!isCollapsed && <span>{theme === 'light' ? 'Dark Mode' : 'Light Mode'}</span>}
+                    <div className={`
+                        w-8 h-8 rounded-lg flex items-center justify-center transition-colors
+                        ${theme === 'light' ? 'bg-indigo-100 text-indigo-600' : 'bg-amber-100 text-amber-600'}
+                        ${isCollapsed ? '' : 'mr-3'}
+                    `}>
+                        <i className={`fas ${theme === 'light' ? 'fa-moon' : 'fa-sun'}`}></i>
+                    </div>
+                    {!isCollapsed && <span className="font-medium text-sm">Theme Mode</span>}
                 </button>
 
                 <button
                     onClick={handleSignOut}
-                    className={`w-full flex items-center px-3 py-2 rounded-md text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors ${isCollapsed ? 'justify-center' : ''}`}
+                    className={`
+                        w-full flex items-center px-4 py-3 rounded-xl 
+                        text-slate-500 dark:text-slate-400 
+                        hover:bg-red-50 dark:hover:bg-red-900/10 hover:text-red-600 
+                        transition-all duration-300 group
+                        ${isCollapsed ? 'justify-center' : ''}
+                    `}
                     title="Sign Out"
                 >
-                    <i className={`fas fa-sign-out-alt w-6 text-center ${isCollapsed ? '' : 'mr-3'}`}></i>
-                    {!isCollapsed && <span>Sign Out</span>}
+                    <div className={`
+                        w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center 
+                        group-hover:bg-red-100 dark:group-hover:bg-red-900/30 group-hover:text-red-600 transition-colors
+                        ${isCollapsed ? '' : 'mr-3'}
+                    `}>
+                        <i className="fas fa-sign-out-alt"></i>
+                    </div>
+                    {!isCollapsed && <span className="font-medium text-sm">Sign Out</span>}
                 </button>
             </div>
         </aside>
@@ -89,3 +139,4 @@ const Sidebar: React.FC = () => {
 };
 
 export default Sidebar;
+
