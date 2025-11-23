@@ -5,17 +5,20 @@ interface GlassCardProps {
     className?: string;
     hoverEffect?: boolean;
     onClick?: () => void;
+    style?: React.CSSProperties;
 }
 
 const GlassCard: React.FC<GlassCardProps> = ({
     children,
     className = '',
     hoverEffect = true,
-    onClick
+    onClick,
+    style
 }) => {
     return (
         <div
             onClick={onClick}
+            style={style}
             className={`
                 glass-card p-6 relative overflow-hidden
                 ${hoverEffect ? 'hover:shadow-xl hover:-translate-y-1' : ''}

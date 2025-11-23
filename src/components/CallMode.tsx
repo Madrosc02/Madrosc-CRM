@@ -5,9 +5,14 @@ import GlassCard from './common/GlassCard';
 import { Customer, Remark } from '../types';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { CustomerRemarks } from './customer/CustomerRemarks';
+import { CustomerActions } from './customer/CustomerActions';
+import { CustomerSales } from './customer/CustomerSales';
+import { CustomerTasks } from './customer/CustomerTasks';
+import GoalsTab from './GoalsTab';
+import { WinProbability, AIContactSuggestion } from './customer/CustomerOverview';
 
 const CallMode: React.FC = () => {
-    const { customers, remarks, addRemark, openAddTaskModal, openDetailModal } = useApp();
+    const { customers, remarks, sales, addRemark, openAddTaskModal, openDetailModal } = useApp();
     const navigate = useNavigate();
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isAnimating, setIsAnimating] = useState(false);
@@ -36,16 +41,6 @@ const CallMode: React.FC = () => {
 
     const currentCustomer = filteredCustomers[currentIndex];
 
-    // Mock Data for 6-Month Sales Chart (since backend doesn't provide history yet)
-    const salesData = useMemo(() => {
-        if (!currentCustomer) return [];
-        const months = ['Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov'];
-        return months.map((month, i) => ({
-            name: month,
-            sales: Math.floor(Math.random() * (currentCustomer.avg6MoSales * 1.5)) + 1000,
-        }));
-    }, [currentCustomer]);
-
     // Real Interaction History from Context
     const customerRemarks = useMemo(() => {
         if (!currentCustomer) return [];
@@ -53,6 +48,12 @@ const CallMode: React.FC = () => {
             .filter(r => r.customerId === currentCustomer.id)
             .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
     }, [remarks, currentCustomer]);
+
+    // Sales for current customer
+    const customerSales = useMemo(() => {
+        if (!currentCustomer) return [];
+        return sales.filter(s => s.customerId === currentCustomer.id);
+    }, [sales, currentCustomer]);
 
     // --- Handlers ---
     const handleNext = () => {
@@ -107,17 +108,14 @@ const CallMode: React.FC = () => {
         }
     };
 
-    const handleViewAllHistory = () => {
+    const handleViewCustomerDetails = () => {
         if (currentCustomer) {
             openDetailModal(currentCustomer);
         }
     };
 
-    // Callback when a remark is added via the child component
-    // In a real app with SWR/React Query, this might trigger a re-fetch.
-    // Here, context updates automatically, so we might just log or show a toast if needed.
     const onRemarkAdded = () => {
-        // Context updates automatically, so the list will refresh.
+        // Context updates automatically
         console.log("Remark added in Call Mode");
     };
 
@@ -256,7 +254,7 @@ const CallMode: React.FC = () => {
                 {/* --- 3-Column Grid Layout --- */}
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-[calc(100vh-280px)] min-h-[600px]">
 
-                    {/* LEFT COLUMN (3/12): KPIs & Contact */}
+                    {/* LEFT COLUMN (3/12): Contact, Actions, Win Prob */}
                     <div className="lg:col-span-3 flex flex-col gap-6 h-full overflow-y-auto pr-1 custom-scrollbar">
                         {/* KPI Grid */}
                         <div className="grid grid-cols-2 gap-3">
@@ -268,18 +266,13 @@ const CallMode: React.FC = () => {
                                 <p className="text-[10px] text-[#6B7280] uppercase font-bold">YTD Sales</p>
                                 <p className="text-lg font-bold mt-1 text-[#4C6FFF]">₹{currentCustomer.totalSales?.toLocaleString() || '0'}</p>
                             </GlassCard>
-                            <GlassCard className="p-4 flex flex-col justify-center items-center text-center border-t-4 border-[#6B7280]">
-                                <p className="text-[10px] text-[#6B7280] uppercase font-bold">Last Order</p>
-                                <p className="text-lg font-bold mt-1 text-[#6B7280]">{currentCustomer.lastOrderDate || 'N/A'}</p>
-                            </GlassCard>
-                            <GlassCard className="p-4 flex flex-col justify-center items-center text-center border-t-4 border-[#EF4444]">
-                                <p className="text-[10px] text-[#6B7280] uppercase font-bold">Risk Score</p>
-                                <p className="text-lg font-bold mt-1 text-[#EF4444]">Low</p>
-                            </GlassCard>
                         </div>
 
+                        {/* Win Probability */}
+                        <WinProbability customer={currentCustomer} sales={customerSales} remarks={customerRemarks} />
+
                         {/* Contact Card */}
-                        <GlassCard className="p-5 flex-1">
+                        <GlassCard className="p-5">
                             <h3 className="text-sm font-bold mb-4 uppercase tracking-wider text-[#6B7280] border-b border-[#E1E7F0] pb-2">Contact Details</h3>
                             <div className="space-y-4">
                                 <div className="flex items-start gap-3 group cursor-pointer" onClick={handleCallNow}>
@@ -300,56 +293,55 @@ const CallMode: React.FC = () => {
                                         <p className="font-medium text-sm text-[#111827] truncate max-w-[150px]">{currentCustomer.email || 'N/A'}</p>
                                     </div>
                                 </div>
-                                <div className="flex items-start gap-3 group cursor-pointer">
-                                    <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-[#00B894] group-hover:bg-[#00B894] group-hover:text-white transition-colors">
-                                        <i className="fas fa-user-tie text-xs"></i>
-                                    </div>
-                                    <div>
-                                        <p className="text-[10px] text-[#6B7280] uppercase font-bold">Contact Person</p>
-                                        <p className="font-medium text-sm text-[#111827]">{currentCustomer.personName || 'N/A'}</p>
-                                    </div>
-                                </div>
                             </div>
+                        </GlassCard>
+
+                        {/* Quick Actions */}
+                        <GlassCard className="p-5">
+                            <h3 className="text-sm font-bold mb-4 uppercase tracking-wider text-[#6B7280] border-b border-[#E1E7F0] pb-2">Quick Actions</h3>
+                            <CustomerActions customer={currentCustomer} onSave={() => { }} />
                         </GlassCard>
                     </div>
 
-                    {/* CENTER COLUMN (5/12): AI & Timeline */}
-                    <div className="lg:col-span-5 flex flex-col gap-6 h-full">
+                    {/* CENTER COLUMN (5/12): AI, Tasks, Remarks */}
+                    <div className="lg:col-span-5 flex flex-col gap-6 h-full overflow-y-auto pr-1 custom-scrollbar">
 
-                        {/* AI Call Prep */}
-                        <GlassCard className="p-5 bg-gradient-to-br from-indigo-50/80 to-purple-50/80 border-indigo-100 relative overflow-hidden">
-                            <div className="absolute top-0 right-0 p-3 opacity-10">
-                                <i className="fas fa-robot text-6xl text-[#4C6FFF]"></i>
-                            </div>
-                            <div className="flex items-center gap-2 mb-3 relative z-10">
-                                <div className="w-6 h-6 rounded-md bg-[#4C6FFF] flex items-center justify-center text-white shadow-md shadow-indigo-500/30">
-                                    <i className="fas fa-sparkles text-xs"></i>
+                        {/* AI Call Prep & Suggestion */}
+                        <div className="space-y-4">
+                            <GlassCard className="p-5 bg-gradient-to-br from-indigo-50/80 to-purple-50/80 border-indigo-100 relative overflow-hidden">
+                                <div className="absolute top-0 right-0 p-3 opacity-10">
+                                    <i className="fas fa-robot text-6xl text-[#4C6FFF]"></i>
                                 </div>
-                                <h3 className="text-sm font-bold text-[#111827] uppercase tracking-wide">AI Call Prep</h3>
-                            </div>
-                            <div className="space-y-3 relative z-10">
-                                <div className="flex gap-3 items-start p-3 bg-white/60 rounded-xl border border-indigo-100">
-                                    <i className="fas fa-lightbulb text-[#F59E0B] mt-1"></i>
-                                    <div>
-                                        <p className="text-xs font-bold text-[#111827]">Talking Point</p>
-                                        <p className="text-sm text-[#6B7280] leading-snug">Sales dropped 15% vs last year. Ask about <strong>Amoxyclav</strong> stock.</p>
+                                <div className="flex items-center gap-2 mb-3 relative z-10">
+                                    <div className="w-6 h-6 rounded-md bg-[#4C6FFF] flex items-center justify-center text-white shadow-md shadow-indigo-500/30">
+                                        <i className="fas fa-sparkles text-xs"></i>
+                                    </div>
+                                    <h3 className="text-sm font-bold text-[#111827] uppercase tracking-wide">AI Call Prep</h3>
+                                </div>
+                                <div className="space-y-3 relative z-10">
+                                    <div className="flex gap-3 items-start p-3 bg-white/60 rounded-xl border border-indigo-100">
+                                        <i className="fas fa-lightbulb text-[#F59E0B] mt-1"></i>
+                                        <div>
+                                            <p className="text-xs font-bold text-[#111827]">Talking Point</p>
+                                            <p className="text-sm text-[#6B7280] leading-snug">Sales dropped 15% vs last year. Ask about <strong>Amoxyclav</strong> stock.</p>
+                                        </div>
                                     </div>
                                 </div>
-                                <div className="flex gap-3 items-start p-3 bg-white/60 rounded-xl border border-indigo-100">
-                                    <i className="fas fa-rocket text-[#EF4444] mt-1"></i>
-                                    <div>
-                                        <p className="text-xs font-bold text-[#111827]">Opportunity</p>
-                                        <p className="text-sm text-[#6B7280] leading-snug">Pitch new <strong>Cardio</strong> range. Good candidate for sampling.</p>
-                                    </div>
-                                </div>
-                            </div>
+                            </GlassCard>
+                            <AIContactSuggestion remarks={customerRemarks} />
+                        </div>
+
+                        {/* Tasks */}
+                        <GlassCard className="p-5">
+                            <h3 className="text-sm font-bold mb-4 uppercase tracking-wider text-[#6B7280] border-b border-[#E1E7F0] pb-2">Tasks</h3>
+                            <CustomerTasks customerId={currentCustomer.id} />
                         </GlassCard>
 
                         {/* Interaction History (Reusing CustomerRemarks) */}
-                        <GlassCard className="flex-1 flex flex-col overflow-hidden">
+                        <GlassCard className="flex-1 flex flex-col overflow-hidden min-h-[400px]">
                             <div className="p-4 border-b border-[#E1E7F0] flex justify-between items-center bg-slate-50/50">
                                 <h3 className="text-sm font-bold uppercase tracking-wider text-[#6B7280]">Interaction History</h3>
-                                <button onClick={handleViewAllHistory} className="text-xs text-[#00B894] font-semibold hover:underline">View All</button>
+                                <button onClick={handleViewCustomerDetails} className="text-xs text-[#00B894] font-semibold hover:underline">View Customer Details</button>
                             </div>
 
                             {/* Reused Remarks Component */}
@@ -363,59 +355,23 @@ const CallMode: React.FC = () => {
                         </GlassCard>
                     </div>
 
-                    {/* RIGHT COLUMN (4/12): Charts */}
-                    <div className="lg:col-span-4 flex flex-col gap-6 h-full">
+                    {/* RIGHT COLUMN (4/12): Sales, Goals, Mix */}
+                    <div className="lg:col-span-4 flex flex-col gap-6 h-full overflow-y-auto pr-1 custom-scrollbar">
 
-                        {/* 6-Month Sales Chart */}
-                        <GlassCard className="p-5 h-[320px] flex flex-col">
-                            <div className="flex justify-between items-center mb-4">
-                                <h3 className="text-sm font-bold uppercase tracking-wider text-[#6B7280]">6-Month Sales</h3>
-                                <span className="text-xs font-bold text-[#16A34A] bg-[#16A34A]/10 px-2 py-1 rounded-md">+12% vs last period</span>
-                            </div>
-                            <div className="flex-1 w-full min-h-0">
-                                <ResponsiveContainer width="100%" height="100%">
-                                    <BarChart data={salesData} margin={{ top: 5, right: 5, bottom: 5, left: -20 }}>
-                                        <defs>
-                                            <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
-                                                <stop offset="5%" stopColor="#00B894" stopOpacity={0.8} />
-                                                <stop offset="95%" stopColor="#00B894" stopOpacity={0.2} />
-                                            </linearGradient>
-                                        </defs>
-                                        <XAxis
-                                            dataKey="name"
-                                            axisLine={false}
-                                            tickLine={false}
-                                            tick={{ fontSize: 10, fill: '#6B7280' }}
-                                            dy={10}
-                                        />
-                                        <YAxis
-                                            axisLine={false}
-                                            tickLine={false}
-                                            tick={{ fontSize: 10, fill: '#6B7280' }}
-                                        />
-                                        <Tooltip
-                                            cursor={{ fill: 'rgba(0,0,0,0.05)' }}
-                                            contentStyle={{
-                                                backgroundColor: '#FFFFFF',
-                                                borderColor: '#E1E7F0',
-                                                borderRadius: '8px',
-                                                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-                                                fontSize: '12px',
-                                                color: '#111827'
-                                            }}
-                                        />
-                                        <Bar dataKey="sales" radius={[4, 4, 0, 0]}>
-                                            {salesData.map((entry, index) => (
-                                                <Cell key={`cell-${index}`} fill="url(#colorSales)" />
-                                            ))}
-                                        </Bar>
-                                    </BarChart>
-                                </ResponsiveContainer>
-                            </div>
+                        {/* Sales History */}
+                        <GlassCard className="p-5">
+                            <h3 className="text-sm font-bold mb-4 uppercase tracking-wider text-[#6B7280]">Sales History</h3>
+                            <CustomerSales sales={customerSales} />
+                        </GlassCard>
+
+                        {/* Goals */}
+                        <GlassCard className="p-5">
+                            <h3 className="text-sm font-bold mb-4 uppercase tracking-wider text-[#6B7280]">Goals & Milestones</h3>
+                            <GoalsTab customer={currentCustomer} sales={customerSales} />
                         </GlassCard>
 
                         {/* Product Mix */}
-                        <GlassCard className="p-5 flex-1">
+                        <GlassCard className="p-5">
                             <h3 className="text-sm font-bold mb-4 uppercase tracking-wider text-[#6B7280]">Product Mix</h3>
                             <div className="space-y-5">
                                 <div>
@@ -434,24 +390,6 @@ const CallMode: React.FC = () => {
                                     </div>
                                     <div className="h-2.5 bg-slate-100 rounded-full overflow-hidden">
                                         <div className="h-full bg-[#4C6FFF] w-[30%] rounded-full shadow-[0_0_10px_rgba(76,111,255,0.3)]"></div>
-                                    </div>
-                                </div>
-                                <div>
-                                    <div className="flex justify-between text-xs mb-1.5 font-medium">
-                                        <span className="text-[#111827]">Pain Mgmt</span>
-                                        <span className="text-[#111827]">15%</span>
-                                    </div>
-                                    <div className="h-2.5 bg-slate-100 rounded-full overflow-hidden">
-                                        <div className="h-full bg-[#EF4444] w-[15%] rounded-full shadow-[0_0_10px_rgba(239,68,68,0.3)]"></div>
-                                    </div>
-                                </div>
-                                <div>
-                                    <div className="flex justify-between text-xs mb-1.5 font-medium">
-                                        <span className="text-[#111827]">Supplements</span>
-                                        <span className="text-[#111827]">10%</span>
-                                    </div>
-                                    <div className="h-2.5 bg-slate-100 rounded-full overflow-hidden">
-                                        <div className="h-full bg-[#F59E0B] w-[10%] rounded-full shadow-[0_0_10px_rgba(245,158,11,0.3)]"></div>
                                     </div>
                                 </div>
                             </div>

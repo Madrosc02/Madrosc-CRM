@@ -19,7 +19,7 @@ const DetailCard: React.FC<{ title: string; value: React.ReactNode; className?: 
     </div>
 );
 
-const AIContactSuggestion: React.FC<{ remarks: Remark[] }> = ({ remarks }) => {
+export const AIContactSuggestion: React.FC<{ remarks: Remark[] }> = ({ remarks }) => {
     const [suggestion, setSuggestion] = useState<{ suggestion: string; reasoning: string } | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
@@ -60,7 +60,7 @@ const AIContactSuggestion: React.FC<{ remarks: Remark[] }> = ({ remarks }) => {
     );
 };
 
-const WinProbability: React.FC<{ customer: Customer, sales: Sale[], remarks: Remark[] }> = ({ customer, sales, remarks }) => {
+export const WinProbability: React.FC<{ customer: Customer, sales: Sale[], remarks: Remark[] }> = ({ customer, sales, remarks }) => {
     const [data, setData] = useState<{ score: number; reasoning: string; churnRisk: boolean } | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
