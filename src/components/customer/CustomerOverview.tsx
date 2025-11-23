@@ -269,8 +269,8 @@ export const EditDetailsForm: React.FC<{ customer: Customer, onCancel: () => voi
     }
 
     return (
-        <div className="space-y-4 pb-24">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pb-20">
                 <div>
                     <label className="block text-sm font-medium mb-1">Firm/Business Name *</label>
                     <input type="text" name="firmName" value={formData.firmName} onChange={handleChange} className={inputStyle} required />
@@ -321,7 +321,9 @@ export const EditDetailsForm: React.FC<{ customer: Customer, onCancel: () => voi
                     </select>
                 </div>
             </div>
-            <div className="flex justify-end gap-3 pt-4 sticky bottom-0 bg-white dark:bg-gray-800 pb-4 border-t border-gray-200 dark:border-gray-700 mt-6 -mx-4 px-4">
+
+            {/* Fixed button bar at bottom */}
+            <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 p-4 flex justify-end gap-3 z-10">
                 <button onClick={handleSubmit} disabled={isSubmitting} className={`${btnPrimary} flex items-center`}>
                     {isSubmitting && <Spinner size="sm" className="mr-2" />}
                     Save Changes
