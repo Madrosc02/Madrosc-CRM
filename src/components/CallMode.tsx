@@ -173,7 +173,13 @@ const CallMode: React.FC = () => {
     );
 
     return (
-        <div className="min-h-screen bg-[#F4F7FB] text-[#111827] pb-32 relative overflow-hidden font-sans">
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 text-slate-900 pb-32 relative overflow-hidden font-sans selection:bg-teal-100 selection:text-teal-900">
+
+            {/* Background Mesh Gradient Effect */}
+            <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
+                <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-purple-200/30 rounded-full blur-[120px]"></div>
+                <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-teal-200/30 rounded-full blur-[120px]"></div>
+            </div>
 
             {/* --- Top Navigation Bar --- */}
             <div className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-xl border-b border-[#E1E7F0] px-6 py-3 flex justify-between items-center shadow-sm transition-all duration-300">
@@ -260,7 +266,7 @@ const CallMode: React.FC = () => {
 
 
             {/* --- Main Content Area --- */}
-            <div className={`container mx-auto px-4 pt-16 pb-24 transition-all duration-500 ease-in-out ${isAnimating ? 'opacity-0 translate-x-8' : 'opacity-100 translate-x-0'}`}>
+            <div className={`container mx-auto px-4 pt-16 pb-24 transition-all duration-500 ease-in-out relative z-10 max-w-7xl ${isAnimating ? 'opacity-0 translate-x-8' : 'opacity-100 translate-x-0'}`}>
 
                 {/* Summary Metrics Row - Smaller & Colorful */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
@@ -346,83 +352,102 @@ const CallMode: React.FC = () => {
                     {/* LEFT COLUMN (3/12): KPIs, Contact, ACTION BUTTONS */}
                     <div className="lg:col-span-3 flex flex-col gap-4">
                         {/* KPI Grid - Restored Last Order & Risk Score */}
-                        <div className="grid grid-cols-2 gap-2">
-                            <GlassCard className="p-3 flex flex-col justify-center items-center text-center border-t-4 border-[#00B894]">
-                                <p className="text-[9px] text-[#6B7280] uppercase font-bold">Outstanding</p>
-                                <p className="text-base font-bold mt-0.5 text-[#00B894]">₹{currentCustomer.outstandingBalance?.toLocaleString() || '0'}</p>
-                            </GlassCard>
-                            <GlassCard className="p-3 flex flex-col justify-center items-center text-center border-t-4 border-[#4C6FFF]">
-                                <p className="text-[9px] text-[#6B7280] uppercase font-bold">YTD Sales</p>
-                                <p className="text-base font-bold mt-0.5 text-[#4C6FFF]">₹{currentCustomer.totalSales?.toLocaleString() || '0'}</p>
-                            </GlassCard>
-                            <GlassCard className="p-3 flex flex-col justify-center items-center text-center border-t-4 border-amber-500">
-                                <p className="text-[9px] text-[#6B7280] uppercase font-bold">Last Order</p>
-                                <p className="text-sm font-bold mt-0.5 text-[#111827]">
+                        <div className="grid grid-cols-2 gap-3">
+                            <GlassCard className="p-4 flex flex-col justify-center items-center text-center border-t-4 border-teal-500 shadow-lg shadow-teal-500/5 hover:shadow-teal-500/10 transition-all group">
+                                <span className="text-[10px] uppercase tracking-widest text-slate-400 font-bold mb-1 group-hover:text-teal-600 transition-colors">Last Order</span>
+                                <span className="text-lg font-extrabold text-slate-800 tracking-tight">
                                     {currentCustomer.lastOrderDate ? new Date(currentCustomer.lastOrderDate).toLocaleDateString() : 'Never'}
-                                </p>
+                                </span>
                             </GlassCard>
-                            <GlassCard
-                                onClick={() => setShowAICallPrep(true)}
-                                className="p-3 flex flex-col justify-center items-center text-center border-t-4 border-indigo-500 cursor-pointer hover:bg-indigo-50/50 transition-colors group"
-                            >
-                                <p className="text-[9px] text-[#6B7280] uppercase font-bold flex items-center gap-1">
-                                    <i className="fas fa-sparkles text-indigo-500"></i>
-                                    AI Prep
-                                </p>
-                                <p className="text-xs font-bold mt-0.5 text-indigo-600 group-hover:text-indigo-700">View</p>
+                            <GlassCard className="p-4 flex flex-col justify-center items-center text-center border-t-4 border-indigo-500 shadow-lg shadow-indigo-500/5 hover:shadow-indigo-500/10 transition-all group">
+                                <span className="text-[10px] uppercase tracking-widest text-slate-400 font-bold mb-1 group-hover:text-indigo-600 transition-colors">AI Prep</span>
+                                <button
+                                    onClick={() => setShowAICallPrep(true)}
+                                    className="text-sm font-bold text-indigo-600 hover:text-indigo-700 underline decoration-2 underline-offset-2 decoration-indigo-200 hover:decoration-indigo-500 transition-all"
+                                >
+                                    View Insights
+                                </button>
                             </GlassCard>
                         </div>
 
                         {/* Win Probability (Risk Score) */}
                         <WinProbability customer={currentCustomer} sales={customerSales} remarks={customerRemarks} />
 
-                        {/* Contact Card */}
-                        <GlassCard className="p-4">
-                            <h3 className="text-xs font-bold mb-3 uppercase tracking-wider text-[#6B7280] border-b border-[#E1E7F0] pb-2">Contact Details</h3>
-                            <div className="space-y-3">
-                                <div className="flex items-start gap-3 group cursor-pointer" onClick={handleCallNow}>
-                                    <div className="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center text-[#00B894] group-hover:bg-[#00B894] group-hover:text-white transition-colors">
-                                        <i className="fas fa-phone text-xs"></i>
-                                    </div>
-                                    <div>
-                                        <p className="text-[9px] text-[#6B7280] uppercase font-bold">Mobile</p>
-                                        <p className="font-medium text-sm text-[#111827]">{currentCustomer.phone || 'N/A'}</p>
-                                    </div>
+                        {/* Contact Details Card */}
+                        <GlassCard className="p-5 flex flex-col gap-4 border border-white/60 shadow-xl shadow-slate-200/50">
+                            <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400 border-b border-slate-100 pb-2">Contact Details</h3>
+
+                            <div className="flex items-center gap-4 group cursor-pointer" onClick={handleCallNow}>
+                                <div className="w-10 h-10 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center shadow-sm group-hover:scale-110 group-hover:bg-teal-100 transition-all duration-300">
+                                    <i className="fas fa-phone-alt text-sm"></i>
                                 </div>
-                                <div className="flex items-start gap-3 group cursor-pointer">
-                                    <div className="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center text-[#00B894] group-hover:bg-[#00B894] group-hover:text-white transition-colors">
-                                        <i className="fas fa-envelope text-xs"></i>
-                                    </div>
-                                    <div>
-                                        <p className="text-[9px] text-[#6B7280] uppercase font-bold">Email</p>
-                                        <p className="font-medium text-sm text-[#111827] truncate max-w-[150px]">{currentCustomer.email || 'N/A'}</p>
-                                    </div>
+                                <div className="flex flex-col">
+                                    <span className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Mobile</span>
+                                    <span className="font-bold text-slate-700 group-hover:text-teal-700 transition-colors">{currentCustomer.contact}</span>
+                                </div>
+                            </div>
+
+                            <div className="flex items-center gap-4 group cursor-pointer">
+                                <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shadow-sm group-hover:scale-110 group-hover:bg-blue-100 transition-all duration-300">
+                                    <i className="fas fa-envelope text-sm"></i>
+                                </div>
+                                <div className="flex flex-col">
+                                    <span className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Email</span>
+                                    <span className="font-bold text-slate-700 group-hover:text-blue-700 transition-colors truncate max-w-[180px]" title={currentCustomer.email || 'N/A'}>
+                                        {currentCustomer.email || 'N/A'}
+                                    </span>
                                 </div>
                             </div>
                         </GlassCard>
 
-                        {/* NEW ACTION BUTTONS */}
-                        <GlassCard className="p-4">
-                            <h3 className="text-xs font-bold mb-3 uppercase tracking-wider text-[#6B7280] border-b border-[#E1E7F0] pb-2">Customer Actions</h3>
-                            <div className="grid grid-cols-1 gap-2">
-                                <button onClick={openGoals} className="flex items-center justify-between w-full p-2.5 rounded-lg bg-purple-50 text-purple-700 hover:bg-purple-100 transition-colors border border-purple-100 group">
-                                    <span className="font-semibold text-sm flex items-center gap-2"><i className="fas fa-bullseye w-4"></i> Goals</span>
-                                    <i className="fas fa-chevron-right text-xs opacity-50 group-hover:translate-x-1 transition-transform"></i>
-                                </button>
-                                <button onClick={openSalesHistory} className="flex items-center justify-between w-full p-2.5 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors border border-blue-100 group">
-                                    <span className="font-semibold text-sm flex items-center gap-2"><i className="fas fa-chart-area w-4"></i> Sales History</span>
-                                    <i className="fas fa-chevron-right text-xs opacity-50 group-hover:translate-x-1 transition-transform"></i>
-                                </button>
-                                <button onClick={openTasks} className="flex items-center justify-between w-full p-2.5 rounded-lg bg-amber-50 text-amber-700 hover:bg-amber-100 transition-colors border border-amber-100 group">
-                                    <span className="font-semibold text-sm flex items-center gap-2"><i className="fas fa-tasks w-4"></i> Tasks</span>
-                                    <i className="fas fa-chevron-right text-xs opacity-50 group-hover:translate-x-1 transition-transform"></i>
-                                </button>
-                                <button onClick={openQuickActions} className="flex items-center justify-between w-full p-2.5 rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition-colors border border-emerald-100 group">
-                                    <span className="font-semibold text-sm flex items-center gap-2"><i className="fas fa-bolt w-4"></i> Quick Actions</span>
-                                    <i className="fas fa-chevron-right text-xs opacity-50 group-hover:translate-x-1 transition-transform"></i>
-                                </button>
-                            </div>
-                        </GlassCard>
+                        {/* Customer Actions - Redesigned as Interactive Cards */}
+                        <div className="flex flex-col gap-3">
+                            <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400 px-1">Customer Actions</h3>
+
+                            <button onClick={openGoals} className="group relative overflow-hidden p-4 rounded-2xl bg-white border border-purple-100 shadow-sm hover:shadow-md hover:border-purple-200 transition-all text-left flex items-center justify-between">
+                                <div className="absolute inset-0 bg-gradient-to-r from-purple-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                <div className="flex items-center gap-3 relative z-10">
+                                    <div className="w-8 h-8 rounded-lg bg-purple-100 text-purple-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                        <i className="fas fa-bullseye text-xs"></i>
+                                    </div>
+                                    <span className="font-bold text-slate-700 group-hover:text-purple-700 transition-colors">Goals</span>
+                                </div>
+                                <i className="fas fa-chevron-right text-slate-300 group-hover:text-purple-400 group-hover:translate-x-1 transition-all relative z-10"></i>
+                            </button>
+
+                            <button onClick={openSalesHistory} className="group relative overflow-hidden p-4 rounded-2xl bg-white border border-blue-100 shadow-sm hover:shadow-md hover:border-blue-200 transition-all text-left flex items-center justify-between">
+                                <div className="absolute inset-0 bg-gradient-to-r from-blue-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                <div className="flex items-center gap-3 relative z-10">
+                                    <div className="w-8 h-8 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                        <i className="fas fa-chart-line text-xs"></i>
+                                    </div>
+                                    <span className="font-bold text-slate-700 group-hover:text-blue-700 transition-colors">Sales History</span>
+                                </div>
+                                <i className="fas fa-chevron-right text-slate-300 group-hover:text-blue-400 group-hover:translate-x-1 transition-all relative z-10"></i>
+                            </button>
+
+                            <button onClick={openTasks} className="group relative overflow-hidden p-4 rounded-2xl bg-white border border-amber-100 shadow-sm hover:shadow-md hover:border-amber-200 transition-all text-left flex items-center justify-between">
+                                <div className="absolute inset-0 bg-gradient-to-r from-amber-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                <div className="flex items-center gap-3 relative z-10">
+                                    <div className="w-8 h-8 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                        <i className="fas fa-tasks text-xs"></i>
+                                    </div>
+                                    <span className="font-bold text-slate-700 group-hover:text-amber-700 transition-colors">Tasks</span>
+                                </div>
+                                <i className="fas fa-chevron-right text-slate-300 group-hover:text-amber-400 group-hover:translate-x-1 transition-all relative z-10"></i>
+                            </button>
+
+                            <button onClick={openQuickActions} className="group relative overflow-hidden p-4 rounded-2xl bg-white border border-emerald-100 shadow-sm hover:shadow-md hover:border-emerald-200 transition-all text-left flex items-center justify-between">
+                                <div className="absolute inset-0 bg-gradient-to-r from-emerald-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                <div className="flex items-center gap-3 relative z-10">
+                                    <div className="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                        <i className="fas fa-bolt text-xs"></i>
+                                    </div>
+                                    <span className="font-bold text-slate-700 group-hover:text-emerald-700 transition-colors">Quick Actions</span>
+                                </div>
+                                <i className="fas fa-chevron-right text-slate-300 group-hover:text-emerald-400 group-hover:translate-x-1 transition-all relative z-10"></i>
+                            </button>
+                        </div>
                     </div>
 
                     {/* CENTER COLUMN (5/12): Remarks */}
@@ -433,6 +458,27 @@ const CallMode: React.FC = () => {
                             <div className="p-4 border-b border-[#E1E7F0] flex justify-between items-center bg-slate-50/50 shrink-0">
                                 <h3 className="text-sm font-bold uppercase tracking-wider text-[#6B7280]">Interaction History</h3>
                                 <button onClick={handleViewCustomerDetails} className="text-xs text-[#00B894] font-semibold hover:underline">View Customer Details</button>
+                            </div>
+
+                            {/* AI Note Summarizer - Magical Style */}
+                            <div className="px-4 pt-4">
+                                <div className="relative group cursor-pointer" onClick={() => setShowAICallPrep(true)}>
+                                    <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl opacity-30 group-hover:opacity-60 blur transition duration-500"></div>
+                                    <div className="relative p-4 bg-white rounded-xl border border-purple-100 flex justify-between items-center shadow-sm">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 text-white flex items-center justify-center shadow-md">
+                                                <i className="fas fa-magic text-sm"></i>
+                                            </div>
+                                            <div className="flex flex-col">
+                                                <span className="font-bold text-slate-800">AI Note Summarizer</span>
+                                                <span className="text-xs text-purple-600 font-medium">Transform raw notes into insights</span>
+                                            </div>
+                                        </div>
+                                        <button className="px-4 py-2 rounded-lg bg-purple-50 text-purple-700 font-bold text-xs hover:bg-purple-100 transition-colors">
+                                            Open
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
 
                             {/* Reused Remarks Component */}
@@ -498,46 +544,30 @@ const CallMode: React.FC = () => {
                             </div>
                         </GlassCard>
 
-                        {/* Product Mix */}
-                        <GlassCard className="p-5 flex-1">
-                            <h3 className="text-sm font-bold mb-4 uppercase tracking-wider text-[#6B7280]">Product Mix</h3>
-                            <div className="space-y-5">
-                                <div>
-                                    <div className="flex justify-between text-xs mb-1.5 font-medium">
-                                        <span className="text-[#111827]">Antibiotics</span>
-                                        <span className="text-[#111827]">45%</span>
+                        {/* Product Mix - Enhanced Progress Bars */}
+                        <GlassCard className="p-5 flex flex-col gap-4 border border-white/60 shadow-xl shadow-slate-200/50">
+                            <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400 border-b border-slate-100 pb-2">Product Mix</h3>
+
+                            <div className="space-y-4">
+                                {[
+                                    { label: 'Antibiotics', value: 45, color: 'from-teal-400 to-teal-600' },
+                                    { label: 'Cardio', value: 30, color: 'from-blue-400 to-blue-600' },
+                                    { label: 'Pain Mgmt', value: 15, color: 'from-red-400 to-red-600' },
+                                    { label: 'Supplements', value: 10, color: 'from-amber-400 to-amber-600' }
+                                ].map((item) => (
+                                    <div key={item.label} className="group">
+                                        <div className="flex justify-between text-xs font-bold text-slate-600 mb-1.5">
+                                            <span className="group-hover:text-slate-900 transition-colors">{item.label}</span>
+                                            <span className="font-mono">{item.value}%</span>
+                                        </div>
+                                        <div className="h-2.5 bg-slate-100 rounded-full overflow-hidden shadow-inner">
+                                            <div
+                                                className={`h-full rounded-full bg-gradient-to-r ${item.color} shadow-sm transition-all duration-1000 ease-out group-hover:brightness-110`}
+                                                style={{ width: `${item.value}%` }}
+                                            ></div>
+                                        </div>
                                     </div>
-                                    <div className="h-2.5 bg-slate-100 rounded-full overflow-hidden">
-                                        <div className="h-full bg-[#00B894] w-[45%] rounded-full shadow-[0_0_10px_rgba(0,184,148,0.3)]"></div>
-                                    </div>
-                                </div>
-                                <div>
-                                    <div className="flex justify-between text-xs mb-1.5 font-medium">
-                                        <span className="text-[#111827]">Cardio</span>
-                                        <span className="text-[#111827]">30%</span>
-                                    </div>
-                                    <div className="h-2.5 bg-slate-100 rounded-full overflow-hidden">
-                                        <div className="h-full bg-[#4C6FFF] w-[30%] rounded-full shadow-[0_0_10px_rgba(76,111,255,0.3)]"></div>
-                                    </div>
-                                </div>
-                                <div>
-                                    <div className="flex justify-between text-xs mb-1.5 font-medium">
-                                        <span className="text-[#111827]">Pain Mgmt</span>
-                                        <span className="text-[#111827]">15%</span>
-                                    </div>
-                                    <div className="h-2.5 bg-slate-100 rounded-full overflow-hidden">
-                                        <div className="h-full bg-[#EF4444] w-[15%] rounded-full shadow-[0_0_10px_rgba(239,68,68,0.3)]"></div>
-                                    </div>
-                                </div>
-                                <div>
-                                    <div className="flex justify-between text-xs mb-1.5 font-medium">
-                                        <span className="text-[#111827]">Supplements</span>
-                                        <span className="text-[#111827]">10%</span>
-                                    </div>
-                                    <div className="h-2.5 bg-slate-100 rounded-full overflow-hidden">
-                                        <div className="h-full bg-[#F59E0B] w-[10%] rounded-full shadow-[0_0_10px_rgba(245,158,11,0.3)]"></div>
-                                    </div>
-                                </div>
+                                ))}
                             </div>
                         </GlassCard>
                     </div>
