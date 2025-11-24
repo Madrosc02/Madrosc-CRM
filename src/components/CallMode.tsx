@@ -349,11 +349,11 @@ const CallMode: React.FC = () => {
                     {/* LEFT COLUMN (3/12): KPI Cards & Details */}
                     <div className="lg:col-span-3 flex flex-col gap-4">
 
-                        {/* Row 1: Outstanding & YTD Sales - Enhanced with Darker Gradients */}
+                        {/* Row 1: Outstanding & YTD Sales - Distinctive Vibrant Gradients */}
                         <div className="grid grid-cols-2 gap-3">
-                            <div className="bg-gradient-to-br from-rose-600 to-pink-700 rounded-xl p-4 shadow-md hover:shadow-lg transition-all group cursor-pointer hover:scale-[1.02]">
+                            <div className="bg-gradient-to-br from-fuchsia-600 via-pink-600 to-rose-700 rounded-xl p-4 shadow-md hover:shadow-lg transition-all group cursor-pointer hover:scale-[1.02]">
                                 <div className="flex flex-col items-center text-center">
-                                    <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center mb-2.5 group-hover:scale-110 transition-transform">
+                                    <div className="w-10 h-10 rounded-full bg-white/25 backdrop-blur-sm flex items-center justify-center mb-2.5 group-hover:scale-110 transition-transform">
                                         <i className="fas fa-file-invoice-dollar text-lg text-white"></i>
                                     </div>
                                     <span className="text-[10px] uppercase tracking-wider text-white/90 font-black mb-2 whitespace-nowrap">Outstanding</span>
@@ -362,9 +362,9 @@ const CallMode: React.FC = () => {
                                     </span>
                                 </div>
                             </div>
-                            <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-xl p-4 shadow-md hover:shadow-lg transition-all group cursor-pointer hover:scale-[1.02]">
+                            <div className="bg-gradient-to-br from-cyan-600 via-sky-600 to-blue-700 rounded-xl p-4 shadow-md hover:shadow-lg transition-all group cursor-pointer hover:scale-[1.02]">
                                 <div className="flex flex-col items-center text-center">
-                                    <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center mb-2.5 group-hover:scale-110 transition-transform">
+                                    <div className="w-10 h-10 rounded-full bg-white/25 backdrop-blur-sm flex items-center justify-center mb-2.5 group-hover:scale-110 transition-transform">
                                         <i className="fas fa-chart-line text-lg text-white"></i>
                                     </div>
                                     <span className="text-[10px] uppercase tracking-wider text-white/90 font-black mb-2 whitespace-nowrap">YTD Sales</span>
@@ -375,11 +375,11 @@ const CallMode: React.FC = () => {
                             </div>
                         </div>
 
-                        {/* Row 2: Last Order & AI Prep - Enhanced with Darker Gradients */}
+                        {/* Row 2: Last Order & AI Prep - Distinctive Vibrant Gradients */}
                         <div className="grid grid-cols-2 gap-3">
-                            <div className="bg-gradient-to-br from-emerald-600 to-teal-700 rounded-xl p-4 shadow-md hover:shadow-lg transition-all group cursor-pointer hover:scale-[1.02]">
+                            <div className="bg-gradient-to-br from-orange-600 via-amber-600 to-yellow-700 rounded-xl p-4 shadow-md hover:shadow-lg transition-all group cursor-pointer hover:scale-[1.02]">
                                 <div className="flex flex-col items-center text-center">
-                                    <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center mb-2.5 group-hover:scale-110 transition-transform">
+                                    <div className="w-10 h-10 rounded-full bg-white/25 backdrop-blur-sm flex items-center justify-center mb-2.5 group-hover:scale-110 transition-transform">
                                         <i className="fas fa-shopping-bag text-lg text-white"></i>
                                     </div>
                                     <span className="text-[10px] uppercase tracking-wider text-white/90 font-black mb-2 whitespace-nowrap">Last Order</span>
@@ -388,9 +388,9 @@ const CallMode: React.FC = () => {
                                     </span>
                                 </div>
                             </div>
-                            <div className="bg-gradient-to-br from-purple-600 to-violet-700 rounded-xl p-4 shadow-md hover:shadow-lg transition-all group cursor-pointer hover:scale-[1.02]" onClick={() => setShowAICallPrep(true)}>
+                            <div className="bg-gradient-to-br from-violet-700 via-purple-700 to-indigo-800 rounded-xl p-4 shadow-md hover:shadow-lg transition-all group cursor-pointer hover:scale-[1.02]" onClick={() => setShowAICallPrep(true)}>
                                 <div className="flex flex-col items-center text-center">
-                                    <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center mb-2.5 group-hover:scale-110 transition-transform">
+                                    <div className="w-10 h-10 rounded-full bg-white/25 backdrop-blur-sm flex items-center justify-center mb-2.5 group-hover:scale-110 transition-transform">
                                         <i className="fas fa-robot text-lg text-white"></i>
                                     </div>
                                     <span className="text-[10px] uppercase tracking-wider text-white/90 font-black mb-2 whitespace-nowrap">AI Prep</span>
