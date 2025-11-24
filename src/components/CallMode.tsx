@@ -351,7 +351,24 @@ const CallMode: React.FC = () => {
 
                     {/* LEFT COLUMN (3/12): KPIs, Contact, ACTION BUTTONS */}
                     <div className="lg:col-span-3 flex flex-col gap-4">
-                        {/* KPI Grid - Restored Last Order & Risk Score */}
+
+                        {/* Row 1: Outstanding & YTD Sales (Restored) */}
+                        <div className="grid grid-cols-2 gap-3">
+                            <GlassCard className="p-4 flex flex-col justify-center items-center text-center border-t-4 border-rose-500 shadow-lg shadow-rose-500/5 hover:shadow-rose-500/10 transition-all group">
+                                <span className="text-[10px] uppercase tracking-widest text-slate-400 font-bold mb-1 group-hover:text-rose-600 transition-colors">Outstanding</span>
+                                <span className="text-lg font-extrabold text-slate-800 tracking-tight">
+                                    ₹{currentCustomer.outstandingBalance?.toLocaleString() || '0'}
+                                </span>
+                            </GlassCard>
+                            <GlassCard className="p-4 flex flex-col justify-center items-center text-center border-t-4 border-blue-500 shadow-lg shadow-blue-500/5 hover:shadow-blue-500/10 transition-all group">
+                                <span className="text-[10px] uppercase tracking-widest text-slate-400 font-bold mb-1 group-hover:text-blue-600 transition-colors">YTD Sales</span>
+                                <span className="text-lg font-extrabold text-slate-800 tracking-tight">
+                                    ₹{currentCustomer.totalSales?.toLocaleString() || '0'}
+                                </span>
+                            </GlassCard>
+                        </div>
+
+                        {/* Row 2: Last Order & AI Prep */}
                         <div className="grid grid-cols-2 gap-3">
                             <GlassCard className="p-4 flex flex-col justify-center items-center text-center border-t-4 border-teal-500 shadow-lg shadow-teal-500/5 hover:shadow-teal-500/10 transition-all group">
                                 <span className="text-[10px] uppercase tracking-widest text-slate-400 font-bold mb-1 group-hover:text-teal-600 transition-colors">Last Order</span>
@@ -365,13 +382,10 @@ const CallMode: React.FC = () => {
                                     onClick={() => setShowAICallPrep(true)}
                                     className="text-sm font-bold text-indigo-600 hover:text-indigo-700 underline decoration-2 underline-offset-2 decoration-indigo-200 hover:decoration-indigo-500 transition-all"
                                 >
-                                    View Insights
+                                    View
                                 </button>
                             </GlassCard>
                         </div>
-
-                        {/* Win Probability (Risk Score) */}
-                        <WinProbability customer={currentCustomer} sales={customerSales} remarks={customerRemarks} />
 
                         {/* Contact Details Card */}
                         <GlassCard className="p-5 flex flex-col gap-4 border border-white/60 shadow-xl shadow-slate-200/50">
