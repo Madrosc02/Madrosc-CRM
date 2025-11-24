@@ -2,13 +2,13 @@ import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../contexts/AppContext';
 import GlassCard from './common/GlassCard';
-
+import { Customer } from '../types';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { CustomerRemarks } from './customer/CustomerRemarks';
-
+import { WinProbability } from './customer/CustomerOverview';
 
 const CallMode: React.FC = () => {
-    const { customers, remarks, addRemark, openAddTaskModal, openDetailModal, updateCustomerFlag } = useApp();
+    const { customers, remarks, sales, addRemark, openAddTaskModal, openDetailModal, updateCustomerFlag } = useApp();
     const navigate = useNavigate();
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isAnimating, setIsAnimating] = useState(false);
@@ -57,7 +57,10 @@ const CallMode: React.FC = () => {
     }, [remarks, currentCustomer]);
 
     // Sales for current customer (needed for WinProbability)
-
+    const customerSales = useMemo(() => {
+        if (!currentCustomer) return [];
+        return sales.filter(s => s.customerId === currentCustomer.id);
+    }, [sales, currentCustomer]);
 
     // --- Handlers ---
     const handleNext = () => {
@@ -268,20 +271,20 @@ const CallMode: React.FC = () => {
                 {/* Summary Metrics Row - Smaller & Colorful */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
                     {[
-                        { label: 'All Clients', value: metrics.all, icon: 'fa-users', color: 'text-blue-600', bg: 'bg-blue-50' },
-                        { label: 'Pending Orders', value: metrics.pendingOrders, icon: 'fa-clock', color: 'text-amber-600', bg: 'bg-amber-50' },
-                        { label: 'Low Performers', value: metrics.lowPerformers, icon: 'fa-chart-line-down', color: 'text-rose-600', bg: 'bg-rose-50' },
-                        { label: 'Silent Accounts', value: metrics.silentAccounts, icon: 'fa-user-slash', color: 'text-slate-600', bg: 'bg-slate-100' },
+                        { label: 'All Clients', value: metrics.all, icon: 'fa-users', bg: 'bg-blue-500', text: 'text-white' },
+                        { label: 'Pending Orders', value: metrics.pendingOrders, icon: 'fa-clock', bg: 'bg-amber-500', text: 'text-white' },
+                        { label: 'Low Performers', value: metrics.lowPerformers, icon: 'fa-chart-line-down', bg: 'bg-red-500', text: 'text-white' },
+                        { label: 'Silent Accounts', value: metrics.silentAccounts, icon: 'fa-user-slash', bg: 'bg-slate-600', text: 'text-white' },
                     ].map((m, i) => (
-                        <GlassCard key={i} className="p-3 flex items-center justify-between group hover:border-indigo-200 transition-all">
+                        <div key={i} className={`${m.bg} rounded-xl p-3 flex items-center justify-between shadow-sm hover:shadow-md transition-shadow`}>
                             <div>
-                                <p className="text-[10px] uppercase font-bold tracking-wider text-slate-400">{m.label}</p>
-                                <p className="text-lg font-black text-slate-700 mt-0.5">{m.value}</p>
+                                <p className={`text-[10px] uppercase font-bold tracking-wider opacity-80 ${m.text}`}>{m.label}</p>
+                                <p className={`text-lg font-bold mt-0.5 ${m.text}`}>{m.value}</p>
                             </div>
-                            <div className={`w-8 h-8 rounded-lg ${m.bg} flex items-center justify-center ${m.color} group-hover:scale-110 transition-transform`}>
+                            <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white">
                                 <i className={`fas ${m.icon} text-xs`}></i>
                             </div>
-                        </GlassCard>
+                        </div>
                     ))}
                 </div>
 
@@ -348,23 +351,16 @@ const CallMode: React.FC = () => {
                     <div className="lg:col-span-3 flex flex-col gap-4">
 
                         {/* Row 1: Outstanding & YTD Sales */}
-                        {/* Row 1: Outstanding & YTD Sales */}
                         <div className="grid grid-cols-2 gap-3">
-                            <GlassCard className="p-4 flex flex-col justify-center items-center text-center hover:border-rose-200 transition-all group">
-                                <div className="w-8 h-8 rounded-full bg-rose-50 text-rose-500 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
-                                    <i className="fas fa-file-invoice-dollar text-xs"></i>
-                                </div>
-                                <span className="text-[10px] uppercase tracking-widest text-slate-400 font-bold mb-1">Outstanding</span>
-                                <span className="text-lg font-black text-slate-700 tracking-tight font-mono">
+                            <GlassCard className="p-4 flex flex-col justify-center items-center text-center border-t-4 border-rose-500 shadow-lg shadow-rose-500/5 hover:shadow-rose-500/10 transition-all group">
+                                <span className="text-[11px] uppercase tracking-widest text-slate-500 font-bold mb-1 group-hover:text-rose-600 transition-colors">Outstanding</span>
+                                <span className="text-xl font-black text-slate-800 tracking-tight font-mono">
                                     ₹{currentCustomer.outstandingBalance?.toLocaleString() || '0'}
                                 </span>
                             </GlassCard>
-                            <GlassCard className="p-4 flex flex-col justify-center items-center text-center hover:border-blue-200 transition-all group">
-                                <div className="w-8 h-8 rounded-full bg-blue-50 text-blue-500 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
-                                    <i className="fas fa-chart-line text-xs"></i>
-                                </div>
-                                <span className="text-[10px] uppercase tracking-widest text-slate-400 font-bold mb-1">YTD Sales</span>
-                                <span className="text-lg font-black text-slate-700 tracking-tight font-mono">
+                            <GlassCard className="p-4 flex flex-col justify-center items-center text-center border-t-4 border-blue-500 shadow-lg shadow-blue-500/5 hover:shadow-blue-500/10 transition-all group">
+                                <span className="text-[11px] uppercase tracking-widest text-slate-500 font-bold mb-1 group-hover:text-blue-600 transition-colors">YTD Sales</span>
+                                <span className="text-xl font-black text-slate-800 tracking-tight font-mono">
                                     ₹{currentCustomer.totalSales?.toLocaleString() || '0'}
                                 </span>
                             </GlassCard>
@@ -372,23 +368,20 @@ const CallMode: React.FC = () => {
 
                         {/* Row 2: Last Order & AI Prep */}
                         <div className="grid grid-cols-2 gap-3">
-                            <GlassCard className="p-4 flex flex-col justify-center items-center text-center hover:border-teal-200 transition-all group">
-                                <div className="w-8 h-8 rounded-full bg-teal-50 text-teal-500 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
-                                    <i className="fas fa-shopping-bag text-xs"></i>
-                                </div>
-                                <span className="text-[10px] uppercase tracking-widest text-slate-400 font-bold mb-1">Last Order</span>
-                                <span className="text-sm font-black text-slate-700 tracking-tight">
+                            <GlassCard className="p-4 flex flex-col justify-center items-center text-center border-t-4 border-teal-500 shadow-lg shadow-teal-500/5 hover:shadow-teal-500/10 transition-all group">
+                                <span className="text-[11px] uppercase tracking-widest text-slate-500 font-bold mb-1 group-hover:text-teal-600 transition-colors">Last Order</span>
+                                <span className="text-lg font-black text-slate-800 tracking-tight">
                                     {currentCustomer.lastOrderDate ? new Date(currentCustomer.lastOrderDate).toLocaleDateString() : 'Never'}
                                 </span>
                             </GlassCard>
-                            <GlassCard className="p-4 flex flex-col justify-center items-center text-center hover:border-indigo-200 transition-all group cursor-pointer" onClick={() => setShowAICallPrep(true)}>
-                                <div className="w-8 h-8 rounded-full bg-indigo-50 text-indigo-500 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
-                                    <i className="fas fa-robot text-xs"></i>
-                                </div>
-                                <span className="text-[10px] uppercase tracking-widest text-slate-400 font-bold mb-1">AI Prep</span>
-                                <span className="text-xs font-bold text-indigo-600 bg-indigo-50 px-2 py-1 rounded-full">
-                                    VIEW
-                                </span>
+                            <GlassCard className="p-4 flex flex-col justify-center items-center text-center border-t-4 border-indigo-500 shadow-lg shadow-indigo-500/5 hover:shadow-indigo-500/10 transition-all group">
+                                <span className="text-[11px] uppercase tracking-widest text-slate-500 font-bold mb-1 group-hover:text-indigo-600 transition-colors">AI Prep</span>
+                                <button
+                                    onClick={() => setShowAICallPrep(true)}
+                                    className="text-sm font-black text-indigo-600 hover:text-indigo-700 underline decoration-2 underline-offset-2 decoration-indigo-200 hover:decoration-indigo-500 transition-all uppercase tracking-wide"
+                                >
+                                    View
+                                </button>
                             </GlassCard>
                         </div>
 
