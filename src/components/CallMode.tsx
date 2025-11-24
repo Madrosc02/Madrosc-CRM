@@ -450,9 +450,14 @@ const CallMode: React.FC = () => {
                     {/* CENTER COLUMN (5/12): Interaction History */}
                     <div className="lg:col-span-5 flex flex-col gap-4 h-[600px]">
                         <GlassCard className="flex-1 flex flex-col overflow-hidden relative">
-                            <div className="p-4 border-b border-[#E1E7F0] flex justify-between items-center bg-slate-50/50 shrink-0">
-                                <h3 className="text-sm font-bold uppercase tracking-wider text-[#6B7280]">Interaction History</h3>
-                                <button onClick={handleViewCustomerDetails} className="text-xs text-[#00B894] font-semibold hover:underline">View Customer Details</button>
+                            <div className="px-4 py-3 border-b border-teal-200/50 flex justify-between items-center bg-gradient-to-r from-teal-50 via-emerald-50 to-cyan-50 shrink-0 rounded-t-xl">
+                                <div className="flex items-center gap-2">
+                                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-teal-500 to-emerald-600 flex items-center justify-center shadow-sm">
+                                        <i className="fas fa-comments text-white text-sm"></i>
+                                    </div>
+                                    <h3 className="text-sm font-black uppercase tracking-wider text-slate-700">Interaction History</h3>
+                                </div>
+                                <button onClick={handleViewCustomerDetails} className="text-xs text-teal-600 font-bold hover:text-teal-700 hover:underline bg-white/60 px-3 py-1.5 rounded-lg transition-all hover:shadow-sm">View Details</button>
                             </div>
 
                             {/* Reused Remarks Component */}
@@ -472,9 +477,14 @@ const CallMode: React.FC = () => {
 
                         {/* 6-Month Sales Chart */}
                         <GlassCard className="p-5 h-[320px] flex flex-col">
-                            <div className="flex justify-between items-center mb-4">
-                                <h3 className="text-sm font-bold uppercase tracking-wider text-[#6B7280]">6-Month Sales</h3>
-                                <span className="text-xs font-bold text-[#16A34A] bg-[#16A34A]/10 px-2 py-1 rounded-md">+12% vs last period</span>
+                            <div className="flex justify-between items-center mb-4 px-4 py-3 bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 rounded-xl border border-blue-200/50">
+                                <div className="flex items-center gap-2">
+                                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-sm">
+                                        <i className="fas fa-chart-bar text-white text-sm"></i>
+                                    </div>
+                                    <h3 className="text-sm font-black uppercase tracking-wider text-slate-700">6-Month Sales</h3>
+                                </div>
+                                <span className="text-xs font-black text-emerald-700 bg-emerald-100 px-3 py-1.5 rounded-lg shadow-sm">+12% vs last period</span>
                             </div>
                             <div className="flex-1 w-full min-h-0">
                                 <ResponsiveContainer width="100%" height="100%">
