@@ -341,10 +341,10 @@ const CallMode: React.FC = () => {
                 </div>
 
                 {/* --- 3-Column Grid Layout --- */}
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-[calc(100vh-260px)] min-h-[500px]">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
                     {/* LEFT COLUMN (3/12): KPIs, Contact, ACTION BUTTONS */}
-                    <div className="lg:col-span-3 flex flex-col gap-4 h-full overflow-y-auto pr-1 custom-scrollbar">
+                    <div className="lg:col-span-3 flex flex-col gap-4">
                         {/* KPI Grid - Restored Last Order & Risk Score */}
                         <div className="grid grid-cols-2 gap-2">
                             <GlassCard className="p-3 flex flex-col justify-center items-center text-center border-t-4 border-[#00B894]">
@@ -426,10 +426,10 @@ const CallMode: React.FC = () => {
                     </div>
 
                     {/* CENTER COLUMN (5/12): Remarks */}
-                    <div className="lg:col-span-5 flex flex-col gap-4 h-full pr-1">
+                    <div className="lg:col-span-5 flex flex-col gap-4">
 
                         {/* Interaction History (Reusing CustomerRemarks) */}
-                        <GlassCard className="flex-1 flex flex-col overflow-hidden min-h-[500px] relative">
+                        <GlassCard className="flex-1 flex flex-col overflow-hidden min-h-[600px] relative">
                             <div className="p-4 border-b border-[#E1E7F0] flex justify-between items-center bg-slate-50/50 shrink-0">
                                 <h3 className="text-sm font-bold uppercase tracking-wider text-[#6B7280]">Interaction History</h3>
                                 <button onClick={handleViewCustomerDetails} className="text-xs text-[#00B894] font-semibold hover:underline">View Customer Details</button>
@@ -448,7 +448,7 @@ const CallMode: React.FC = () => {
                     </div>
 
                     {/* RIGHT COLUMN (4/12): Sales, Mix */}
-                    <div className="lg:col-span-4 flex flex-col gap-4 h-full overflow-y-auto pr-1 custom-scrollbar">
+                    <div className="lg:col-span-4 flex flex-col gap-4">
 
                         {/* 6-Month Sales Chart */}
                         <GlassCard className="p-5 h-[320px] flex flex-col">
