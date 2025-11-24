@@ -346,23 +346,21 @@ const CallMode: React.FC = () => {
                     </div>
                 </div>
 
-                {/* --- 3-Column Grid Layout --- */}
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-
-                    {/* LEFT COLUMN (3/12): KPIs, Contact, ACTION BUTTONS */}
+                    {/* LEFT COLUMN (3/12): KPI Cards & Details */}
                     <div className="lg:col-span-3 flex flex-col gap-4">
 
-                        {/* Row 1: Outstanding & YTD Sales (Restored) */}
+                        {/* Row 1: Outstanding & YTD Sales */}
                         <div className="grid grid-cols-2 gap-3">
                             <GlassCard className="p-4 flex flex-col justify-center items-center text-center border-t-4 border-rose-500 shadow-lg shadow-rose-500/5 hover:shadow-rose-500/10 transition-all group">
-                                <span className="text-[10px] uppercase tracking-widest text-slate-400 font-bold mb-1 group-hover:text-rose-600 transition-colors">Outstanding</span>
-                                <span className="text-lg font-extrabold text-slate-800 tracking-tight">
+                                <span className="text-[11px] uppercase tracking-widest text-slate-500 font-bold mb-1 group-hover:text-rose-600 transition-colors">Outstanding</span>
+                                <span className="text-xl font-black text-slate-800 tracking-tight font-mono">
                                     ₹{currentCustomer.outstandingBalance?.toLocaleString() || '0'}
                                 </span>
                             </GlassCard>
                             <GlassCard className="p-4 flex flex-col justify-center items-center text-center border-t-4 border-blue-500 shadow-lg shadow-blue-500/5 hover:shadow-blue-500/10 transition-all group">
-                                <span className="text-[10px] uppercase tracking-widest text-slate-400 font-bold mb-1 group-hover:text-blue-600 transition-colors">YTD Sales</span>
-                                <span className="text-lg font-extrabold text-slate-800 tracking-tight">
+                                <span className="text-[11px] uppercase tracking-widest text-slate-500 font-bold mb-1 group-hover:text-blue-600 transition-colors">YTD Sales</span>
+                                <span className="text-xl font-black text-slate-800 tracking-tight font-mono">
                                     ₹{currentCustomer.totalSales?.toLocaleString() || '0'}
                                 </span>
                             </GlassCard>
@@ -371,128 +369,74 @@ const CallMode: React.FC = () => {
                         {/* Row 2: Last Order & AI Prep */}
                         <div className="grid grid-cols-2 gap-3">
                             <GlassCard className="p-4 flex flex-col justify-center items-center text-center border-t-4 border-teal-500 shadow-lg shadow-teal-500/5 hover:shadow-teal-500/10 transition-all group">
-                                <span className="text-[10px] uppercase tracking-widest text-slate-400 font-bold mb-1 group-hover:text-teal-600 transition-colors">Last Order</span>
-                                <span className="text-lg font-extrabold text-slate-800 tracking-tight">
+                                <span className="text-[11px] uppercase tracking-widest text-slate-500 font-bold mb-1 group-hover:text-teal-600 transition-colors">Last Order</span>
+                                <span className="text-lg font-black text-slate-800 tracking-tight">
                                     {currentCustomer.lastOrderDate ? new Date(currentCustomer.lastOrderDate).toLocaleDateString() : 'Never'}
                                 </span>
                             </GlassCard>
                             <GlassCard className="p-4 flex flex-col justify-center items-center text-center border-t-4 border-indigo-500 shadow-lg shadow-indigo-500/5 hover:shadow-indigo-500/10 transition-all group">
-                                <span className="text-[10px] uppercase tracking-widest text-slate-400 font-bold mb-1 group-hover:text-indigo-600 transition-colors">AI Prep</span>
+                                <span className="text-[11px] uppercase tracking-widest text-slate-500 font-bold mb-1 group-hover:text-indigo-600 transition-colors">AI Prep</span>
                                 <button
                                     onClick={() => setShowAICallPrep(true)}
-                                    className="text-sm font-bold text-indigo-600 hover:text-indigo-700 underline decoration-2 underline-offset-2 decoration-indigo-200 hover:decoration-indigo-500 transition-all"
+                                    className="text-sm font-black text-indigo-600 hover:text-indigo-700 underline decoration-2 underline-offset-2 decoration-indigo-200 hover:decoration-indigo-500 transition-all uppercase tracking-wide"
                                 >
                                     View
                                 </button>
                             </GlassCard>
                         </div>
 
-                        {/* Contact Details Card */}
-                        <GlassCard className="p-5 flex flex-col gap-4 border border-white/60 shadow-xl shadow-slate-200/50">
-                            <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400 border-b border-slate-100 pb-2">Contact Details</h3>
-
-                            <div className="flex items-center gap-4 group cursor-pointer" onClick={handleCallNow}>
-                                <div className="w-10 h-10 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center shadow-sm group-hover:scale-110 group-hover:bg-teal-100 transition-all duration-300">
-                                    <i className="fas fa-phone-alt text-sm"></i>
+                        {/* Contact Details */}
+                        <GlassCard className="p-4">
+                            <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400 border-b border-slate-100 pb-2 mb-3">Contact Details</h3>
+                            <div className="space-y-3">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-500">
+                                        <i className="fas fa-phone"></i>
+                                    </div>
+                                    <div className="overflow-hidden">
+                                        <p className="text-[10px] uppercase font-bold text-slate-400">Phone</p>
+                                        <p className="text-sm font-bold text-slate-700 truncate">{currentCustomer.phone || 'N/A'}</p>
+                                    </div>
                                 </div>
-                                <div className="flex flex-col">
-                                    <span className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Mobile</span>
-                                    <span className="font-bold text-slate-700 group-hover:text-teal-700 transition-colors">{currentCustomer.contact}</span>
-                                </div>
-                            </div>
-
-                            <div className="flex items-center gap-4 group cursor-pointer">
-                                <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shadow-sm group-hover:scale-110 group-hover:bg-blue-100 transition-all duration-300">
-                                    <i className="fas fa-envelope text-sm"></i>
-                                </div>
-                                <div className="flex flex-col">
-                                    <span className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Email</span>
-                                    <span className="font-bold text-slate-700 group-hover:text-blue-700 transition-colors truncate max-w-[180px]" title={currentCustomer.email || 'N/A'}>
-                                        {currentCustomer.email || 'N/A'}
-                                    </span>
+                                <div className="flex items-center gap-3">
+                                    <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-500">
+                                        <i className="fas fa-envelope"></i>
+                                    </div>
+                                    <div className="overflow-hidden">
+                                        <p className="text-[10px] uppercase font-bold text-slate-400">Email</p>
+                                        <p className="text-sm font-bold text-slate-700 truncate">{currentCustomer.email || 'N/A'}</p>
+                                    </div>
                                 </div>
                             </div>
                         </GlassCard>
 
-                        {/* Customer Actions - Redesigned as Interactive Cards */}
-                        <div className="flex flex-col gap-3">
-                            <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400 px-1">Customer Actions</h3>
-
-                            <button onClick={openGoals} className="group relative overflow-hidden p-4 rounded-2xl bg-white border border-purple-100 shadow-sm hover:shadow-md hover:border-purple-200 transition-all text-left flex items-center justify-between">
-                                <div className="absolute inset-0 bg-gradient-to-r from-purple-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                <div className="flex items-center gap-3 relative z-10">
-                                    <div className="w-8 h-8 rounded-lg bg-purple-100 text-purple-600 flex items-center justify-center group-hover:scale-110 transition-transform">
-                                        <i className="fas fa-bullseye text-xs"></i>
-                                    </div>
-                                    <span className="font-bold text-slate-700 group-hover:text-purple-700 transition-colors">Goals</span>
-                                </div>
-                                <i className="fas fa-chevron-right text-slate-300 group-hover:text-purple-400 group-hover:translate-x-1 transition-all relative z-10"></i>
+                        {/* Customer Actions */}
+                        <div className="grid grid-cols-2 gap-3">
+                            <button onClick={openGoals} className="p-3 bg-white rounded-xl border border-slate-200 shadow-sm hover:shadow-md hover:border-indigo-300 transition-all group text-left">
+                                <i className="fas fa-bullseye text-indigo-500 mb-2 text-xl group-hover:scale-110 transition-transform"></i>
+                                <p className="text-xs font-bold text-slate-600 group-hover:text-indigo-600">Goals</p>
                             </button>
-
-                            <button onClick={openSalesHistory} className="group relative overflow-hidden p-4 rounded-2xl bg-white border border-blue-100 shadow-sm hover:shadow-md hover:border-blue-200 transition-all text-left flex items-center justify-between">
-                                <div className="absolute inset-0 bg-gradient-to-r from-blue-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                <div className="flex items-center gap-3 relative z-10">
-                                    <div className="w-8 h-8 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center group-hover:scale-110 transition-transform">
-                                        <i className="fas fa-chart-line text-xs"></i>
-                                    </div>
-                                    <span className="font-bold text-slate-700 group-hover:text-blue-700 transition-colors">Sales History</span>
-                                </div>
-                                <i className="fas fa-chevron-right text-slate-300 group-hover:text-blue-400 group-hover:translate-x-1 transition-all relative z-10"></i>
+                            <button onClick={openSalesHistory} className="p-3 bg-white rounded-xl border border-slate-200 shadow-sm hover:shadow-md hover:border-emerald-300 transition-all group text-left">
+                                <i className="fas fa-history text-emerald-500 mb-2 text-xl group-hover:scale-110 transition-transform"></i>
+                                <p className="text-xs font-bold text-slate-600 group-hover:text-emerald-600">Sales History</p>
                             </button>
-
-                            <button onClick={openTasks} className="group relative overflow-hidden p-4 rounded-2xl bg-white border border-amber-100 shadow-sm hover:shadow-md hover:border-amber-200 transition-all text-left flex items-center justify-between">
-                                <div className="absolute inset-0 bg-gradient-to-r from-amber-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                <div className="flex items-center gap-3 relative z-10">
-                                    <div className="w-8 h-8 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center group-hover:scale-110 transition-transform">
-                                        <i className="fas fa-tasks text-xs"></i>
-                                    </div>
-                                    <span className="font-bold text-slate-700 group-hover:text-amber-700 transition-colors">Tasks</span>
-                                </div>
-                                <i className="fas fa-chevron-right text-slate-300 group-hover:text-amber-400 group-hover:translate-x-1 transition-all relative z-10"></i>
+                            <button onClick={openTasks} className="p-3 bg-white rounded-xl border border-slate-200 shadow-sm hover:shadow-md hover:border-amber-300 transition-all group text-left">
+                                <i className="fas fa-tasks text-amber-500 mb-2 text-xl group-hover:scale-110 transition-transform"></i>
+                                <p className="text-xs font-bold text-slate-600 group-hover:text-amber-600">Tasks</p>
                             </button>
-
-                            <button onClick={openQuickActions} className="group relative overflow-hidden p-4 rounded-2xl bg-white border border-emerald-100 shadow-sm hover:shadow-md hover:border-emerald-200 transition-all text-left flex items-center justify-between">
-                                <div className="absolute inset-0 bg-gradient-to-r from-emerald-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                <div className="flex items-center gap-3 relative z-10">
-                                    <div className="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center group-hover:scale-110 transition-transform">
-                                        <i className="fas fa-bolt text-xs"></i>
-                                    </div>
-                                    <span className="font-bold text-slate-700 group-hover:text-emerald-700 transition-colors">Quick Actions</span>
-                                </div>
-                                <i className="fas fa-chevron-right text-slate-300 group-hover:text-emerald-400 group-hover:translate-x-1 transition-all relative z-10"></i>
+                            <button onClick={openQuickActions} className="p-3 bg-white rounded-xl border border-slate-200 shadow-sm hover:shadow-md hover:border-blue-300 transition-all group text-left">
+                                <i className="fas fa-bolt text-blue-500 mb-2 text-xl group-hover:scale-110 transition-transform"></i>
+                                <p className="text-xs font-bold text-slate-600 group-hover:text-blue-600">Quick Actions</p>
                             </button>
                         </div>
                     </div>
 
-                    {/* CENTER COLUMN (5/12): Remarks */}
-                    <div className="lg:col-span-5 flex flex-col gap-4">
-
-                        {/* Interaction History (Reusing CustomerRemarks) */}
-                        <GlassCard className="flex-1 flex flex-col overflow-hidden min-h-[600px] relative">
+                    {/* CENTER COLUMN (5/12): Interaction History */}
+                    <div className="lg:col-span-5 flex flex-col gap-4 h-[600px]">
+                        <GlassCard className="flex-1 flex flex-col overflow-hidden relative">
                             <div className="p-4 border-b border-[#E1E7F0] flex justify-between items-center bg-slate-50/50 shrink-0">
                                 <h3 className="text-sm font-bold uppercase tracking-wider text-[#6B7280]">Interaction History</h3>
                                 <button onClick={handleViewCustomerDetails} className="text-xs text-[#00B894] font-semibold hover:underline">View Customer Details</button>
-                            </div>
-
-                            {/* AI Note Summarizer - Magical Style */}
-                            <div className="px-4 pt-4">
-                                <div className="relative group cursor-pointer" onClick={() => setShowAICallPrep(true)}>
-                                    <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl opacity-30 group-hover:opacity-60 blur transition duration-500"></div>
-                                    <div className="relative p-4 bg-white rounded-xl border border-purple-100 flex justify-between items-center shadow-sm">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 text-white flex items-center justify-center shadow-md">
-                                                <i className="fas fa-magic text-sm"></i>
-                                            </div>
-                                            <div className="flex flex-col">
-                                                <span className="font-bold text-slate-800">AI Note Summarizer</span>
-                                                <span className="text-xs text-purple-600 font-medium">Transform raw notes into insights</span>
-                                            </div>
-                                        </div>
-                                        <button className="px-4 py-2 rounded-lg bg-purple-50 text-purple-700 font-bold text-xs hover:bg-purple-100 transition-colors">
-                                            Open
-                                        </button>
-                                    </div>
-                                </div>
                             </div>
 
                             {/* Reused Remarks Component */}
@@ -586,7 +530,6 @@ const CallMode: React.FC = () => {
                         </GlassCard>
                     </div>
                 </div>
-
 
                 {/* --- Bottom Floating Dock Navigation --- */}
                 <div className="fixed bottom-8 left-0 right-0 z-50 flex justify-center pointer-events-none">
@@ -705,7 +648,7 @@ const CallMode: React.FC = () => {
                     </div>
                 )}
             </div>
-        </div>
+        </div >
     );
 };
 
