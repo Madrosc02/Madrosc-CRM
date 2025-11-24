@@ -265,23 +265,21 @@ const CallMode: React.FC = () => {
             {/* --- Main Content Area --- */}
             <div className={`container mx-auto px-4 pt-16 pb-24 transition-all duration-500 ease-in-out relative z-10 max-w-7xl ${isAnimating ? 'opacity-0 translate-x-8' : 'opacity-100 translate-x-0'}`}>
 
-                {/* Summary Metrics Row - Smaller & Colorful */}
+                {/* Summary Metrics Row - Clean Glass Cards */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
                     {[
-                        { label: 'All Clients', value: metrics.all, icon: 'fa-users', bg: 'bg-blue-500', text: 'text-white' },
-                        { label: 'Pending Orders', value: metrics.pendingOrders, icon: 'fa-clock', bg: 'bg-amber-500', text: 'text-white' },
-                        { label: 'Low Performers', value: metrics.lowPerformers, icon: 'fa-chart-line-down', bg: 'bg-red-500', text: 'text-white' },
-                        { label: 'Silent Accounts', value: metrics.silentAccounts, icon: 'fa-user-slash', bg: 'bg-slate-600', text: 'text-white' },
+                        { label: 'All Clients', value: metrics.all, icon: 'fa-users', iconColor: 'text-blue-500', iconBg: 'bg-blue-50', hoverBorder: 'hover:border-blue-200' },
+                        { label: 'Pending Orders', value: metrics.pendingOrders, icon: 'fa-clock', iconColor: 'text-amber-500', iconBg: 'bg-amber-50', hoverBorder: 'hover:border-amber-200' },
+                        { label: 'Low Performers', value: metrics.lowPerformers, icon: 'fa-chart-line-down', iconColor: 'text-red-500', iconBg: 'bg-red-50', hoverBorder: 'hover:border-red-200' },
+                        { label: 'Silent Accounts', value: metrics.silentAccounts, icon: 'fa-user-slash', iconColor: 'text-slate-500', iconBg: 'bg-slate-50', hoverBorder: 'hover:border-slate-200' },
                     ].map((m, i) => (
-                        <div key={i} className={`${m.bg} rounded-xl p-3 flex items-center justify-between shadow-sm hover:shadow-md transition-shadow`}>
-                            <div>
-                                <p className={`text-[10px] uppercase font-bold tracking-wider opacity-80 ${m.text}`}>{m.label}</p>
-                                <p className={`text-lg font-bold mt-0.5 ${m.text}`}>{m.value}</p>
+                        <GlassCard key={i} className={`p-4 flex flex-col items-center text-center ${m.hoverBorder} transition-all group`}>
+                            <div className={`w-10 h-10 rounded-full ${m.iconBg} ${m.iconColor} flex items-center justify-center mb-2 group-hover:scale-110 transition-transform`}>
+                                <i className={`fas ${m.icon} text-sm`}></i>
                             </div>
-                            <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white">
-                                <i className={`fas ${m.icon} text-xs`}></i>
-                            </div>
-                        </div>
+                            <p className="text-[10px] uppercase tracking-widest text-slate-400 font-bold mb-1">{m.label}</p>
+                            <p className="text-xl font-black text-slate-700 tracking-tight font-mono">{m.value}</p>
+                        </GlassCard>
                     ))}
                 </div>
 
