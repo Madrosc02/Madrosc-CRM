@@ -349,52 +349,52 @@ const CallMode: React.FC = () => {
                     {/* LEFT COLUMN (3/12): KPI Cards & Details */}
                     <div className="lg:col-span-3 flex flex-col gap-4">
 
-                        {/* Row 1: Outstanding & YTD Sales - Distinctive Vibrant Gradients */}
+                        {/* Row 1: Outstanding & YTD Sales - Soft Pastel Gradients */}
                         <div className="grid grid-cols-2 gap-3">
-                            <div className="bg-gradient-to-br from-fuchsia-600 via-pink-600 to-rose-700 rounded-xl p-4 shadow-md hover:shadow-lg transition-all group cursor-pointer hover:scale-[1.02]">
+                            <div className="bg-gradient-to-br from-rose-50 via-pink-50 to-red-50 rounded-xl p-4 shadow-md hover:shadow-lg transition-all group cursor-pointer hover:scale-[1.02] border border-rose-200/50">
                                 <div className="flex flex-col items-center text-center">
-                                    <div className="w-10 h-10 rounded-full bg-white/25 backdrop-blur-sm flex items-center justify-center mb-2.5 group-hover:scale-110 transition-transform">
+                                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-rose-500 to-pink-600 flex items-center justify-center mb-2.5 group-hover:scale-110 transition-transform shadow-sm">
                                         <i className="fas fa-file-invoice-dollar text-lg text-white"></i>
                                     </div>
-                                    <span className="text-[10px] uppercase tracking-wider text-white/90 font-black mb-2 whitespace-nowrap">Outstanding</span>
-                                    <span className="text-base font-black text-white tracking-tight">
+                                    <span className="text-[10px] uppercase tracking-wider text-rose-600 font-black mb-2 whitespace-nowrap">Outstanding</span>
+                                    <span className="text-base font-black text-rose-700 tracking-tight">
                                         ₹{currentCustomer.outstandingBalance?.toLocaleString() || '0'}
                                     </span>
                                 </div>
                             </div>
-                            <div className="bg-gradient-to-br from-cyan-600 via-sky-600 to-blue-700 rounded-xl p-4 shadow-md hover:shadow-lg transition-all group cursor-pointer hover:scale-[1.02]">
+                            <div className="bg-gradient-to-br from-blue-50 via-indigo-50 to-sky-50 rounded-xl p-4 shadow-md hover:shadow-lg transition-all group cursor-pointer hover:scale-[1.02] border border-blue-200/50">
                                 <div className="flex flex-col items-center text-center">
-                                    <div className="w-10 h-10 rounded-full bg-white/25 backdrop-blur-sm flex items-center justify-center mb-2.5 group-hover:scale-110 transition-transform">
+                                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center mb-2.5 group-hover:scale-110 transition-transform shadow-sm">
                                         <i className="fas fa-chart-line text-lg text-white"></i>
                                     </div>
-                                    <span className="text-[10px] uppercase tracking-wider text-white/90 font-black mb-2 whitespace-nowrap">YTD Sales</span>
-                                    <span className="text-base font-black text-white tracking-tight">
+                                    <span className="text-[10px] uppercase tracking-wider text-blue-600 font-black mb-2 whitespace-nowrap">YTD Sales</span>
+                                    <span className="text-base font-black text-blue-700 tracking-tight">
                                         ₹{currentCustomer.totalSales?.toLocaleString() || '0'}
                                     </span>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Row 2: Last Order & AI Prep - Distinctive Vibrant Gradients */}
+                        {/* Row 2: Last Order & AI Prep - Soft Pastel Gradients */}
                         <div className="grid grid-cols-2 gap-3">
-                            <div className="bg-gradient-to-br from-orange-600 via-amber-600 to-yellow-700 rounded-xl p-4 shadow-md hover:shadow-lg transition-all group cursor-pointer hover:scale-[1.02]">
+                            <div className="bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 rounded-xl p-4 shadow-md hover:shadow-lg transition-all group cursor-pointer hover:scale-[1.02] border border-emerald-200/50">
                                 <div className="flex flex-col items-center text-center">
-                                    <div className="w-10 h-10 rounded-full bg-white/25 backdrop-blur-sm flex items-center justify-center mb-2.5 group-hover:scale-110 transition-transform">
+                                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center mb-2.5 group-hover:scale-110 transition-transform shadow-sm">
                                         <i className="fas fa-shopping-bag text-lg text-white"></i>
                                     </div>
-                                    <span className="text-[10px] uppercase tracking-wider text-white/90 font-black mb-2 whitespace-nowrap">Last Order</span>
-                                    <span className="text-sm font-black text-white tracking-tight leading-tight">
+                                    <span className="text-[10px] uppercase tracking-wider text-emerald-600 font-black mb-2 whitespace-nowrap">Last Order</span>
+                                    <span className="text-sm font-black text-emerald-700 tracking-tight leading-tight">
                                         {currentCustomer.lastOrderDate ? new Date(currentCustomer.lastOrderDate).toLocaleDateString() : 'Never'}
                                     </span>
                                 </div>
                             </div>
-                            <div className="bg-gradient-to-br from-violet-700 via-purple-700 to-indigo-800 rounded-xl p-4 shadow-md hover:shadow-lg transition-all group cursor-pointer hover:scale-[1.02]" onClick={() => setShowAICallPrep(true)}>
+                            <div className="bg-gradient-to-br from-purple-50 via-violet-50 to-indigo-50 rounded-xl p-4 shadow-md hover:shadow-lg transition-all group cursor-pointer hover:scale-[1.02] border border-purple-200/50" onClick={() => setShowAICallPrep(true)}>
                                 <div className="flex flex-col items-center text-center">
-                                    <div className="w-10 h-10 rounded-full bg-white/25 backdrop-blur-sm flex items-center justify-center mb-2.5 group-hover:scale-110 transition-transform">
+                                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-600 to-violet-700 flex items-center justify-center mb-2.5 group-hover:scale-110 transition-transform shadow-sm">
                                         <i className="fas fa-robot text-lg text-white"></i>
                                     </div>
-                                    <span className="text-[10px] uppercase tracking-wider text-white/90 font-black mb-2 whitespace-nowrap">AI Prep</span>
-                                    <span className="text-xs font-black text-white bg-white/20 px-3 py-1 rounded-full">
+                                    <span className="text-[10px] uppercase tracking-wider text-purple-600 font-black mb-2 whitespace-nowrap">AI Prep</span>
+                                    <span className="text-xs font-black text-purple-700 bg-purple-100 px-3 py-1 rounded-full">
                                         VIEW
                                     </span>
                                 </div>
