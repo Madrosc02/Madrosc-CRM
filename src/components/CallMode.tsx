@@ -265,7 +265,7 @@ const CallMode: React.FC = () => {
             {/* --- Main Content Area --- */}
             <div className={`container mx-auto px-4 pt-16 pb-24 transition-all duration-500 ease-in-out relative z-10 max-w-7xl ${isAnimating ? 'opacity-0 translate-x-8' : 'opacity-100 translate-x-0'}`}>
 
-                {/* Summary Metrics Row - Vibrant Colored Cards */}
+                {/* Summary Metrics Row - Compact Left-Aligned Cards */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
                     {[
                         { label: 'All Clients', value: metrics.all, icon: 'fa-users', gradient: 'from-blue-500 to-blue-600', iconColor: 'text-white' },
@@ -273,13 +273,15 @@ const CallMode: React.FC = () => {
                         { label: 'Low Performers', value: metrics.lowPerformers, icon: 'fa-chart-line-down', gradient: 'from-red-500 to-red-600', iconColor: 'text-white' },
                         { label: 'Silent Accounts', value: metrics.silentAccounts, icon: 'fa-user-slash', gradient: 'from-slate-600 to-slate-700', iconColor: 'text-white' },
                     ].map((m, i) => (
-                        <div key={i} className={`bg-gradient-to-br ${m.gradient} rounded-xl p-3 shadow-md hover:shadow-lg transition-all group cursor-pointer hover:scale-[1.02]`}>
-                            <div className="flex flex-col items-center text-center">
-                                <div className="w-9 h-9 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center mb-1.5 group-hover:scale-110 transition-transform">
-                                    <i className={`fas ${m.icon} text-base ${m.iconColor}`}></i>
+                        <div key={i} className={`bg-gradient-to-br ${m.gradient} rounded-lg px-3 py-2.5 shadow-md hover:shadow-lg transition-all group cursor-pointer hover:scale-[1.02]`}>
+                            <div className="flex items-center gap-2.5">
+                                <div className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center group-hover:scale-110 transition-transform shrink-0">
+                                    <i className={`fas ${m.icon} text-sm ${m.iconColor}`}></i>
                                 </div>
-                                <p className="text-[9px] uppercase tracking-widest text-white/80 font-extrabold mb-1">{m.label}</p>
-                                <p className="text-xl font-black text-white tracking-tight">{m.value}</p>
+                                <div className="flex flex-col min-w-0">
+                                    <p className="text-[8px] uppercase tracking-wide text-white/80 font-bold leading-tight">{m.label}</p>
+                                    <p className="text-lg font-black text-white tracking-tight leading-tight mt-0.5">{m.value}</p>
+                                </div>
                             </div>
                         </div>
                     ))}
