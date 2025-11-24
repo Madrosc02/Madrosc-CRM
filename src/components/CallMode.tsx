@@ -268,20 +268,20 @@ const CallMode: React.FC = () => {
                 {/* Summary Metrics Row - Smaller & Colorful */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
                     {[
-                        { label: 'All Clients', value: metrics.all, icon: 'fa-users', color: 'text-blue-600', bg: 'bg-blue-50' },
-                        { label: 'Pending Orders', value: metrics.pendingOrders, icon: 'fa-clock', color: 'text-amber-600', bg: 'bg-amber-50' },
-                        { label: 'Low Performers', value: metrics.lowPerformers, icon: 'fa-chart-line-down', color: 'text-rose-600', bg: 'bg-rose-50' },
-                        { label: 'Silent Accounts', value: metrics.silentAccounts, icon: 'fa-user-slash', color: 'text-slate-600', bg: 'bg-slate-100' },
+                        { label: 'All Clients', value: metrics.all, icon: 'fa-users', bg: 'bg-blue-500', text: 'text-white' },
+                        { label: 'Pending Orders', value: metrics.pendingOrders, icon: 'fa-clock', bg: 'bg-amber-500', text: 'text-white' },
+                        { label: 'Low Performers', value: metrics.lowPerformers, icon: 'fa-chart-line-down', bg: 'bg-red-500', text: 'text-white' },
+                        { label: 'Silent Accounts', value: metrics.silentAccounts, icon: 'fa-user-slash', bg: 'bg-slate-600', text: 'text-white' },
                     ].map((m, i) => (
-                        <GlassCard key={i} className="p-3 flex items-center justify-between group hover:border-indigo-200 transition-all">
+                        <div key={i} className={`${m.bg} rounded-xl p-3 flex items-center justify-between shadow-sm hover:shadow-md transition-shadow`}>
                             <div>
-                                <p className="text-[10px] uppercase font-bold tracking-wider text-slate-400">{m.label}</p>
-                                <p className="text-lg font-black text-slate-700 mt-0.5">{m.value}</p>
+                                <p className={`text-[10px] uppercase font-bold tracking-wider opacity-80 ${m.text}`}>{m.label}</p>
+                                <p className={`text-lg font-bold mt-0.5 ${m.text}`}>{m.value}</p>
                             </div>
-                            <div className={`w-8 h-8 rounded-lg ${m.bg} flex items-center justify-center ${m.color} group-hover:scale-110 transition-transform`}>
+                            <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white">
                                 <i className={`fas ${m.icon} text-xs`}></i>
                             </div>
-                        </GlassCard>
+                        </div>
                     ))}
                 </div>
 
