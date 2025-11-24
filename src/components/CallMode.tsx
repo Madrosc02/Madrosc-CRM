@@ -544,29 +544,48 @@ const CallMode: React.FC = () => {
                 </div>
 
 
-                {/* --- Bottom Floating Action Bar --- */}
-                <div className="fixed bottom-0 left-0 lg:left-72 right-0 p-4 bg-white/95 backdrop-blur-2xl border-t-2 border-[#E1E7F0]/60 z-50 shadow-[0_-8px_32px_rgba(0,0,0,0.08)] transition-all duration-300">
-                    <div className="container mx-auto flex justify-between items-center max-w-6xl">
+                {/* --- Bottom Floating Dock Navigation --- */}
+                <div className="fixed bottom-8 left-0 right-0 z-50 flex justify-center pointer-events-none">
+                    <div className="bg-[#111827]/90 backdrop-blur-2xl border border-white/10 shadow-2xl rounded-full px-2 py-2 flex items-center gap-4 pointer-events-auto transform transition-all hover:scale-[1.02] duration-300 max-w-[90vw]">
+
+                        {/* Previous Button */}
                         <button
                             onClick={handlePrevious}
                             disabled={currentIndex === 0}
-                            className="px-6 py-2.5 rounded-xl font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 disabled:opacity-30 disabled:cursor-not-allowed transition-all flex items-center gap-2 shadow-sm hover:shadow-md"
+                            className="w-12 h-12 rounded-full flex items-center justify-center text-white hover:bg-white/10 disabled:opacity-30 disabled:hover:bg-transparent transition-all group"
+                            title="Previous Customer"
                         >
-                            <i className="fas fa-chevron-left"></i> <span className="hidden sm:inline">Previous</span>
+                            <i className="fas fa-arrow-left text-lg group-hover:-translate-x-1 transition-transform"></i>
                         </button>
 
-                        <div className="flex gap-4">
-                            <button
-                                onClick={handleNext}
-                                disabled={currentIndex === filteredCustomers.length - 1}
-                                className="px-8 py-3 rounded-xl font-bold bg-gradient-to-r from-[#00B894] to-[#00D4AA] text-white shadow-xl shadow-[#00B894]/40 hover:shadow-2xl hover:shadow-[#00B894]/50 hover:scale-105 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:scale-100 transition-all flex items-center gap-2 relative overflow-hidden group"
-                            >
-                                <span className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></span>
-                                <span className="relative">Next Customer</span> <i className="fas fa-chevron-right relative"></i>
-                            </button>
+                        {/* Progress Indicator */}
+                        <div className="flex flex-col items-center px-4 border-x border-white/10 min-w-[140px]">
+                            <span className="text-[10px] uppercase tracking-[0.2em] text-slate-400 font-bold mb-1">Customer</span>
+                            <div className="flex items-baseline gap-1">
+                                <span className="text-xl font-black text-white font-mono">{currentIndex + 1}</span>
+                                <span className="text-xs text-slate-500 font-medium">/ {filteredCustomers.length}</span>
+                            </div>
                         </div>
+
+                        {/* Next Button */}
+                        <button
+                            onClick={handleNext}
+                            disabled={currentIndex === filteredCustomers.length - 1}
+                            className="h-12 px-6 rounded-full bg-gradient-to-r from-[#00B894] to-[#00D4AA] text-white font-bold shadow-lg shadow-[#00B894]/20 hover:shadow-[#00B894]/40 hover:brightness-110 disabled:opacity-30 disabled:grayscale transition-all flex items-center gap-2 group relative overflow-hidden"
+                        >
+                            <span className="relative z-10">Next</span>
+                            <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center group-hover:translate-x-1 transition-transform relative z-10">
+                                <i className="fas fa-chevron-right text-xs"></i>
+                            </div>
+
+                            {/* Shimmer Effect */}
+                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out"></div>
+                        </button>
                     </div>
                 </div>
+
+                {/* Spacer to prevent content overlap */}
+                <div className="h-32 w-full"></div>
 
                 {/* AI Call Prep Modal */}
                 {showAICallPrep && (

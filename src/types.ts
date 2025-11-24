@@ -1,5 +1,5 @@
 // types.ts
-export type CustomerTier = 'Gold' | 'Silver' | 'Bronze' | 'Dead';
+export type CustomerTier = 'Platinum' | 'Gold' | 'Silver' | 'Bronze' | 'Dead';
 export type MonopolyStatus = 'Monopoly' | 'Non-Monopoly';
 
 export interface CustomerTerritory {
