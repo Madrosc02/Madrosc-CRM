@@ -273,13 +273,13 @@ const CallMode: React.FC = () => {
                         { label: 'Low Performers', value: metrics.lowPerformers, icon: 'fa-chart-line-down', gradient: 'from-red-500 to-red-600', iconColor: 'text-white' },
                         { label: 'Silent Accounts', value: metrics.silentAccounts, icon: 'fa-user-slash', gradient: 'from-slate-600 to-slate-700', iconColor: 'text-white' },
                     ].map((m, i) => (
-                        <div key={i} className={`bg-gradient-to-br ${m.gradient} rounded-xl p-4 shadow-md hover:shadow-lg transition-all group cursor-pointer hover:scale-[1.02]`}>
+                        <div key={i} className={`bg-gradient-to-br ${m.gradient} rounded-xl p-3 shadow-md hover:shadow-lg transition-all group cursor-pointer hover:scale-[1.02]`}>
                             <div className="flex flex-col items-center text-center">
-                                <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
-                                    <i className={`fas ${m.icon} text-lg ${m.iconColor}`}></i>
+                                <div className="w-9 h-9 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center mb-1.5 group-hover:scale-110 transition-transform">
+                                    <i className={`fas ${m.icon} text-base ${m.iconColor}`}></i>
                                 </div>
-                                <p className="text-[10px] uppercase tracking-widest text-white/80 font-extrabold mb-1.5">{m.label}</p>
-                                <p className="text-2xl font-black text-white tracking-tight">{m.value}</p>
+                                <p className="text-[9px] uppercase tracking-widest text-white/80 font-extrabold mb-1">{m.label}</p>
+                                <p className="text-xl font-black text-white tracking-tight">{m.value}</p>
                             </div>
                         </div>
                     ))}
@@ -347,25 +347,25 @@ const CallMode: React.FC = () => {
                     {/* LEFT COLUMN (3/12): KPI Cards & Details */}
                     <div className="lg:col-span-3 flex flex-col gap-4">
 
-                        {/* Row 1: Outstanding & YTD Sales - Enhanced with Gradients */}
+                        {/* Row 1: Outstanding & YTD Sales - Enhanced with Darker Gradients */}
                         <div className="grid grid-cols-2 gap-3">
-                            <div className="bg-gradient-to-br from-rose-500 to-pink-600 rounded-xl p-4 shadow-md hover:shadow-lg transition-all group cursor-pointer hover:scale-[1.02]">
+                            <div className="bg-gradient-to-br from-rose-600 to-pink-700 rounded-xl p-4 shadow-md hover:shadow-lg transition-all group cursor-pointer hover:scale-[1.02]">
                                 <div className="flex flex-col items-center text-center">
                                     <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center mb-2.5 group-hover:scale-110 transition-transform">
                                         <i className="fas fa-file-invoice-dollar text-lg text-white"></i>
                                     </div>
-                                    <span className="text-[9px] uppercase tracking-wider text-white/80 font-extrabold mb-2 whitespace-nowrap">Outstanding</span>
+                                    <span className="text-[10px] uppercase tracking-wider text-white/90 font-black mb-2 whitespace-nowrap">Outstanding</span>
                                     <span className="text-base font-black text-white tracking-tight">
                                         ₹{currentCustomer.outstandingBalance?.toLocaleString() || '0'}
                                     </span>
                                 </div>
                             </div>
-                            <div className="bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl p-4 shadow-md hover:shadow-lg transition-all group cursor-pointer hover:scale-[1.02]">
+                            <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-xl p-4 shadow-md hover:shadow-lg transition-all group cursor-pointer hover:scale-[1.02]">
                                 <div className="flex flex-col items-center text-center">
                                     <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center mb-2.5 group-hover:scale-110 transition-transform">
                                         <i className="fas fa-chart-line text-lg text-white"></i>
                                     </div>
-                                    <span className="text-[9px] uppercase tracking-wider text-white/80 font-extrabold mb-2 whitespace-nowrap">YTD Sales</span>
+                                    <span className="text-[10px] uppercase tracking-wider text-white/90 font-black mb-2 whitespace-nowrap">YTD Sales</span>
                                     <span className="text-base font-black text-white tracking-tight">
                                         ₹{currentCustomer.totalSales?.toLocaleString() || '0'}
                                     </span>
@@ -373,25 +373,25 @@ const CallMode: React.FC = () => {
                             </div>
                         </div>
 
-                        {/* Row 2: Last Order & AI Prep - Enhanced with Gradients */}
+                        {/* Row 2: Last Order & AI Prep - Enhanced with Darker Gradients */}
                         <div className="grid grid-cols-2 gap-3">
-                            <div className="bg-gradient-to-br from-teal-500 to-emerald-600 rounded-xl p-4 shadow-md hover:shadow-lg transition-all group cursor-pointer hover:scale-[1.02]">
+                            <div className="bg-gradient-to-br from-emerald-600 to-teal-700 rounded-xl p-4 shadow-md hover:shadow-lg transition-all group cursor-pointer hover:scale-[1.02]">
                                 <div className="flex flex-col items-center text-center">
                                     <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center mb-2.5 group-hover:scale-110 transition-transform">
                                         <i className="fas fa-shopping-bag text-lg text-white"></i>
                                     </div>
-                                    <span className="text-[9px] uppercase tracking-wider text-white/80 font-extrabold mb-2 whitespace-nowrap">Last Order</span>
+                                    <span className="text-[10px] uppercase tracking-wider text-white/90 font-black mb-2 whitespace-nowrap">Last Order</span>
                                     <span className="text-sm font-black text-white tracking-tight leading-tight">
                                         {currentCustomer.lastOrderDate ? new Date(currentCustomer.lastOrderDate).toLocaleDateString() : 'Never'}
                                     </span>
                                 </div>
                             </div>
-                            <div className="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl p-4 shadow-md hover:shadow-lg transition-all group cursor-pointer hover:scale-[1.02]" onClick={() => setShowAICallPrep(true)}>
+                            <div className="bg-gradient-to-br from-purple-600 to-violet-700 rounded-xl p-4 shadow-md hover:shadow-lg transition-all group cursor-pointer hover:scale-[1.02]" onClick={() => setShowAICallPrep(true)}>
                                 <div className="flex flex-col items-center text-center">
                                     <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center mb-2.5 group-hover:scale-110 transition-transform">
                                         <i className="fas fa-robot text-lg text-white"></i>
                                     </div>
-                                    <span className="text-[9px] uppercase tracking-wider text-white/80 font-extrabold mb-2 whitespace-nowrap">AI Prep</span>
+                                    <span className="text-[10px] uppercase tracking-wider text-white/90 font-black mb-2 whitespace-nowrap">AI Prep</span>
                                     <span className="text-xs font-black text-white bg-white/20 px-3 py-1 rounded-full">
                                         VIEW
                                     </span>
