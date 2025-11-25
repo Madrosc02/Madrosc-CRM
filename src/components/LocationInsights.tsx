@@ -13,19 +13,23 @@ export const LocationInsights: React.FC<LocationInsightsProps> = ({ city, state 
     const [news, setNews] = useState<NewsItem[]>([]);
     const [loading, setLoading] = useState(true);
 
+    const query = city || state;
+
     useEffect(() => {
         const fetchData = async () => {
+            if (!query) return;
+
             setLoading(true);
             try {
                 // 1. Get Coordinates & Weather
-                const coords = await locationService.getCoordinates(city);
+                const coords = await locationService.getCoordinates(query);
                 if (coords) {
                     const weatherData = await locationService.getWeather(coords.lat, coords.lon);
                     setWeather(weatherData);
                 }
 
                 // 2. Get News
-                const newsData = await locationService.getNews(city);
+                const newsData = await locationService.getNews(query);
                 setNews(newsData);
             } catch (error) {
                 console.error("Failed to load location insights", error);
@@ -34,10 +38,8 @@ export const LocationInsights: React.FC<LocationInsightsProps> = ({ city, state 
             }
         };
 
-        if (city) {
-            fetchData();
-        }
-    }, [city]);
+        fetchData();
+    }, [query]);
 
     // Helper to get Weather Icon
     const getWeatherIcon = (condition: string, isDay: boolean) => {
@@ -49,7 +51,16 @@ export const LocationInsights: React.FC<LocationInsightsProps> = ({ city, state 
         return <Cloud className="w-8 h-8 text-slate-400" />;
     };
 
-    if (!city) return null;
+    if (!query) {
+        return (
+            <GlassCard className="p-4 flex items-center justify-center h-32 bg-slate-50/50">
+                <div className="text-center text-slate-400">
+                    <MapPin className="w-6 h-6 mx-auto mb-2 opacity-50" />
+                    <p className="text-xs font-medium">Location data unavailable</p>
+                </div>
+            </GlassCard>
+        );
+    }
 
     return (
         <GlassCard className="p-0 overflow-hidden flex flex-col h-full">
@@ -58,7 +69,7 @@ export const LocationInsights: React.FC<LocationInsightsProps> = ({ city, state 
                 <div className="flex items-center gap-2">
                     <MapPin className="w-4 h-4 text-sky-600" />
                     <h3 className="text-sm font-bold text-slate-700 uppercase tracking-wider">
-                        {city} Insights
+                        {query} Insights
                     </h3>
                 </div>
                 {state && <span className="text-xs font-medium text-slate-500 bg-white/50 px-2 py-0.5 rounded-full">{state}</span>}
