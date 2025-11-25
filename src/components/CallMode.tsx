@@ -3,13 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { useApp } from '../contexts/AppContext';
 import GlassCard from './common/GlassCard';
 
-import { ClientProfile } from './ClientProfile';
 import { LocationInsights } from './LocationInsights';
 import { CustomerRemarks } from './customer/CustomerRemarks';
 
 
 const CallMode: React.FC = () => {
-    const { customers, remarks, addRemark, openAddTaskModal, openDetailModal, updateCustomerFlag } = useApp();
+    const { customers, remarks, openAddTaskModal, openDetailModal } = useApp();
     const navigate = useNavigate();
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isAnimating, setIsAnimating] = useState(false);
@@ -25,15 +24,7 @@ const CallMode: React.FC = () => {
 
     const currentCustomer = filteredCustomers[currentIndex];
 
-    // Mock Data for 6-Month Sales Chart (since backend doesn't provide history yet)
-    const salesData = useMemo(() => {
-        if (!currentCustomer) return [];
-        const months = ['Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov'];
-        return months.map((month) => ({
-            name: month,
-            sales: Math.floor(Math.random() * (currentCustomer.avg6MoSales * 1.5)) + 1000,
-        }));
-    }, [currentCustomer]);
+
 
     // Real Interaction History from Context
     const customerRemarks = useMemo(() => {
@@ -110,34 +101,6 @@ const CallMode: React.FC = () => {
         console.log("Remark added in Call Mode");
     };
 
-    const handleFlagChange = async (flag: 'Green' | 'Red') => {
-        if (!currentCustomer) return;
-
-        let remarkText = '';
-        if (flag === 'Red' && currentCustomer.flag !== 'Red') {
-            const reason = window.prompt("Please provide a reason for raising a Red Flag:");
-            if (reason === null) return; // Cancelled
-            if (reason.trim() === '') {
-                alert("A reason is required to raise a Red Flag.");
-                return;
-            }
-            remarkText = `🚩 RED FLAG RAISED: ${reason}`;
-        } else if (flag === 'Green' && currentCustomer.flag === 'Red') {
-            remarkText = `✅ Flag cleared (marked as Green).`;
-        }
-
-        try {
-            const newFlag = currentCustomer.flag === flag ? null : flag; // Toggle off if same
-            await updateCustomerFlag(currentCustomer.id, newFlag);
-
-            if (remarkText) {
-                await addRemark(currentCustomer.id, remarkText);
-            }
-        } catch (error) {
-            console.error("Failed to update flag", error);
-        }
-    };
-
     // --- Action Button Handlers ---
     const openGoals = () => currentCustomer && openDetailModal(currentCustomer, 'goals');
     const openSalesHistory = () => currentCustomer && openDetailModal(currentCustomer, 'sales');
@@ -166,34 +129,42 @@ const CallMode: React.FC = () => {
             </div>
 
             {/* --- Top Navigation Bar --- */}
-            <div className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-xl border-b border-[#E1E7F0] px-6 py-3 flex justify-between items-center shadow-sm transition-all duration-300">
-                <div className="flex items-center gap-6">
-                    <button onClick={handleExit} className="p-2 hover:bg-slate-100 rounded-full transition-colors text-[#6B7280] hover:text-[#00B894]">
+            <div className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-slate-200 px-6 py-3 flex justify-between items-center shadow-sm">
+                <div className="flex items-center gap-4">
+                    <button onClick={handleExit} className="text-slate-500 hover:text-slate-700 transition-colors">
                         <i className="fas fa-arrow-left text-xl"></i>
                     </button>
                     <div>
-                        <h1 className="text-lg font-bold tracking-tight flex items-center gap-2 text-[#111827]">
-                            <i className="fas fa-headset text-[#00B894]"></i> Call Mode
+                        <h1 className="text-lg font-bold text-slate-800 leading-tight flex items-center gap-2">
+                            Call Mode
                         </h1>
-                        <div className="flex items-center gap-2 text-xs text-[#6B7280]">
-                            <span>{currentIndex + 1} / {filteredCustomers.length}</span>
-                            <div className="h-1.5 w-24 bg-[#E1E7F0] rounded-full overflow-hidden">
-                                <div
-                                    className="h-full bg-[#00B894] transition-all duration-500 ease-out"
-                                    style={{ width: `${((currentIndex + 1) / filteredCustomers.length) * 100}%` }}
-                                />
-                            </div>
-                        </div>
+                        <p className="text-xs text-slate-500 font-medium">
+                            Client {currentIndex + 1} of {filteredCustomers.length} • {currentCustomer?.state || 'Bihar'} Territory
+                        </p>
                     </div>
                 </div>
 
-                {/* Smart Filter */}
-                <div className="flex items-center gap-4">
+                {/* Center Icons */}
+                <div className="flex items-center gap-6">
                     <div className="relative group">
+                        <i className="fas fa-search text-slate-400 text-lg group-hover:text-slate-600 cursor-pointer transition-colors"></i>
+                    </div>
+                    <div className="relative group">
+                        <i className="fas fa-bell text-slate-400 text-lg group-hover:text-slate-600 cursor-pointer transition-colors"></i>
+                        <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full border border-white"></div>
+                    </div>
+                    <div className="relative group">
+                        <i className="fas fa-filter text-slate-400 text-lg group-hover:text-slate-600 cursor-pointer transition-colors"></i>
+                    </div>
+                </div>
+
+                {/* Right Actions */}
+                <div className="flex items-center gap-3">
+                    <div className="relative">
                         <select
                             value={selectedTier}
                             onChange={handleTierChange}
-                            className="appearance-none bg-slate-100 border border-[#E1E7F0] text-[#111827] py-2 pl-4 pr-10 rounded-lg font-medium focus:outline-none focus:ring-2 focus:ring-[#00B894] cursor-pointer transition-all hover:border-[#00B894]"
+                            className="appearance-none bg-slate-50 border border-slate-200 text-slate-700 py-2 pl-4 pr-8 rounded-lg text-sm font-medium focus:outline-none focus:border-purple-500 cursor-pointer hover:bg-slate-100 transition-colors"
                         >
                             <option value="All">All Tiers</option>
                             <option value="Platinum">Platinum</option>
@@ -201,49 +172,26 @@ const CallMode: React.FC = () => {
                             <option value="Silver">Silver</option>
                             <option value="Bronze">Bronze</option>
                         </select>
-                        <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-[#6B7280] group-hover:text-[#00B894] transition-colors">
-                            <i className="fas fa-filter text-xs"></i>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Top Actions */}
-                <div className="flex items-center gap-3">
-                    {/* Flag Toggles */}
-                    <div className="flex items-center gap-1 mr-4 bg-slate-100 p-1 rounded-lg">
-                        <button
-                            onClick={() => handleFlagChange('Green')}
-                            className={`p-2 rounded-md transition-all ${currentCustomer.flag === 'Green' ? 'bg-green-500 text-white shadow-sm' : 'text-slate-400 hover:text-green-500'}`}
-                            title="Mark as Safe/Good"
-                        >
-                            <i className="fas fa-flag"></i>
-                        </button>
-                        <button
-                            onClick={() => handleFlagChange('Red')}
-                            className={`p-2 rounded-md transition-all ${currentCustomer.flag === 'Red' ? 'bg-red-500 text-white shadow-sm' : 'text-slate-400 hover:text-red-500'}`}
-                            title="Raise Red Flag"
-                        >
-                            <i className="fas fa-flag"></i>
-                        </button>
+                        <i className="fas fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 pointer-events-none"></i>
                     </div>
 
                     <button
                         onClick={handleCreateTask}
-                        className="hidden md:flex items-center gap-2 px-4 py-2 bg-[#4C6FFF]/10 text-[#4C6FFF] rounded-lg font-semibold hover:bg-[#4C6FFF]/20 transition-all border border-[#4C6FFF]/20"
+                        className="px-4 py-2 border border-slate-300 text-slate-700 rounded-lg text-sm font-semibold hover:bg-slate-50 transition-all"
                     >
-                        <i className="fas fa-check-circle"></i> Create Task
+                        Create Task
                     </button>
                     <button
                         onClick={handleWhatsApp}
-                        className="hidden md:flex items-center gap-2 px-4 py-2 bg-[#16A34A]/10 text-[#16A34A] rounded-lg font-semibold hover:bg-[#16A34A]/20 transition-all border border-[#16A34A]/20"
+                        className="px-4 py-2 bg-[#25D366] text-white rounded-lg text-sm font-semibold hover:bg-[#128C7E] transition-all flex items-center gap-2"
                     >
                         <i className="fab fa-whatsapp text-lg"></i> WhatsApp
                     </button>
                     <button
                         onClick={handleCallNow}
-                        className="flex items-center gap-2 px-5 py-2 bg-[#00B894] text-white rounded-lg font-bold shadow-lg shadow-[#00B894]/20 hover:bg-[#008C6E] hover:scale-105 transition-all"
+                        className="px-4 py-2 bg-gradient-to-r from-purple-600 to-purple-800 text-white rounded-lg text-sm font-semibold hover:shadow-lg hover:shadow-purple-500/30 transition-all flex items-center gap-2"
                     >
-                        <i className="fas fa-phone-alt"></i> <span className="hidden sm:inline">Call Now</span>
+                        <i className="fas fa-phone-alt"></i> Call Now
                     </button>
                 </div>
             </div>
@@ -253,15 +201,43 @@ const CallMode: React.FC = () => {
             <div className={`container mx-auto px-4 pt-16 pb-24 transition-all duration-500 ease-in-out relative z-10 max-w-7xl ${isAnimating ? 'opacity-0 translate-x-8' : 'opacity-100 translate-x-0'}`}>
 
                 {/* Top Section: Client Profile (Replaces Header, KPIs, Sales Chart) */}
-                <div className="mb-6">
-                    <ClientProfile
-                        customer={currentCustomer}
-                        lastInteractionDate={customerRemarks.length > 0 ? customerRemarks[0].timestamp : undefined}
-                        salesData={salesData}
-                        onCall={handleCallNow}
-                        onWhatsApp={handleWhatsApp}
-                        onTask={handleCreateTask}
-                    />
+                {/* Customer Section */}
+                <div className="mb-8 w-full rounded-3xl bg-gradient-to-r from-[#8B5CF6] to-[#EC4899] p-8 text-white shadow-xl relative overflow-hidden">
+                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 relative z-10">
+                        <div>
+                            <h2 className="text-4xl font-bold mb-3 tracking-tight">{currentCustomer?.name}</h2>
+                            <div className="flex items-center gap-4 text-white/90 text-sm font-medium">
+                                <div className="flex items-center gap-1.5">
+                                    <i className="fas fa-map-marker-alt"></i>
+                                    <span>{currentCustomer?.town}, {currentCustomer?.state}</span>
+                                </div>
+                                <div className="flex items-center gap-1.5">
+                                    <i className="fas fa-user"></i>
+                                    <span>{currentCustomer?.personName || 'No Contact Person'}</span>
+                                </div>
+                                <span className="px-2.5 py-0.5 rounded-full bg-white/20 border border-white/30 text-xs font-bold uppercase tracking-wider">
+                                    {currentCustomer?.tier}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div className="flex flex-col items-end gap-3">
+                            <p className="text-white/80 text-sm font-medium">
+                                Last Interaction: {customerRemarks.length > 0 ? new Date(customerRemarks[0].timestamp).toLocaleDateString() : 'Never'}
+                            </p>
+                            <div className="flex items-center gap-2">
+                                <button className="w-10 h-10 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center backdrop-blur-sm transition-all">
+                                    <i className="fas fa-sync-alt text-white"></i>
+                                </button>
+                                <button className="w-10 h-10 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center backdrop-blur-sm transition-all">
+                                    <i className="fas fa-copy text-white"></i>
+                                </button>
+                                <button onClick={handleCallNow} className="w-10 h-10 rounded-full bg-white text-purple-600 hover:bg-slate-100 flex items-center justify-center shadow-lg transition-all">
+                                    <i className="fas fa-phone text-lg"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
