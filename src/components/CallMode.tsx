@@ -241,9 +241,104 @@ const CallMode: React.FC = () => {
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                    {/* LEFT COLUMN (7/12): Interaction History */}
-                    <div className="lg:col-span-7 flex flex-col gap-4 h-[600px]">
-                        <GlassCard className="flex-1 flex flex-col overflow-hidden relative">
+                    {/* LEFT COLUMN (7/12): Metrics, Trends & History */}
+                    <div className="lg:col-span-7 flex flex-col gap-6">
+
+                        {/* 1. Metric Cards Row */}
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            {/* Outstanding */}
+                            <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 flex flex-col gap-1">
+                                <div className="flex items-center gap-2 text-slate-500 mb-1">
+                                    <div className="w-6 h-6 rounded-full bg-red-50 flex items-center justify-center text-red-500 text-xs">
+                                        <i className="fas fa-file-invoice-dollar"></i>
+                                    </div>
+                                    <span className="text-[10px] uppercase font-bold tracking-wider">Outstanding</span>
+                                </div>
+                                <span className="text-xl font-bold text-slate-800">₹{currentCustomer?.outstandingBalance?.toLocaleString() || '0'}</span>
+                            </div>
+
+                            {/* YTD Sales */}
+                            <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 flex flex-col gap-1">
+                                <div className="flex items-center gap-2 text-slate-500 mb-1">
+                                    <div className="w-6 h-6 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-500 text-xs">
+                                        <i className="fas fa-chart-line"></i>
+                                    </div>
+                                    <span className="text-[10px] uppercase font-bold tracking-wider">YTD Sales</span>
+                                </div>
+                                <span className="text-xl font-bold text-slate-800">₹{currentCustomer?.totalSales?.toLocaleString() || '0'}</span>
+                            </div>
+
+                            {/* Last Order */}
+                            <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 flex flex-col gap-1">
+                                <div className="flex items-center gap-2 text-slate-500 mb-1">
+                                    <div className="w-6 h-6 rounded-full bg-blue-50 flex items-center justify-center text-blue-500 text-xs">
+                                        <i className="fas fa-history"></i>
+                                    </div>
+                                    <span className="text-[10px] uppercase font-bold tracking-wider">Last Order</span>
+                                </div>
+                                <span className="text-lg font-bold text-slate-800 truncate">{currentCustomer?.lastOrderDate ? new Date(currentCustomer.lastOrderDate).toLocaleDateString() : 'Never'}</span>
+                            </div>
+
+                            {/* AI Prediction */}
+                            <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 flex flex-col gap-1">
+                                <div className="flex items-center gap-2 text-slate-500 mb-1">
+                                    <div className="w-6 h-6 rounded-full bg-purple-50 flex items-center justify-center text-purple-500 text-xs">
+                                        <i className="fas fa-brain"></i>
+                                    </div>
+                                    <span className="text-[10px] uppercase font-bold tracking-wider">AI Prediction</span>
+                                </div>
+                                <span className="text-lg font-bold text-purple-600">VRW</span>
+                            </div>
+                        </div>
+
+                        {/* 2. Sales Trend Card */}
+                        <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
+                            <div className="flex items-center justify-between mb-6">
+                                <div>
+                                    <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-1">Sales Trend</h3>
+                                    <div className="flex items-baseline gap-3">
+                                        <span className="text-3xl font-black text-slate-800">₹127,000</span>
+                                        <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-xs font-bold flex items-center gap-1">
+                                            <i className="fas fa-arrow-up text-[10px]"></i> 13% vs last period
+                                        </span>
+                                    </div>
+                                </div>
+                                <div className="flex bg-slate-100 p-1 rounded-xl">
+                                    {['1M', '3M', '6M', '1Y'].map((period) => (
+                                        <button
+                                            key={period}
+                                            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${period === '6M' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                                        >
+                                            {period}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Chart Placeholder */}
+                            <div className="h-48 w-full bg-gradient-to-b from-slate-50 to-white rounded-xl border border-slate-100 relative overflow-hidden flex items-end justify-between px-4 pb-0 group">
+                                {/* Fake Chart Bars/Line */}
+                                {[30, 45, 35, 60, 50, 75, 65, 80, 70, 90, 85, 100].map((h, i) => (
+                                    <div key={i} className="w-[6%] bg-indigo-500/10 rounded-t-md relative group-hover:bg-indigo-500/20 transition-colors" style={{ height: `${h}%` }}>
+                                        <div className="absolute top-0 left-0 right-0 h-1 bg-indigo-500 rounded-full"></div>
+                                    </div>
+                                ))}
+                                {/* Overlay Line (SVG) */}
+                                <svg className="absolute inset-0 w-full h-full pointer-events-none overflow-visible" preserveAspectRatio="none">
+                                    <path
+                                        d="M0,100 C20,80 40,90 60,50 S100,20 120,30 S160,10 200,40 S240,0 280,20 S320,10 360,5"
+                                        fill="none"
+                                        stroke="#6366F1"
+                                        strokeWidth="3"
+                                        vectorEffect="non-scaling-stroke"
+                                        className="drop-shadow-lg"
+                                    />
+                                </svg>
+                            </div>
+                        </div>
+
+                        {/* 3. Interaction History (Existing) */}
+                        <GlassCard className="h-[400px] flex flex-col overflow-hidden relative">
                             <div className="px-4 py-3 border-b border-teal-200/50 flex justify-between items-center bg-gradient-to-r from-teal-50 via-emerald-50 to-cyan-50 shrink-0 rounded-t-xl">
                                 <div className="flex items-center gap-2">
                                     <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-teal-500 to-emerald-600 flex items-center justify-center shadow-sm">
