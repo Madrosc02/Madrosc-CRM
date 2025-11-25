@@ -4,6 +4,7 @@ import { useApp } from '../contexts/AppContext';
 import GlassCard from './common/GlassCard';
 
 import { ClientProfile } from './ClientProfile';
+import { LocationInsights } from './LocationInsights';
 import { CustomerRemarks } from './customer/CustomerRemarks';
 
 
@@ -310,6 +311,11 @@ const CallMode: React.FC = () => {
                                 <i className="fas fa-bolt text-blue-500 mb-2 text-xl group-hover:scale-110 transition-transform"></i>
                                 <p className="text-xs font-bold text-slate-600 group-hover:text-blue-600">Quick Actions</p>
                             </button>
+                        </div>
+
+                        {/* Location Insights (Weather & News) */}
+                        <div className="h-auto">
+                            <LocationInsights city={currentCustomer.town || ''} state={currentCustomer.state} />
                         </div>
 
                         {/* Product Mix - Enhanced Progress Bars */}
