@@ -130,12 +130,21 @@ const CallMode: React.FC = () => {
 
             {/* --- Top Navigation Bar --- */}
             <div className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-slate-200 px-6 py-4 flex justify-between items-center shadow-md">
-                <div className="flex items-center gap-4">
-                    <button onClick={handleExit} className="text-slate-500 hover:text-slate-700 transition-colors">
-                        <i className="fas fa-arrow-left text-xl"></i>
+                {/* LEFT SECTION */}
+                <div className="flex items-center">
+                    {/* Back Arrow */}
+                    <button onClick={handleExit} className="text-slate-500 hover:text-slate-700 transition-colors mr-4">
+                        <i className="fas fa-arrow-left text-lg"></i>
                     </button>
-                    <div>
-                        <h1 className="text-lg font-bold text-slate-800 leading-tight flex items-center gap-2">
+
+                    {/* Purple Call Icon */}
+                    <div className="w-10 h-10 rounded-full bg-[#8B5CF6] flex items-center justify-center text-white shadow-sm mr-4">
+                        <i className="fas fa-phone-alt text-sm"></i>
+                    </div>
+
+                    {/* Title Block */}
+                    <div className="flex flex-col">
+                        <h1 className="text-lg font-bold text-slate-900 leading-tight">
                             Call Mode
                         </h1>
                         <p className="text-xs text-slate-500 font-medium">
@@ -144,7 +153,7 @@ const CallMode: React.FC = () => {
                     </div>
                 </div>
 
-                {/* Center Icons */}
+                {/* CENTER SECTION (Absolutely Centered) */}
                 <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center gap-6">
                     <div className="relative group">
                         <i className="fas fa-search text-slate-400 text-lg group-hover:text-slate-600 cursor-pointer transition-colors"></i>
@@ -158,13 +167,14 @@ const CallMode: React.FC = () => {
                     </div>
                 </div>
 
-                {/* Right Actions */}
+                {/* RIGHT SECTION */}
                 <div className="flex items-center gap-3">
+                    {/* All Tiers Dropdown */}
                     <div className="relative">
                         <select
                             value={selectedTier}
                             onChange={handleTierChange}
-                            className="appearance-none bg-slate-50 border border-slate-200 text-slate-700 py-2 pl-4 pr-8 rounded-lg text-sm font-medium focus:outline-none focus:border-purple-500 cursor-pointer hover:bg-slate-100 transition-colors"
+                            className="appearance-none bg-white border border-slate-200 text-slate-600 py-2 pl-4 pr-8 rounded-lg text-sm font-medium focus:outline-none focus:border-purple-500 cursor-pointer hover:bg-slate-50 transition-colors"
                         >
                             <option value="All">All Tiers</option>
                             <option value="Platinum">Platinum</option>
@@ -175,21 +185,26 @@ const CallMode: React.FC = () => {
                         <i className="fas fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 pointer-events-none"></i>
                     </div>
 
+                    {/* Create Task Button */}
                     <button
                         onClick={handleCreateTask}
-                        className="px-4 py-2 border border-slate-300 text-slate-700 rounded-lg text-sm font-semibold hover:bg-slate-50 transition-all"
+                        className="px-4 py-2 border border-purple-200 text-purple-600 bg-white rounded-lg text-sm font-semibold hover:bg-purple-50 transition-all flex items-center gap-2"
                     >
-                        Create Task
+                        <i className="fas fa-plus text-xs"></i> Create Task
                     </button>
+
+                    {/* WhatsApp Button */}
                     <button
                         onClick={handleWhatsApp}
                         className="px-4 py-2 bg-[#25D366] text-white rounded-lg text-sm font-semibold hover:bg-[#128C7E] transition-all flex items-center gap-2"
                     >
                         <i className="fab fa-whatsapp text-lg"></i> WhatsApp
                     </button>
+
+                    {/* Call Now Button */}
                     <button
                         onClick={handleCallNow}
-                        className="px-4 py-2 bg-gradient-to-r from-purple-600 to-purple-800 text-white rounded-lg text-sm font-semibold hover:shadow-lg hover:shadow-purple-500/30 transition-all flex items-center gap-2"
+                        className="px-4 py-2 bg-gradient-to-r from-[#8B5CF6] to-[#D946EF] text-white rounded-lg text-sm font-semibold hover:shadow-lg hover:shadow-purple-500/30 transition-all flex items-center gap-2"
                     >
                         <i className="fas fa-phone-alt"></i> Call Now
                     </button>
