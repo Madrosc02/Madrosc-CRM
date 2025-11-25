@@ -9,6 +9,9 @@ import Spinner from './components/ui/Spinner';
 // Lazy load main pages
 const Dashboard = React.lazy(() => import('./components/Dashboard'));
 const AnalyticsPage = React.lazy(() => import('./components/analytics/AnalyticsPage'));
+const ClientsPage = React.lazy(() => import('./components/ClientsPage'));
+const ReportsPage = React.lazy(() => import('./components/ReportsPage'));
+const SettingsPage = React.lazy(() => import('./components/SettingsPage'));
 
 // Lazy load heavy modals
 const CustomerDetailDrawer = React.lazy(() => import('./components/CustomerDetailDrawer'));
@@ -53,6 +56,9 @@ const AuthenticatedApp: React.FC = () => {
                     <Route path="/" element={<Dashboard />} />
                     <Route path="/analytics" element={<AnalyticsPage />} />
                     <Route path="/call-mode" element={<CallMode />} />
+                    <Route path="/clients" element={<ClientsPage />} />
+                    <Route path="/reports" element={<ReportsPage />} />
+                    <Route path="/settings" element={<SettingsPage />} />
                     <Route path="*" element={<Navigate to="/" replace />} />
                 </Routes>
             </Suspense>

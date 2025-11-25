@@ -195,7 +195,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             <Sidebar />
 
             {/* Main Content Area - Adjusted for floating sidebar */}
-            <div className="flex-1 flex flex-col overflow-hidden ml-24 lg:ml-72 transition-all duration-500">
+            <div className="flex-1 flex flex-col overflow-hidden ml-[260px] transition-all duration-500">
                 <Topbar />
                 <main className="flex-1 overflow-y-auto p-8 relative scroll-smooth">
                     {children}
