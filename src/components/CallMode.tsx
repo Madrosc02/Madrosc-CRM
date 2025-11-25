@@ -145,7 +145,7 @@ const CallMode: React.FC = () => {
                 </div>
 
                 {/* Center Icons */}
-                <div className="flex items-center gap-6">
+                <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center gap-6">
                     <div className="relative group">
                         <i className="fas fa-search text-slate-400 text-lg group-hover:text-slate-600 cursor-pointer transition-colors"></i>
                     </div>
