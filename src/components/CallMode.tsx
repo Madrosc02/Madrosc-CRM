@@ -213,7 +213,7 @@ const CallMode: React.FC = () => {
 
 
             {/* --- Main Content Area --- */}
-            <div className={`container mx-auto px-4 pt-28 pb-24 transition-all duration-500 ease-in-out relative z-10 max-w-7xl ${isAnimating ? 'opacity-0 translate-x-8' : 'opacity-100 translate-x-0'}`}>
+            <div className={`container mx-auto px-4 pt-24 pb-24 transition-all duration-500 ease-in-out relative z-10 max-w-7xl ${isAnimating ? 'opacity-0 translate-x-8' : 'opacity-100 translate-x-0'}`}>
 
                 {/* Top Section: Client Profile (Replaces Header, KPIs, Sales Chart) */}
                 {/* Customer Section */}
