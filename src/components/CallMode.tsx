@@ -156,14 +156,14 @@ const CallMode: React.FC = () => {
                 {/* CENTER SECTION (Absolutely Centered) */}
                 <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center gap-6">
                     <div className="relative group">
-                        <i className="fas fa-search text-slate-400 text-lg group-hover:text-slate-600 cursor-pointer transition-colors"></i>
+                        <i className="fas fa-search text-slate-500 text-lg hover:text-slate-700 cursor-pointer transition-colors"></i>
                     </div>
                     <div className="relative group">
-                        <i className="fas fa-bell text-slate-400 text-lg group-hover:text-slate-600 cursor-pointer transition-colors"></i>
-                        <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full border border-white"></div>
+                        <i className="fas fa-bell text-slate-500 text-lg hover:text-slate-700 cursor-pointer transition-colors"></i>
+                        <div className="absolute -top-1 -right-0.5 w-2 h-2 bg-red-500 rounded-full border border-white"></div>
                     </div>
                     <div className="relative group">
-                        <i className="fas fa-filter text-slate-400 text-lg group-hover:text-slate-600 cursor-pointer transition-colors"></i>
+                        <i className="fas fa-filter text-slate-500 text-lg hover:text-slate-700 cursor-pointer transition-colors"></i>
                     </div>
                 </div>
 
@@ -188,7 +188,7 @@ const CallMode: React.FC = () => {
                     {/* Create Task Button */}
                     <button
                         onClick={handleCreateTask}
-                        className="px-4 py-2 border border-purple-200 text-purple-600 bg-white rounded-lg text-sm font-semibold hover:bg-purple-50 transition-all flex items-center gap-2"
+                        className="px-4 py-2 border border-purple-500 text-purple-600 bg-white rounded-lg text-sm font-semibold hover:bg-purple-50 transition-all flex items-center gap-2"
                     >
                         <i className="fas fa-plus text-xs"></i> Create Task
                     </button>
@@ -204,7 +204,7 @@ const CallMode: React.FC = () => {
                     {/* Call Now Button */}
                     <button
                         onClick={handleCallNow}
-                        className="px-4 py-2 bg-gradient-to-r from-[#8B5CF6] to-[#D946EF] text-white rounded-lg text-sm font-semibold hover:shadow-lg hover:shadow-purple-500/30 transition-all flex items-center gap-2"
+                        className="px-4 py-2 bg-[#8B5CF6] text-white rounded-lg text-sm font-semibold hover:bg-[#7C3AED] transition-all flex items-center gap-2"
                     >
                         <i className="fas fa-phone-alt"></i> Call Now
                     </button>
