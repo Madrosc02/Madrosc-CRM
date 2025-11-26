@@ -129,7 +129,7 @@ const CallMode: React.FC = () => {
             </div>
 
             {/* --- Top Navigation Bar --- */}
-            <div className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-slate-200 px-6 py-2 flex justify-between items-center shadow-md">
+            <div className="fixed top-0 left-0 right-0 z-[100] bg-white border-b border-slate-200 px-6 py-2 flex justify-between items-center shadow-md">
                 {/* LEFT SECTION */}
                 <div className="flex items-center">
                     {/* Back Arrow */}
@@ -496,7 +496,7 @@ const CallMode: React.FC = () => {
                 {/* AI Call Prep Modal */}
                 {
                     showAICallPrep && (
-                        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setShowAICallPrep(false)}>
+                        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[150] flex items-center justify-center p-4" onClick={() => setShowAICallPrep(false)}>
                             <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[80vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
                                 <div className="sticky top-0 bg-gradient-to-r from-indigo-500 to-purple-600 text-white p-6 rounded-t-2xl">
                                     <div className="flex items-center justify-between">
