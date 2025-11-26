@@ -170,11 +170,19 @@ const CallMode: React.FC = () => {
                 {/* RIGHT SECTION */}
                 <div className="flex items-center gap-3">
                     {/* All Tiers Dropdown */}
-                    <div className="relative">
+                    <div className="relative group">
+                        <div className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-lg text-slate-600 cursor-pointer hover:bg-slate-50 transition-colors">
+                            <i className="fas fa-filter text-slate-400 text-sm"></i>
+                            <div className="flex flex-col leading-none">
+                                <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Filter</span>
+                                <span className="text-sm font-bold text-slate-700">{selectedTier === 'All' ? 'All Tiers' : selectedTier}</span>
+                            </div>
+                            <i className="fas fa-chevron-down text-xs text-slate-400 ml-2"></i>
+                        </div>
                         <select
                             value={selectedTier}
                             onChange={handleTierChange}
-                            className="appearance-none bg-white border border-slate-200 text-slate-600 py-2 pl-4 pr-8 rounded-lg text-sm font-medium focus:outline-none focus:border-purple-500 cursor-pointer hover:bg-slate-50 transition-colors"
+                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                         >
                             <option value="All">All Tiers</option>
                             <option value="Platinum">Platinum</option>
@@ -182,7 +190,6 @@ const CallMode: React.FC = () => {
                             <option value="Silver">Silver</option>
                             <option value="Bronze">Bronze</option>
                         </select>
-                        <i className="fas fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 pointer-events-none"></i>
                     </div>
 
                     {/* Create Task Button */}
