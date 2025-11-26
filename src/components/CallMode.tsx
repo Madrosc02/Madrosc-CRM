@@ -120,7 +120,7 @@ const CallMode: React.FC = () => {
     );
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 text-slate-900 pb-32 relative overflow-hidden font-sans selection:bg-teal-100 selection:text-teal-900">
+        <div className="fixed inset-0 z-[60] overflow-y-auto bg-gradient-to-br from-slate-50 via-white to-slate-100 text-slate-900 pb-32 font-sans selection:bg-teal-100 selection:text-teal-900">
 
             {/* Background Mesh Gradient Effect */}
             <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
