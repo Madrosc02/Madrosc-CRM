@@ -388,6 +388,11 @@ const CallMode: React.FC = () => {
                     {/* RIGHT COLUMN (5/12): Product Mix & Actions */}
                     <div className="lg:col-span-5 flex flex-col gap-4">
 
+                        {/* Location Insights (Weather & News) */}
+                        <div className="h-auto">
+                            <LocationInsights city={currentCustomer.town || ''} state={currentCustomer.state} />
+                        </div>
+
                         {/* Customer Actions Grid */}
                         <div className="grid grid-cols-2 gap-3">
                             <button onClick={openGoals} className="p-3 bg-white rounded-xl border border-slate-200 shadow-sm hover:shadow-md hover:border-indigo-300 transition-all group text-left">
@@ -406,11 +411,6 @@ const CallMode: React.FC = () => {
                                 <i className="fas fa-bolt text-blue-500 mb-2 text-xl group-hover:scale-110 transition-transform"></i>
                                 <p className="text-xs font-bold text-slate-600 group-hover:text-blue-600">Quick Actions</p>
                             </button>
-                        </div>
-
-                        {/* Location Insights (Weather & News) */}
-                        <div className="h-auto">
-                            <LocationInsights city={currentCustomer.town || ''} state={currentCustomer.state} />
                         </div>
 
                         {/* Product Mix - Enhanced Progress Bars */}
