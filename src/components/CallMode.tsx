@@ -213,11 +213,13 @@ const CallMode: React.FC = () => {
 
 
             {/* --- Main Content Area --- */}
-            <div className={`container mx-auto px-4 pt-[60px] pb-24 transition-all duration-500 ease-in-out relative z-10 max-w-7xl ${isAnimating ? 'opacity-0 translate-x-8' : 'opacity-100 translate-x-0'}`}>
+            {/* --- Main Content Area --- */}
+            <div className={`container mx-auto px-4 pt-[60px] pb-24 transition-all duration-500 ease-in-out relative max-w-7xl ${isAnimating ? 'opacity-0 translate-x-8' : 'opacity-100 translate-x-0'}`}>
 
                 {/* Top Section: Client Profile (Replaces Header, KPIs, Sales Chart) */}
                 {/* Customer Section */}
-                <div className="mb-8 w-full rounded-3xl bg-gradient-to-r from-[#8B5CF6] to-[#EC4899] p-8 text-white shadow-xl relative overflow-hidden">
+                {/* Customer Section */}
+                <div className="mb-8 w-full rounded-3xl bg-gradient-to-r from-[#8B5CF6] to-[#EC4899] p-8 text-white shadow-xl relative">
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 relative z-10">
                         <div>
                             <h2 className="text-4xl font-bold mb-3 tracking-tight">{currentCustomer?.name}</h2>
