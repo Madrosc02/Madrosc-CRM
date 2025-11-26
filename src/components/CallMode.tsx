@@ -120,7 +120,7 @@ const CallMode: React.FC = () => {
     );
 
     return (
-        <div className="fixed inset-0 z-[60] overflow-y-auto bg-gradient-to-br from-slate-50 via-white to-slate-100 text-slate-900 pb-32 font-sans selection:bg-teal-100 selection:text-teal-900">
+        <div className="fixed top-0 left-[260px] right-0 bottom-0 z-[60] overflow-y-auto bg-gradient-to-br from-slate-50 via-white to-slate-100 text-slate-900 pb-32 font-sans selection:bg-teal-100 selection:text-teal-900">
 
             {/* Background Mesh Gradient Effect */}
             <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
@@ -129,7 +129,7 @@ const CallMode: React.FC = () => {
             </div>
 
             {/* --- Top Navigation Bar --- */}
-            <div className="fixed top-0 left-0 right-0 z-[100] bg-white border-b border-slate-200 px-6 py-2 flex justify-between items-center shadow-md">
+            <div className="sticky top-0 w-full z-[100] bg-white border-b border-slate-200 px-6 py-2 flex justify-between items-center shadow-md">
                 {/* LEFT SECTION */}
                 <div className="flex items-center">
                     {/* Back Arrow */}
