@@ -129,7 +129,7 @@ const CallMode: React.FC = () => {
             </div>
 
             {/* --- Top Navigation Bar --- */}
-            <div className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-slate-200 px-6 py-4 flex justify-between items-center shadow-md">
+            <div className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-slate-200 px-6 py-2 flex justify-between items-center shadow-md">
                 {/* LEFT SECTION */}
                 <div className="flex items-center">
                     {/* Back Arrow */}
@@ -213,7 +213,7 @@ const CallMode: React.FC = () => {
 
 
             {/* --- Main Content Area --- */}
-            <div className={`container mx-auto px-4 pt-20 pb-24 transition-all duration-500 ease-in-out relative z-10 max-w-7xl ${isAnimating ? 'opacity-0 translate-x-8' : 'opacity-100 translate-x-0'}`}>
+            <div className={`container mx-auto px-4 pt-[60px] pb-24 transition-all duration-500 ease-in-out relative z-10 max-w-7xl ${isAnimating ? 'opacity-0 translate-x-8' : 'opacity-100 translate-x-0'}`}>
 
                 {/* Top Section: Client Profile (Replaces Header, KPIs, Sales Chart) */}
                 {/* Customer Section */}
