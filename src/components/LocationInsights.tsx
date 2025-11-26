@@ -63,88 +63,93 @@ export const LocationInsights: React.FC<LocationInsightsProps> = ({ city, state 
     }
 
     return (
-        <GlassCard className="p-0 overflow-hidden flex flex-col h-full">
+        <div className="bg-[#00C48C] rounded-3xl p-6 text-white shadow-xl h-full flex flex-col">
             {/* Header */}
-            <div className="px-4 py-3 border-b border-white/20 bg-gradient-to-r from-sky-500/10 to-indigo-500/10 flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                    <MapPin className="w-4 h-4 text-sky-600" />
-                    <h3 className="text-sm font-bold text-slate-700 uppercase tracking-wider">
-                        {query} Insights
-                    </h3>
+            <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center backdrop-blur-sm">
+                    <MapPin className="w-5 h-5 text-white" />
                 </div>
-                {state && <span className="text-xs font-medium text-slate-500 bg-white/50 px-2 py-0.5 rounded-full">{state}</span>}
+                <h3 className="text-lg font-bold tracking-tight">
+                    {query} Territory Insights
+                </h3>
             </div>
 
-            <div className="p-4 flex flex-col gap-4">
-                {/* Weather Section */}
-                <div className="bg-gradient-to-br from-sky-50 to-blue-50 rounded-xl p-4 border border-sky-100 relative overflow-hidden group">
-                    {loading ? (
-                        <div className="flex items-center gap-3 animate-pulse">
-                            <div className="w-10 h-10 bg-sky-200/50 rounded-full"></div>
-                            <div className="space-y-2">
-                                <div className="h-4 w-20 bg-sky-200/50 rounded"></div>
-                                <div className="h-3 w-16 bg-sky-200/50 rounded"></div>
-                            </div>
+            <div className="flex flex-col gap-4 flex-1">
+                {/* Stats Row */}
+                <div className="grid grid-cols-2 gap-4">
+                    {/* Weather Box */}
+                    <div className="bg-white/10 rounded-2xl p-4 backdrop-blur-sm border border-white/10">
+                        <div className="flex items-center gap-2 mb-2 text-white/80">
+                            <Cloud className="w-4 h-4" />
+                            <span className="text-xs font-medium">Weather</span>
                         </div>
-                    ) : weather ? (
-                        <div className="flex items-center justify-between relative z-10">
-                            <div className="flex items-center gap-3">
-                                <div className="p-2 bg-white/60 rounded-full shadow-sm">
-                                    {getWeatherIcon(weather.condition, weather.isDay)}
-                                </div>
-                                <div>
-                                    <p className="text-2xl font-black text-slate-800">{weather.temperature}°C</p>
-                                    <p className="text-xs font-medium text-slate-500">{weather.condition}</p>
-                                </div>
+                        {loading ? (
+                            <div className="animate-pulse space-y-2">
+                                <div className="h-6 w-16 bg-white/20 rounded"></div>
+                                <div className="h-3 w-12 bg-white/20 rounded"></div>
                             </div>
-                            <div className="text-right">
-                                <span className="text-[10px] font-bold text-sky-600 bg-sky-100 px-2 py-1 rounded-full uppercase tracking-wide">Live</span>
+                        ) : weather ? (
+                            <div>
+                                <p className="text-2xl font-bold mb-0.5">{weather.temperature}°C</p>
+                                <p className="text-xs text-white/80">{weather.condition}</p>
                             </div>
-                        </div>
-                    ) : (
-                        <div className="text-center text-xs text-slate-400 py-2">Weather unavailable</div>
-                    )}
+                        ) : (
+                            <p className="text-xs text-white/60">N/A</p>
+                        )}
+                    </div>
 
-                    {/* Decorative background blur */}
-                    <div className="absolute -right-4 -bottom-4 w-20 h-20 bg-sky-400/20 rounded-full blur-xl group-hover:bg-sky-400/30 transition-all"></div>
+                    {/* Growth Box */}
+                    <div className="bg-white/10 rounded-2xl p-4 backdrop-blur-sm border border-white/10">
+                        <div className="flex items-center gap-2 mb-2 text-white/80">
+                            <div className="w-4 h-4 flex items-center justify-center">
+                                <i className="fas fa-chart-line text-xs"></i>
+                            </div>
+                            <span className="text-xs font-medium">Growth</span>
+                        </div>
+                        <div>
+                            <p className="text-2xl font-bold mb-0.5">+24%</p>
+                            <p className="text-xs text-white/80">This quarter</p>
+                        </div>
+                    </div>
                 </div>
 
                 {/* News Section */}
-                <div className="flex flex-col gap-2">
-                    <div className="flex items-center gap-2 mb-1">
-                        <Newspaper className="w-3 h-3 text-slate-400" />
-                        <span className="text-xs font-bold text-slate-500 uppercase">Local Updates</span>
+                <div className="bg-white/10 rounded-2xl p-4 backdrop-blur-sm border border-white/10 flex-1">
+                    <div className="flex items-center gap-2 mb-3 text-white/80">
+                        <Newspaper className="w-4 h-4" />
+                        <span className="text-xs font-bold uppercase tracking-wider">Local Updates</span>
                     </div>
 
                     {loading ? (
-                        <div className="space-y-2">
-                            <div className="h-12 w-full bg-slate-100 rounded-lg animate-pulse"></div>
-                            <div className="h-12 w-full bg-slate-100 rounded-lg animate-pulse"></div>
+                        <div className="space-y-3">
+                            <div className="h-10 w-full bg-white/10 rounded-lg animate-pulse"></div>
+                            <div className="h-10 w-full bg-white/10 rounded-lg animate-pulse"></div>
                         </div>
                     ) : news.length > 0 ? (
-                        <div className="space-y-2">
-                            {news.map((item) => (
+                        <div className="space-y-3">
+                            {news.slice(0, 2).map((item) => (
                                 <a
                                     key={item.id}
                                     href={item.url}
-                                    onClick={(e) => e.preventDefault()} // Prevent nav for mock
-                                    className="block p-3 bg-white/50 hover:bg-white rounded-lg border border-slate-100 hover:border-indigo-200 transition-all group cursor-pointer"
+                                    onClick={(e) => e.preventDefault()}
+                                    className="block group cursor-pointer"
                                 >
-                                    <p className="text-xs font-semibold text-slate-700 line-clamp-2 group-hover:text-indigo-700 transition-colors mb-1">
+                                    <p className="text-sm font-semibold text-white leading-snug mb-1 group-hover:text-white/90 transition-colors line-clamp-2">
                                         {item.title}
                                     </p>
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-[10px] text-slate-400">{item.source} • {item.time}</span>
-                                        <ExternalLink className="w-3 h-3 text-slate-300 group-hover:text-indigo-400" />
+                                    <div className="flex items-center justify-between text-white/60 text-[10px]">
+                                        <span>{item.source}</span>
+                                        <span>{item.time}</span>
                                     </div>
+                                    <div className="h-px w-full bg-white/10 mt-3 group-last:hidden"></div>
                                 </a>
                             ))}
                         </div>
                     ) : (
-                        <div className="text-center text-xs text-slate-400 py-2">No recent news</div>
+                        <div className="text-center text-xs text-white/60 py-2">No recent news</div>
                     )}
                 </div>
             </div>
-        </GlassCard>
+        </div>
     );
 };
