@@ -12,8 +12,11 @@
     "node": ">=20.0.0"
   },
   "dependencies": {
+    "@fontsource/geist-mono": "^5.2.8",
+    "@fontsource/geist-sans": "^5.2.5",
     "@google/genai": "^0.14.0",
     "@supabase/supabase-js": "^2.45.0",
+    "@vercel/analytics": "^2.0.1",
     "d3-scale": "^4.0.2",
     "lodash.debounce": "^4.0.8",
     "lucide-react": "^0.554.0",
