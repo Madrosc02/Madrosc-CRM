@@ -5,8 +5,8 @@ import { useToast } from '../../contexts/ToastContext';
 import EmailDrafter from '../ai/EmailDrafter';
 import WhatsAppButton from './WhatsAppButton';
 
-const inputStyle = "block w-full px-3 py-2 rounded-md bg-card-bg-light dark:bg-card-bg-dark border border-border-light dark:border-border-dark text-text-primary-light dark:text-text-primary-dark transition-colors shadow-sm focus:outline-none focus:border-primary-light dark:focus:border-primary-dark focus:ring-2 focus:ring-primary-light/30 dark:focus:ring-primary-dark/30";
-const btnPrimary = "px-4 py-2 font-medium text-white bg-primary-light dark:bg-primary-dark rounded-md transition-colors hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark disabled:opacity-60 disabled:cursor-not-allowed";
+const inputStyle = "block w-full px-3 py-2 rounded-md bg-white border border-slate-300 text-slate-900 transition-colors shadow-sm focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/30";
+const btnPrimary = "px-4 py-2 font-medium text-white bg-purple-600 rounded-md transition-colors hover:bg-purple-700 disabled:opacity-60 disabled:cursor-not-allowed";
 
 export const CustomerActions: React.FC<{ customer: Customer, onSave: () => void }> = ({ customer, onSave }) => {
     const { addSale, addPayment, addBill } = useApp();

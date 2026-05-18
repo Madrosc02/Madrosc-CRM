@@ -96,84 +96,6 @@ export const CustomerRemarks: React.FC<{ customer: Customer, remarks: Remark[], 
         }
     };
 
-    const InputSection = () => (
-        <div className={variant === 'chat' ? "pt-4 border-t border-[var(--border-light)] dark:border-[var(--border-dark)] bg-white dark:bg-[#1e293b] sticky bottom-0 z-10" : "mb-4"}>
-            <div className="relative">
-                <textarea
-                    value={newRemark}
-                    onChange={e => setNewRemark(e.target.value)}
-                    placeholder="Add a new remark (or use voice)..."
-                    className={`${inputStyle} mb-2 pr-24`}
-                    rows={variant === 'chat' ? 2 : 3}
-                />
-
-                <div className="absolute right-3 bottom-3 flex items-center gap-3">
-                    <button
-                        onClick={() => setShowSummarizer(true)}
-                        className="text-purple-400 hover:text-purple-600 transition-colors p-1 rounded-full hover:bg-purple-50 dark:hover:bg-purple-900/30"
-                        title="AI Note Summarizer"
-                    >
-                        <i className="fas fa-wand-magic-sparkles text-lg"></i>
-                    </button>
-
-                    <button
-                        onClick={() => {
-                            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-                                addToast('Voice input not supported in this browser.', 'error');
-                                return;
-                            }
-
-                            // @ts-ignore
-                            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-                            const recognition = new SpeechRecognition();
-                            recognition.lang = 'en-US';
-                            recognition.interimResults = false;
-                            recognition.maxAlternatives = 1;
-
-                            recognition.start();
-
-                            recognition.onstart = () => {
-                                addToast('Listening...', 'info');
-                            };
-
-                            recognition.onresult = (event: any) => {
-                                const transcript = event.results[0][0].transcript;
-                                setNewRemark(prev => prev + (prev ? ' ' : '') + transcript);
-                            };
-
-                            recognition.onerror = (event: any) => {
-                                addToast('Voice error: ' + event.error, 'error');
-                            };
-                        }}
-                        className="text-gray-400 hover:text-[var(--color-primary)] transition-colors p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800"
-                        title="Dictate Remark"
-                    >
-                        <i className="fas fa-microphone text-lg"></i>
-                    </button>
-                </div>
-            </div>
-            <button onClick={handleAddRemark} disabled={isSubmitting} className={`${btnPrimary} w-full`}>
-                {isSubmitting ? 'Adding...' : 'Add Remark'}
-            </button>
-        </div>
-    );
-
-    const HistorySection = () => (
-        <div className={variant === 'chat' ? "flex-1 overflow-hidden min-h-0 pr-2" : ""}>
-            {variant !== 'chat' && <h4 className="font-semibold mb-2 text-lg">History</h4>}
-            <ul className={`space-y-3 text-sm ${variant === 'chat' ? 'max-h-[350px] overflow-y-auto custom-scrollbar' : 'max-h-80 overflow-y-auto'}`}>
-                {remarks.length > 0 ? remarks.map(remark => (
-                    <li key={remark.id} className="p-3 border-l-4 border-blue-400 bg-gray-50 dark:bg-white/5 rounded-r-md">
-                        <MarkdownRenderer className="prose-p:italic prose-p:my-0" content={remark.remark} />
-                        <div className="flex justify-between items-center mt-1">
-                            <p className="text-xs text-[var(--text-secondary-light)] dark:text-[var(--text-secondary-dark)] text-right">- {remark.user} on {new Date(remark.timestamp).toLocaleString()}</p>
-                            <SentimentIndicator sentiment={remark.sentiment} />
-                        </div>
-                    </li>
-                )) : <p className="text-[var(--text-secondary-light)] dark:text-[var(--text-secondary-dark)] italic text-center py-4">No remarks found.</p>}
-            </ul>
-        </div>
-    );
 
     return (
         <>
@@ -320,13 +242,134 @@ export const CustomerRemarks: React.FC<{ customer: Customer, remarks: Remark[], 
             {/* Main Component Content */}
             {variant === 'chat' ? (
                 <div className="flex flex-col h-full">
-                    <HistorySection />
-                    <InputSection />
+                    <div className="flex-1 overflow-hidden min-h-0 pr-2">
+                        <ul className="space-y-3 text-sm max-h-[350px] overflow-y-auto custom-scrollbar">
+                            {remarks.length > 0 ? remarks.map(remark => (
+                                <li key={remark.id} className="p-3 border-l-4 border-blue-400 bg-gray-50 dark:bg-white/5 rounded-r-md">
+                                    <MarkdownRenderer className="prose-p:italic prose-p:my-0" content={remark.remark} />
+                                    <div className="flex justify-between items-center mt-1">
+                                        <p className="text-xs text-[var(--text-secondary-light)] dark:text-[var(--text-secondary-dark)] text-right">- {remark.user} on {new Date(remark.timestamp).toLocaleString()}</p>
+                                        <SentimentIndicator sentiment={remark.sentiment} />
+                                    </div>
+                                </li>
+                            )) : <p className="text-[var(--text-secondary-light)] dark:text-[var(--text-secondary-dark)] italic text-center py-4">No remarks found.</p>}
+                        </ul>
+                    </div>
+
+                    <div className="pt-4 border-t border-[var(--border-light)] dark:border-[var(--border-dark)] bg-white dark:bg-[#1e293b] sticky bottom-0 z-10">
+                        <div className="relative">
+                            <textarea
+                                value={newRemark}
+                                onChange={e => setNewRemark(e.target.value)}
+                                placeholder="Add a new remark (or use voice)..."
+                                className={`${inputStyle} mb-2 pr-24`}
+                                rows={2}
+                            />
+                            <div className="absolute right-3 bottom-3 flex items-center gap-3">
+                                <button
+                                    onClick={() => setShowSummarizer(true)}
+                                    className="text-purple-400 hover:text-purple-600 transition-colors p-1 rounded-full hover:bg-purple-50 dark:hover:bg-purple-900/30"
+                                    title="AI Note Summarizer"
+                                >
+                                    <i className="fas fa-wand-magic-sparkles text-lg"></i>
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                                            addToast('Voice input not supported in this browser.', 'error');
+                                            return;
+                                        }
+                                        // @ts-ignore
+                                        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                                        const recognition = new SpeechRecognition();
+                                        recognition.lang = 'en-US';
+                                        recognition.interimResults = false;
+                                        recognition.maxAlternatives = 1;
+                                        recognition.start();
+                                        recognition.onstart = () => addToast('Listening...', 'info');
+                                        recognition.onresult = (event: any) => {
+                                            const transcript = event.results[0][0].transcript;
+                                            setNewRemark(prev => prev + (prev ? ' ' : '') + transcript);
+                                        };
+                                        recognition.onerror = (event: any) => addToast('Voice error: ' + event.error, 'error');
+                                    }}
+                                    className="text-gray-400 hover:text-[var(--color-primary)] transition-colors p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800"
+                                    title="Dictate Remark"
+                                >
+                                    <i className="fas fa-microphone text-lg"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <button onClick={handleAddRemark} disabled={isSubmitting} className={`${btnPrimary} w-full`}>
+                            {isSubmitting ? 'Adding...' : 'Add Remark'}
+                        </button>
+                    </div>
                 </div>
             ) : (
                 <>
-                    <InputSection />
-                    <HistorySection />
+                    <div className="mb-4">
+                        <div className="relative">
+                            <textarea
+                                value={newRemark}
+                                onChange={e => setNewRemark(e.target.value)}
+                                placeholder="Add a new remark (or use voice)..."
+                                className={`${inputStyle} mb-2 pr-24`}
+                                rows={3}
+                            />
+                            <div className="absolute right-3 bottom-3 flex items-center gap-3">
+                                <button
+                                    onClick={() => setShowSummarizer(true)}
+                                    className="text-purple-400 hover:text-purple-600 transition-colors p-1 rounded-full hover:bg-purple-50 dark:hover:bg-purple-900/30"
+                                    title="AI Note Summarizer"
+                                >
+                                    <i className="fas fa-wand-magic-sparkles text-lg"></i>
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                                            addToast('Voice input not supported in this browser.', 'error');
+                                            return;
+                                        }
+                                        // @ts-ignore
+                                        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                                        const recognition = new SpeechRecognition();
+                                        recognition.lang = 'en-US';
+                                        recognition.interimResults = false;
+                                        recognition.maxAlternatives = 1;
+                                        recognition.start();
+                                        recognition.onstart = () => addToast('Listening...', 'info');
+                                        recognition.onresult = (event: any) => {
+                                            const transcript = event.results[0][0].transcript;
+                                            setNewRemark(prev => prev + (prev ? ' ' : '') + transcript);
+                                        };
+                                        recognition.onerror = (event: any) => addToast('Voice error: ' + event.error, 'error');
+                                    }}
+                                    className="text-gray-400 hover:text-[var(--color-primary)] transition-colors p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800"
+                                    title="Dictate Remark"
+                                >
+                                    <i className="fas fa-microphone text-lg"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <button onClick={handleAddRemark} disabled={isSubmitting} className={`${btnPrimary} w-full`}>
+                            {isSubmitting ? 'Adding...' : 'Add Remark'}
+                        </button>
+                    </div>
+
+                    <div className="">
+                        <h4 className="font-semibold mb-2 text-lg">History</h4>
+                        <ul className="space-y-3 text-sm max-h-80 overflow-y-auto">
+                            {remarks.length > 0 ? remarks.map(remark => (
+                                <li key={remark.id} className="p-3 border-l-4 border-blue-400 bg-gray-50 dark:bg-white/5 rounded-r-md">
+                                    <MarkdownRenderer className="prose-p:italic prose-p:my-0" content={remark.remark} />
+                                    <div className="flex justify-between items-center mt-1">
+                                        <p className="text-xs text-[var(--text-secondary-light)] dark:text-[var(--text-secondary-dark)] text-right">- {remark.user} on {new Date(remark.timestamp).toLocaleString()}</p>
+                                        <SentimentIndicator sentiment={remark.sentiment} />
+                                    </div>
+                                </li>
+                            )) : <p className="text-[var(--text-secondary-light)] dark:text-[var(--text-secondary-dark)] italic text-center py-4">No remarks found.</p>}
+                        </ul>
+                    </div>
                 </>
             )}
         </>
