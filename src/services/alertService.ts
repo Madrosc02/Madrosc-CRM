@@ -16,7 +16,7 @@ export interface SmartAlert {
  */
 export function generateSmartAlerts(
     customers: Customer[],
-    sales: Sale[],
+    _sales: Sale[],
     tasks: Task[]
 ): SmartAlert[] {
     const alerts: SmartAlert[] = [];

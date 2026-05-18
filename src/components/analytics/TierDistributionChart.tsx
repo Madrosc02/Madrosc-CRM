@@ -8,6 +8,7 @@ const TierDistributionChart: React.FC = () => {
     const { customers } = useApp();
 
     const COLORS: Record<CustomerTier, string> = {
+        Platinum: '#e5e4e2',
         Gold: '#ffc107',
         Silver: '#6c757d',
         Bronze: '#fd7e14',
@@ -15,7 +16,7 @@ const TierDistributionChart: React.FC = () => {
     };
 
     const chartData = useMemo(() => {
-        const tierCounts: Record<CustomerTier, number> = { Gold: 0, Silver: 0, Bronze: 0, Dead: 0 };
+        const tierCounts: Record<CustomerTier, number> = { Platinum: 0, Gold: 0, Silver: 0, Bronze: 0, Dead: 0 };
         customers.forEach(customer => {
             tierCounts[customer.tier]++;
         });

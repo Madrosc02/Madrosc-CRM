@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Cloud, Sun, CloudRain, CloudLightning, CloudSnow, Newspaper, ExternalLink, MapPin } from 'lucide-react';
+import { Cloud, Newspaper, MapPin } from 'lucide-react';
 import GlassCard from './common/GlassCard';
 import { locationService, WeatherData, NewsItem } from '../services/locationService';
 
@@ -41,15 +41,7 @@ export const LocationInsights: React.FC<LocationInsightsProps> = ({ city, state 
         fetchData();
     }, [query]);
 
-    // Helper to get Weather Icon
-    const getWeatherIcon = (condition: string, isDay: boolean) => {
-        const lowerCond = condition.toLowerCase();
-        if (lowerCond.includes('clear')) return isDay ? <Sun className="w-8 h-8 text-amber-500" /> : <Sun className="w-8 h-8 text-indigo-300" />;
-        if (lowerCond.includes('rain') || lowerCond.includes('drizzle')) return <CloudRain className="w-8 h-8 text-blue-400" />;
-        if (lowerCond.includes('thunder')) return <CloudLightning className="w-8 h-8 text-purple-500" />;
-        if (lowerCond.includes('snow')) return <CloudSnow className="w-8 h-8 text-cyan-200" />;
-        return <Cloud className="w-8 h-8 text-slate-400" />;
-    };
+
 
     if (!query) {
         return (

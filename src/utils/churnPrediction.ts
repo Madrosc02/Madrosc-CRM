@@ -16,7 +16,7 @@ export interface ChurnRiskData {
  */
 export function calculateCustomerChurnRisk(
     customer: Customer,
-    sales: Sale[],
+    _sales: Sale[],
     remarks: Remark[]
 ): ChurnRiskData {
     let score = 0;
@@ -92,10 +92,10 @@ export function calculateCustomerChurnRisk(
  */
 export function analyzeChurnRisks(
     customers: Customer[],
-    sales: Sale[],
+    _sales: Sale[],
     remarks: Remark[]
 ): ChurnRiskData[] {
     return customers
-        .map(c => calculateCustomerChurnRisk(c, sales, remarks))
+        .map(c => calculateCustomerChurnRisk(c, _sales, remarks))
         .sort((a, b) => b.riskScore - a.riskScore); // Sort by highest risk
 }

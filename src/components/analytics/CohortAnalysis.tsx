@@ -174,13 +174,13 @@ const CohortAnalysis: React.FC = () => {
                                 <td className="py-2 px-2 font-medium text-gray-700 dark:text-gray-300">{row.cohort}</td>
                                 <td className="py-2 px-2 text-gray-500">{row.size}</td>
                                 {row.retention.map((val, i) => {
-                                    const isFuture = false; // Ideally check if cohort month + i > current month
+                                    // const isFuture = false; // Ideally check if cohort month + i > current month
                                     // Simple check: if val is 0 and it's a recent cohort, it might be future. 
                                     // For now, just render.
 
                                     const displayVal = mode === 'retention' ? `${val.toFixed(0)}%` : `₹${row.revenue[i].toFixed(0)}`;
                                     const bg = mode === 'retention' ? retentionColor(val) : revenueColor(row.revenue[i]);
-                                    const opacity = val === 0 ? 0 : 0.2 + (val / (mode === 'retention' ? 100 : 1000)) * 0.8; // Simple opacity logic
+                                    // const opacity = val === 0 ? 0 : 0.2 + (val / (mode === 'retention' ? 100 : 1000)) * 0.8; // Simple opacity logic
 
                                     // Better color logic:
                                     // Use the scale directly for background, but need to handle text contrast.

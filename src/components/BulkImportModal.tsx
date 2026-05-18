@@ -1,5 +1,5 @@
 // components/BulkImportModal.tsx
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef } from 'react';
 import { useApp } from '../contexts/AppContext';
 import { useToast } from '../contexts/ToastContext';
 import { Customer, CustomerTier } from '../types';
@@ -61,11 +61,14 @@ const BulkImportModal: React.FC = () => {
                 
                 customers.push({
                     name: customer.name || 'Unnamed',
+                    firmName: customer.name || 'Unnamed',
+                    personName: customer.name || 'Unnamed',
+                    monopolyStatus: 'Non-Monopoly',
                     contact: customer.contact || '0000000000',
                     alternateContact: customer.alternateContact || '',
                     state: customer.state || 'Unknown',
                     district: customer.district || 'Unknown',
-                    tier: (['Gold', 'Silver', 'Bronze', 'Dead'].includes(customer.tier) ? customer.tier as CustomerTier : 'Bronze'),
+                    tier: (['Platinum', 'Gold', 'Silver', 'Bronze', 'Dead'].includes(customer.tier) ? customer.tier as CustomerTier : 'Bronze'),
                     salesThisMonth: Number(customer.salesThisMonth) || 0,
                     avg6MoSales: Number(customer.avg6MoSales) || 0,
                     outstandingBalance: Number(customer.outstandingBalance) || 0,

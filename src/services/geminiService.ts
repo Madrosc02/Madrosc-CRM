@@ -51,7 +51,7 @@ export const generateAIPerformanceReview = async (
             contents: prompt,
         });
 
-        return response.text;
+        return response.text ?? '';
     } catch (error) {
         console.error("Error generating AI review:", error);
         return "### Analysis Error\nCould not generate an AI-powered review at this time. Please check your API configuration and try again.";
@@ -97,7 +97,7 @@ export const generateAIAnalyticsSummary = async (
             contents: prompt,
         });
 
-        return response.text;
+        return response.text ?? '';
     } catch (error) {
         console.error("Error generating AI analytics summary:", error);
         return "### Analysis Error\nCould not generate AI-powered analytics insights. Please check your API configuration and try again.";
@@ -131,7 +131,7 @@ export const generateSalesForecast = async (sales: Sale[]): Promise<string> => {
             contents: prompt,
         });
 
-        return response.text;
+        return response.text ?? '';
     } catch (error) {
         console.error("Error generating sales forecast:", error);
         return "### Forecast Error\nCould not generate sales forecast. Please check API configuration.";
@@ -180,7 +180,7 @@ export const interpretNaturalLanguageSearch = async (query: string, customers: C
         });
 
         // The response text is a JSON string, so we need to parse it.
-        const jsonText = response.text.trim();
+        const jsonText = (response.text || '[]').trim();
         return JSON.parse(jsonText);
     } catch (error) {
         console.error("Error interpreting natural language search:", error);
@@ -215,7 +215,7 @@ export const generateTaskFromRemark = async (remarkText: string): Promise<{ task
             }
         });
 
-        const jsonText = response.text.trim();
+        const jsonText = (response.text || '{}').trim();
         const result = JSON.parse(jsonText);
 
         if (result && result.task && result.dueDate) {
@@ -278,7 +278,7 @@ export const generateSummaryFromNotes = async (notes: string): Promise<{ summary
             }
         });
 
-        const jsonText = response.text.trim();
+        const jsonText = (response.text || '{}').trim();
         const result = JSON.parse(jsonText);
 
         if (result && result.summary && result.actionItems) {
@@ -320,7 +320,7 @@ export const analyzeRemarkSentiment = async (remarkText: string): Promise<{ sent
             }
         });
 
-        const jsonText = response.text.trim();
+        const jsonText = (response.text || '{}').trim();
         const result = JSON.parse(jsonText);
 
         if (result && result.sentiment) {
@@ -378,7 +378,7 @@ export const suggestBestContactTime = async (remarks: Remark[]): Promise<{ sugge
             }
         });
 
-        const jsonText = response.text.trim();
+        const jsonText = (response.text || '{}').trim();
         const result = JSON.parse(jsonText);
 
         if (result && result.suggestion && result.reasoning) {
@@ -464,7 +464,7 @@ export const suggestGoalsAndMilestones = async (customer: Customer, sales: Sale[
                 }
             }
         });
-        const jsonText = response.text.trim();
+        const jsonText = (response.text || '[]').trim();
         return JSON.parse(jsonText);
     } catch (error) {
         console.error("Error suggesting goals and milestones:", error);
@@ -588,7 +588,7 @@ export const calculateWinProbability = async (
             }
         });
 
-        const jsonText = response.text.trim();
+        const jsonText = (response.text || '{}').trim();
         return JSON.parse(jsonText);
     } catch (error) {
         console.error("Error calculating win probability:", error);

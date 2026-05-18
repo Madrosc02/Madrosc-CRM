@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../contexts/AppContext';
 import { useToast } from '../contexts/ToastContext';
-import { CustomerFormData, CustomerTier, MonopolyStatus } from '../types';
+import { CustomerFormData } from '../types';
 import { indianStatesAndDistricts } from '../data/indianStatesAndDistricts';
 import Spinner from './ui/Spinner';
 

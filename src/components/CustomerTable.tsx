@@ -7,6 +7,7 @@ import { Customer } from '../types';
 const CustomerRow: React.FC<{ customer: Customer }> = ({ customer }) => {
     const { openDetailModal } = useApp();
     const TIER_STYLES: { [key in Customer['tier']]: string } = {
+        Platinum: 'bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-200',
         Gold: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-200',
         Silver: 'bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-200',
         Bronze: 'bg-orange-100 text-orange-800 dark:bg-orange-900/50 dark:text-orange-200',

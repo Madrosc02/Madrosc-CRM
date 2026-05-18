@@ -67,7 +67,7 @@ const CommandPalette: React.FC = () => {
             const customerMap = new Map(customers.map(c => [c.id, c]));
             return aiSearchResults
                 .map(id => customerMap.get(id))
-                .filter(Boolean)
+                .filter((c): c is NonNullable<typeof c> => c !== undefined)
                 .map(c => ({
                     id: c.id,
                     name: c.name,

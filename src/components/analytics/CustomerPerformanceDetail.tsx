@@ -4,7 +4,7 @@ import { useApp } from '../../contexts/AppContext';
 import { Customer, Sale } from '../../types';
 import StatCard from './StatCard';
 import Skeleton from '../ui/Skeleton';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, Bar, BarChart } from 'recharts';
+import { XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, Bar, BarChart } from 'recharts';
 
 const TrendIndicator: React.FC<{change: number}> = ({ change }) => {
     if (change > 0) return <span className="text-green-500"><i className="fas fa-arrow-up mr-1"></i>{change.toFixed(1)}%</span>;
@@ -77,9 +77,9 @@ const CustomerPerformanceDetail: React.FC<{ customer: Customer }> = ({ customer 
     return (
         <div className="space-y-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                <StatCard icon="fa-dollar-sign" label="Total Sales in Period" value={`₹${performanceData.kpis.totalSales.toLocaleString('en-IN')}`} color="text-green-500" />
-                <StatCard icon="fa-box" label="Total Orders in Period" value={performanceData.kpis.totalOrders} color="text-blue-500" />
-                <StatCard icon="fa-receipt" label="Average Order Value" value={`₹${performanceData.kpis.avgOrderValue.toLocaleString('en-IN', {maximumFractionDigits: 0})}`} color="text-purple-500" />
+                <StatCard icon="fa-dollar-sign" label="Total Sales in Period" value={`₹${performanceData.kpis.totalSales.toLocaleString('en-IN')}`} gradient="from-green-500 to-emerald-600" />
+                <StatCard icon="fa-box" label="Total Orders in Period" value={performanceData.kpis.totalOrders.toString()} gradient="from-blue-500 to-cyan-600" />
+                <StatCard icon="fa-receipt" label="Average Order Value" value={`₹${performanceData.kpis.avgOrderValue.toLocaleString('en-IN', {maximumFractionDigits: 0})}`} gradient="from-purple-500 to-pink-600" />
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
