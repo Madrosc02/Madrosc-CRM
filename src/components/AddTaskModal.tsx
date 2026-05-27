@@ -49,7 +49,7 @@ const AddTaskModal: React.FC = () => {
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm" onClick={closeAddTaskModal}>
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm" onClick={closeAddTaskModal}>
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md modal-content" onClick={e => e.stopPropagation()}>
                 <div className="p-5 border-b dark:border-gray-700 flex justify-between items-center">
                     <h3 className="text-xl font-semibold">Add New Task</h3>

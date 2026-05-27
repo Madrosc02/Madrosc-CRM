@@ -2,16 +2,22 @@ import React, { useState } from 'react';
 import { Customer, Remark } from '../../types';
 import { MessageCircle, Sparkles } from 'lucide-react';
 import { cn } from '../../utils';
+import { useApp } from '../../contexts/AppContext';
+import { useToast } from '../../contexts/ToastContext';
 
 interface ChatPanelProps {
+    customer: Customer | undefined;
     customerRemarks: Remark[];
     setShowAICallPrep: (show: boolean) => void;
+    remarkText: string;
+    setRemarkText: (text: string) => void;
 }
 
 const baseButtonClasses = "inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 h-9 px-4 py-2";
 
-export const ChatPanel: React.FC<ChatPanelProps> = ({ customerRemarks, setShowAICallPrep }) => {
-    const [remarkText, setRemarkText] = useState('');
+export const ChatPanel: React.FC<ChatPanelProps> = ({ customer, customerRemarks, setShowAICallPrep, remarkText, setRemarkText }) => {
+    const { addRemark } = useApp();
+    const { addToast } = useToast();
 
     return (
         <div className="space-y-4">
@@ -73,7 +79,19 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ customerRemarks, setShowAI
                             <span>🎤</span>
                         </button>
                     </div>
-                    <button className={cn(baseButtonClasses, "bg-purple-600 text-white hover:bg-purple-700")}>
+                    <button 
+                        onClick={async () => {
+                            if (!remarkText.trim() || !customer) return;
+                            try {
+                                await addRemark(customer.id, remarkText);
+                                setRemarkText('');
+                                addToast('Remark added successfully!', 'success');
+                            } catch (err) {
+                                addToast('Failed to add remark', 'error');
+                            }
+                        }}
+                        className={cn(baseButtonClasses, "bg-purple-600 text-white hover:bg-purple-700")}
+                    >
                         Save Note
                     </button>
                 </div>

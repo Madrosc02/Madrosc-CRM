@@ -24,6 +24,7 @@ const CallMode: React.FC = () => {
     const [selectedTier, setSelectedTier] = useState<string>('All');
     const [showAICallPrep, setShowAICallPrep] = useState(false);
     const [isInvoiceModalOpen, setIsInvoiceModalOpen] = useState(false);
+    const [remarkText, setRemarkText] = useState('');
 
     const filteredCustomers = useMemo(() => {
         if (selectedTier === 'All') return customers;
@@ -173,8 +174,11 @@ const CallMode: React.FC = () => {
 
                         {/* Section 5: Chat Panel (replaces ActivityTimeline) */}
                         <ChatPanel 
+                            customer={currentCustomer}
                             customerRemarks={customerRemarks}
                             setShowAICallPrep={setShowAICallPrep}
+                            remarkText={remarkText}
+                            setRemarkText={setRemarkText}
                         />
 
                         {/* Section 6: Additional Insights */}
@@ -250,7 +254,7 @@ const CallMode: React.FC = () => {
                                             </div>
                                             <button 
                                                 onClick={() => {
-                                                    setNewRemarkText(action.scriptSnippet);
+                                                    setRemarkText(action.scriptSnippet);
                                                     setShowAICallPrep(false);
                                                 }}
                                                 className="mt-3 text-sm font-bold text-indigo-600 hover:text-indigo-700 flex items-center gap-1 transition-colors"
