@@ -16,8 +16,12 @@ const CustomerRow: React.FC<{ customer: Customer }> = ({ customer }) => {
 
     const handleWhatsApp = (e: React.MouseEvent) => {
         e.stopPropagation();
-        const message = `Hi ${customer.personName || customer.name}, checking in regarding your recent order.`;
-        const url = `https://wa.me/91${customer.contact}?text=${encodeURIComponent(message)}`;
+        const balance = customer.outstandingBalance || 0;
+        const greeting = `Hi ${customer.personName || customer.firmName}, this is regarding your account.`;
+        const paymentReminder = balance > 0 ? ` We noticed an outstanding balance of ₹${balance.toLocaleString('en-IN')}.` : '';
+        const message = greeting + paymentReminder;
+        const cleanPhone = customer.contact.replace(/\D/g, '');
+        const url = `https://wa.me/91${cleanPhone}?text=${encodeURIComponent(message)}`;
         window.open(url, '_blank');
     };
 
@@ -71,6 +75,7 @@ const CustomerRow: React.FC<{ customer: Customer }> = ({ customer }) => {
             </td>
             <td className="p-4 text-center">
                 <button
+                    onClick={(e) => { e.stopPropagation(); openDetailModal(customer); }}
                     className="text-sm font-medium text-[var(--primary-light)] dark:text-[var(--primary-dark)] hover:underline"
                 >
                     View Details
@@ -85,6 +90,8 @@ type SortKey = 'name' | 'tier' | 'salesThisMonth' | 'avg6MoSales' | 'outstanding
 const CustomerTable: React.FC = () => {
     const { filteredCustomers: customers, loading, kpiFilter, setKpiFilter } = useApp();
     const [sortConfig, setSortConfig] = useState<{ key: SortKey; direction: 'asc' | 'desc' } | null>(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 25;
 
     const handleSort = (key: SortKey) => {
         let direction: 'asc' | 'desc' = 'asc';
@@ -147,18 +154,63 @@ const CustomerTable: React.FC = () => {
         }
     };
 
+    // Pagination
+    React.useEffect(() => {
+        setCurrentPage(1);
+    }, [kpiFilter, sortConfig]);
+
+    const paginatedCustomers = useMemo(() => {
+        const start = (currentPage - 1) * itemsPerPage;
+        return sortedCustomers.slice(start, start + itemsPerPage);
+    }, [sortedCustomers, currentPage]);
+
+    const totalPages = Math.ceil(sortedCustomers.length / itemsPerPage);
+
+    const handleExportCSV = () => {
+        const headers = ['Firm Name', 'Contact Person', 'Contact', 'State', 'District', 'Tier', 'Month Sales', '6Mo Avg Sales', 'Outstanding Balance', 'Days Since Last Order'];
+        const csvContent = [
+            headers.join(','),
+            ...sortedCustomers.map(c => [
+                `"${c.firmName}"`,
+                `"${c.personName || ''}"`,
+                `"${c.contact}"`,
+                `"${c.state}"`,
+                `"${c.district}"`,
+                `"${c.tier}"`,
+                c.salesThisMonth,
+                c.avg6MoSales,
+                c.outstandingBalance,
+                c.daysSinceLastOrder
+            ].join(','))
+        ].join('\n');
+
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `customers_export_${new Date().toISOString().split('T')[0]}.csv`;
+        link.click();
+    };
+
     return (
         <div className="card-base p-4">
             <div className="flex justify-between items-center mb-4 px-2">
                 <h3 className="text-xl font-bold text-[var(--text-primary-light)] dark:text-[var(--text-primary-dark)]">{getFilterLabel()}</h3>
-                {kpiFilter && kpiFilter !== 'all' && (
-                    <button
-                        onClick={() => setKpiFilter(null)}
-                        className="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 flex items-center gap-1"
+                <div className="flex items-center gap-4">
+                    {kpiFilter && kpiFilter !== 'all' && (
+                        <button
+                            onClick={() => setKpiFilter(null)}
+                            className="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 flex items-center gap-1"
+                        >
+                            <i className="fas fa-times"></i> Clear Filter
+                        </button>
+                    )}
+                    <button 
+                        onClick={handleExportCSV}
+                        className="text-sm bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 px-3 py-1.5 rounded-lg flex items-center gap-2 transition-colors font-medium"
                     >
-                        <i className="fas fa-times"></i> Clear Filter
+                        <i className="fas fa-download"></i> Export CSV
                     </button>
-                )}
+                </div>
             </div>
             <div className="overflow-x-auto pr-2">
                 <table className="w-full text-sm text-left text-[var(--text-secondary-light)] dark:text-[var(--text-secondary-dark)]">
@@ -186,12 +238,52 @@ const CustomerTable: React.FC = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {loading ? <TableSkeleton rows={5} cols={7} /> : sortedCustomers.map(customer => (
+                        {loading ? <TableSkeleton rows={5} cols={7} /> : paginatedCustomers.map(customer => (
                             <CustomerRow key={customer.id} customer={customer} />
                         ))}
                     </tbody>
                 </table>
             </div>
+            {!loading && sortedCustomers.length > 0 && totalPages > 1 && (
+                <div className="flex items-center justify-between px-4 py-3 border-t border-[var(--border-light)] dark:border-[var(--border-dark)] sm:px-6 mt-4">
+                    <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                        <div>
+                            <p className="text-sm text-[var(--text-secondary-light)] dark:text-[var(--text-secondary-dark)]">
+                                Showing <span className="font-medium">{((currentPage - 1) * itemsPerPage) + 1}</span> to <span className="font-medium">{Math.min(currentPage * itemsPerPage, sortedCustomers.length)}</span> of <span className="font-medium">{sortedCustomers.length}</span> results
+                            </p>
+                        </div>
+                        <div>
+                            <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                                <button
+                                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                                    disabled={currentPage === 1}
+                                    className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-[var(--border-light)] dark:border-[var(--border-dark)] bg-white dark:bg-gray-800 text-sm font-medium text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50"
+                                >
+                                    <span className="sr-only">Previous</span>
+                                    <i className="fas fa-chevron-left"></i>
+                                </button>
+                                {[...Array(totalPages)].map((_, i) => (
+                                    <button
+                                        key={i + 1}
+                                        onClick={() => setCurrentPage(i + 1)}
+                                        className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${currentPage === i + 1 ? 'z-10 bg-blue-50 dark:bg-blue-900/30 border-blue-500 text-blue-600 dark:text-blue-400' : 'bg-white dark:bg-gray-800 border-[var(--border-light)] dark:border-[var(--border-dark)] text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700'}`}
+                                    >
+                                        {i + 1}
+                                    </button>
+                                ))}
+                                <button
+                                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                                    disabled={currentPage === totalPages}
+                                    className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-[var(--border-light)] dark:border-[var(--border-dark)] bg-white dark:bg-gray-800 text-sm font-medium text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50"
+                                >
+                                    <span className="sr-only">Next</span>
+                                    <i className="fas fa-chevron-right"></i>
+                                </button>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+            )}
             {!loading && sortedCustomers.length === 0 && (
                 <div className="text-center py-16 text-[var(--text-secondary-light)] dark:text-[var(--text-secondary-dark)]">
                     <i className="fas fa-users-slash text-4xl mb-3"></i>
