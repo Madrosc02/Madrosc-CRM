@@ -194,7 +194,7 @@ export const SalesTrend: React.FC<SalesTrendProps> = ({ customer }) => {
                                 </defs>
                                 <CartesianGrid strokeDasharray="3 3" stroke="#e0f2fe" vertical={false} />
                                 <XAxis dataKey="month" stroke="#94a3b8" style={{ fontSize: '12px' }} axisLine={false} tickLine={false} dy={10} />
-                                <YAxis stroke="#94a3b8" style={{ fontSize: '12px' }} axisLine={false} tickLine={false} dx={-10} tickFormatter={(val) => \`₹\${val/1000}k\`} />
+                                <YAxis stroke="#94a3b8" style={{ fontSize: '12px' }} axisLine={false} tickLine={false} dx={-10} tickFormatter={(val) => `₹${val/1000}k`} />
                                 <Tooltip content={<CustomTooltip />} cursor={{ stroke: '#cbd5e1', strokeWidth: 1, strokeDasharray: '4 4' }} />
                                 <Line
                                     type="monotone"
@@ -210,7 +210,7 @@ export const SalesTrend: React.FC<SalesTrendProps> = ({ customer }) => {
                             <BarChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 5 }}>
                                 <CartesianGrid strokeDasharray="3 3" stroke="#e0f2fe" vertical={false} />
                                 <XAxis dataKey="month" stroke="#94a3b8" style={{ fontSize: '12px' }} axisLine={false} tickLine={false} dy={10} />
-                                <YAxis stroke="#94a3b8" style={{ fontSize: '12px' }} axisLine={false} tickLine={false} dx={-10} tickFormatter={(val) => \`₹\${val/1000}k\`} />
+                                <YAxis stroke="#94a3b8" style={{ fontSize: '12px' }} axisLine={false} tickLine={false} dx={-10} tickFormatter={(val) => `₹${val/1000}k`} />
                                 <Tooltip content={<CustomTooltip />} cursor={{ fill: '#f1f5f9' }} />
                                 <Bar 
                                     dataKey="sales" 
