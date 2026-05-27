@@ -8,7 +8,10 @@ interface ClientCardProps {
     customerRemarks: Remark[];
     handleCallNow: () => void;
 }
-
+export const ClientCard: React.FC<ClientCardProps> = ({
+    currentCustomer,
+    customerRemarks,
+    handleCallNow
 }) => {
     const { getGoalsForCustomer } = useApp();
     const [activeGoal, setActiveGoal] = useState<Goal | null>(null);
