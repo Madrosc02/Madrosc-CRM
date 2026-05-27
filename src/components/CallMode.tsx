@@ -152,7 +152,7 @@ const CallMode: React.FC = () => {
                         {/* Section 2: Customer Health + Territory Insights */}
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-auto">
                             <div className="h-full">
-                                <CustomerHealth />
+                                <CustomerHealth customer={currentCustomer} remarks={customerRemarks} />
                             </div>
                             <div className="h-full">
                                 <TerritoryInsights />
