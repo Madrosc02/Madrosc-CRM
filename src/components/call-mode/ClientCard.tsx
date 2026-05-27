@@ -1,6 +1,7 @@
-import React from 'react';
-import { Customer, Remark } from '../../types';
-import { MapPin, User, Copy, RotateCw, Phone } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Customer, Remark, Goal } from '../../types';
+import { MapPin, User, Copy, RotateCw, Phone, Target } from 'lucide-react';
+import { useApp } from '../../contexts/AppContext';
 
 interface ClientCardProps {
     currentCustomer: Customer | undefined;
@@ -8,11 +9,19 @@ interface ClientCardProps {
     handleCallNow: () => void;
 }
 
-export const ClientCard: React.FC<ClientCardProps> = ({
-    currentCustomer,
-    customerRemarks,
-    handleCallNow
 }) => {
+    const { getGoalsForCustomer } = useApp();
+    const [activeGoal, setActiveGoal] = useState<Goal | null>(null);
+
+    useEffect(() => {
+        if (currentCustomer) {
+            getGoalsForCustomer(currentCustomer.id).then(goals => {
+                const ongoing = goals.find(g => g.status === 'InProgress');
+                setActiveGoal(ongoing || null);
+            });
+        }
+    }, [currentCustomer, getGoalsForCustomer]);
+
     const lastInteractionDate = customerRemarks.length > 0
         ? new Date(customerRemarks[0].timestamp).toLocaleDateString()
         : 'Never';
@@ -37,6 +46,19 @@ export const ClientCard: React.FC<ClientCardProps> = ({
                             {currentCustomer?.tier || 'No Tier'}
                         </div>
                     </div>
+
+                    {/* Mini Goal Tracker */}
+                    {activeGoal && (
+                        <div className="mt-6 bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20 w-full max-w-md">
+                            <div className="flex justify-between text-sm font-medium mb-2">
+                                <span className="flex items-center gap-1.5"><Target className="w-4 h-4"/> {activeGoal.title}</span>
+                                <span>{Math.round((activeGoal.currentAmount / (activeGoal.targetAmount || 1)) * 100)}%</span>
+                            </div>
+                            <div className="w-full bg-black/20 rounded-full h-2">
+                                <div className="bg-green-400 h-2 rounded-full transition-all duration-1000" style={{ width: `${Math.min(100, (activeGoal.currentAmount / (activeGoal.targetAmount || 1)) * 100)}%` }}></div>
+                            </div>
+                        </div>
+                    )}
                 </div>
                 <div className="text-right flex-shrink-0">
                     <div className="text-sm opacity-95 font-medium">Last Interaction</div>

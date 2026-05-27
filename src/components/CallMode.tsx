@@ -28,6 +28,12 @@ const CallMode: React.FC = () => {
 
     const filteredCustomers = useMemo(() => {
         if (selectedTier === 'All') return customers;
+        if (selectedTier === 'High Risk') {
+            return customers.filter(c => (c.outstandingBalance || 0) > (c.avg6MoSales || 1) && (c.daysSinceLastOrder || 0) > 30);
+        }
+        if (selectedTier === 'Upsell') {
+            return customers.filter(c => (c.outstandingBalance || 0) <= 0 && (c.daysSinceLastOrder || 0) > 30);
+        }
         return customers.filter(c => c.tier === selectedTier);
     }, [customers, selectedTier]);
 
@@ -127,6 +133,17 @@ const CallMode: React.FC = () => {
         }
     };
 
+    const handleEmail = () => {
+        const email = currentCustomer?.email;
+        if (email) {
+            const subject = encodeURIComponent('Following up regarding your account');
+            const body = encodeURIComponent(`Hi ${currentCustomer?.personName || currentCustomer?.firmName},\n\nHope you are doing well.\n\nBest regards,\nMadrosc Team`);
+            window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
+        } else {
+            alert('No email address available for this customer.');
+        }
+    };
+
     const handleCallNow = () => {
         const phoneToUse = currentCustomer?.contact || currentCustomer?.phone;
         if (phoneToUse) {
@@ -176,6 +193,7 @@ const CallMode: React.FC = () => {
                 handleTierChange={handleTierChange}
                 handleCreateTask={handleCreateTask}
                 handleWhatsApp={handleWhatsApp}
+                handleEmail={handleEmail}
                 handleCallNow={handleCallNow}
             />
 

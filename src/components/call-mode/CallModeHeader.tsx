@@ -12,6 +12,7 @@ interface CallModeHeaderProps {
     handleTierChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
     handleCreateTask: () => void;
     handleWhatsApp: () => void;
+    handleEmail: () => void;
     handleCallNow: () => void;
 }
 
@@ -27,6 +28,7 @@ export const CallModeHeader: React.FC<CallModeHeaderProps> = ({
     handleTierChange,
     handleCreateTask,
     handleWhatsApp,
+    handleEmail,
     handleCallNow
 }) => {
     const formatDuration = (seconds: number) => {
@@ -88,6 +90,8 @@ export const CallModeHeader: React.FC<CallModeHeaderProps> = ({
                             className={`${baseButtonClasses} border border-border text-foreground bg-white hover:bg-muted appearance-none cursor-pointer pr-8`}
                         >
                             <option value="All">All Tiers</option>
+                            <option value="High Risk">Smart: High Risk</option>
+                            <option value="Upsell">Smart: Easy Upsell</option>
                             <option value="Platinum">Platinum</option>
                             <option value="Gold">Gold</option>
                             <option value="Silver">Silver</option>
@@ -110,6 +114,13 @@ export const CallModeHeader: React.FC<CallModeHeaderProps> = ({
                         className={`${baseButtonClasses} bg-green-600 hover:bg-green-700 text-white gap-1.5 rounded-lg px-4 shadow-sm`}
                     >
                         <span className="text-base leading-none">💬</span> WhatsApp
+                    </button>
+                    
+                    <button 
+                        onClick={handleEmail}
+                        className={`${baseButtonClasses} bg-blue-600 hover:bg-blue-700 text-white gap-1.5 rounded-lg px-4 shadow-sm`}
+                    >
+                        <span className="text-base leading-none">📧</span> Email
                     </button>
                     
                     <button 
