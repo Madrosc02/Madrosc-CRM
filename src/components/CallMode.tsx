@@ -74,6 +74,25 @@ const CallMode: React.FC = () => {
         }
     };
 
+    // Global keyboard shortcuts
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            // Ignore if user is typing in an input or textarea
+            if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+                return;
+            }
+            
+            if (e.key === 'ArrowRight') {
+                handleNext();
+            } else if (e.key === 'ArrowLeft') {
+                handlePrevious();
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [currentIndex, filteredCustomers.length, isAnimating]);
+
     const handleExit = () => {
         navigate('/');
     };
@@ -97,7 +116,12 @@ const CallMode: React.FC = () => {
         const phoneToUse = currentCustomer?.contact || currentCustomer?.phone;
         if (phoneToUse) {
             const cleanPhone = phoneToUse.replace(/\D/g, '');
-            window.open(`https://wa.me/${cleanPhone}`, '_blank');
+            const balance = currentCustomer?.outstandingBalance || 0;
+            const greeting = `Hi ${currentCustomer?.personName || currentCustomer?.firmName}, this is regarding your account.`;
+            const paymentReminder = balance > 0 ? ` We noticed an outstanding balance of ₹${balance.toLocaleString('en-IN')}.` : '';
+            const textToSend = remarkText.trim() || (greeting + paymentReminder);
+            const text = encodeURIComponent(textToSend);
+            window.open(`https://wa.me/${cleanPhone}?text=${text}`, '_blank');
         } else {
             alert('No phone number available for this customer.');
         }
