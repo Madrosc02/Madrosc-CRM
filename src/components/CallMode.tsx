@@ -26,6 +26,13 @@ const CallMode: React.FC = () => {
     const [remarkText, setRemarkText] = useState('');
     const [callDuration, setCallDuration] = useState(0);
 
+    const filteredCustomers = useMemo(() => {
+        if (selectedTier === 'All') return customers;
+        return customers.filter(c => c.tier === selectedTier);
+    }, [customers, selectedTier]);
+
+    const currentCustomer = filteredCustomers[currentIndex];
+
     // Timer logic
     useEffect(() => {
         setCallDuration(0);
@@ -34,13 +41,6 @@ const CallMode: React.FC = () => {
         }, 1000);
         return () => clearInterval(timer);
     }, [currentCustomer?.id]);
-
-    const filteredCustomers = useMemo(() => {
-        if (selectedTier === 'All') return customers;
-        return customers.filter(c => c.tier === selectedTier);
-    }, [customers, selectedTier]);
-
-    const currentCustomer = filteredCustomers[currentIndex];
     
     // Calculate AI Actions for the Modal
     const aiActions = useAIActions(currentCustomer, invoices);
