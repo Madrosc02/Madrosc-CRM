@@ -1,8 +1,12 @@
 import React, { useState } from 'react';
-import { ChevronLeft } from 'lucide-react';
+import { ChevronLeft, Robot } from 'lucide-react';
 import { cn } from '../../utils';
+import { Customer } from '../../types';
+import { useApp } from '../../contexts/AppContext';
+import { useAIActions } from '../../hooks/useAIActions';
 
 interface RightSidebarProps {
+    customer?: Customer;
     openGoals: () => void;
     openSalesHistory: () => void;
     openTasks: () => void;
@@ -12,6 +16,7 @@ interface RightSidebarProps {
 }
 
 export const RightSidebar: React.FC<RightSidebarProps> = ({
+    customer,
     openGoals,
     openSalesHistory,
     openTasks,
@@ -19,7 +24,9 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
     openInvoiceModal,
     setShowAICallPrep
 }) => {
+    const { invoices } = useApp();
     const [isCollapsed, setIsCollapsed] = useState(false);
+    const aiActions = useAIActions(customer, invoices);
 
     const quickActions = [
         { icon: '📄', label: 'Upload Invoice', count: 'AI Scan', onClick: openInvoiceModal },
@@ -63,21 +70,17 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
                     className="space-y-3 cursor-pointer group"
                     onClick={() => setShowAICallPrep(true)}
                 >
-                    <div className="bg-red-50 border border-red-100 rounded-xl p-4 group-hover:shadow-md transition-shadow duration-300 relative overflow-hidden">
-                        <div className="absolute top-0 right-0 w-8 h-8 bg-red-100 rounded-bl-xl flex items-center justify-center translate-x-2 -translate-y-2 group-hover:translate-x-0 group-hover:translate-y-0 transition-transform">
-                            <i className="fas fa-robot text-red-500 text-[10px]"></i>
+                    {aiActions.map((action, idx) => (
+                        <div key={idx} className={`${action.priorityBg} border rounded-xl p-4 group-hover:shadow-md transition-shadow duration-300 relative overflow-hidden`}>
+                            <div className={`absolute top-0 right-0 w-8 h-8 ${action.priorityIconBg} rounded-bl-xl flex items-center justify-center translate-x-2 -translate-y-2 group-hover:translate-x-0 group-hover:translate-y-0 transition-transform`}>
+                                <i className={`fas fa-robot ${action.iconColor} text-[10px]`}></i>
+                            </div>
+                            <p className={`text-[10px] font-black tracking-wider ${action.priorityColor} mb-2`}>{action.priority}</p>
+                            <p className="text-sm font-semibold text-slate-900 leading-tight">{action.title}</p>
+                            <p className="text-xs text-slate-600 mt-2">{action.desc}</p>
+                            <p className="text-xs text-slate-500 mt-2 font-medium">⏰ Suggested: {action.suggested}</p>
                         </div>
-                        <p className="text-[10px] font-black tracking-wider text-red-600 mb-2">HIGH PRIORITY</p>
-                        <p className="text-sm font-semibold text-slate-900 leading-tight">Follow up on pending order from last week</p>
-                        <p className="text-xs text-slate-600 mt-2">Customer showed strong interest in Antibiotic range</p>
-                        <p className="text-xs text-slate-500 mt-2 font-medium">⏰ Suggested: Today, 2:00 PM</p>
-                    </div>
-                    <div className="bg-amber-50 border border-amber-100 rounded-xl p-4 group-hover:shadow-md transition-shadow duration-300">
-                        <p className="text-[10px] font-black tracking-wider text-amber-600 mb-2">MEDIUM PRIORITY</p>
-                        <p className="text-sm font-semibold text-slate-900 leading-tight">Introduce new Cardio product line</p>
-                        <p className="text-xs text-slate-600 mt-2">Customer has history of ordering similar products</p>
-                        <p className="text-xs text-slate-500 mt-2 font-medium">⏰ Suggested: This week</p>
-                    </div>
+                    ))}
                 </div>
             </div>
 
@@ -105,12 +108,18 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
             </div>
 
             {/* Call Script */}
-            <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow cursor-pointer">
-                <h4 className="text-sm font-bold text-slate-900 flex items-center gap-2 mb-3">
-                    <span className="w-6 h-6 bg-blue-500 text-white rounded flex items-center justify-center text-xs font-bold shadow-inner">📋</span>
-                    Call Script
+            <div 
+                className="bg-blue-50 border border-blue-100 rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow cursor-pointer group"
+                onClick={() => setShowAICallPrep(true)}
+            >
+                <h4 className="text-sm font-bold text-slate-900 flex items-center justify-between mb-3">
+                    <span className="flex items-center gap-2">
+                        <span className="w-6 h-6 bg-blue-500 text-white rounded flex items-center justify-center text-xs font-bold shadow-inner">📋</span>
+                        Call Script
+                    </span>
+                    <i className="fas fa-external-link-alt text-blue-400 group-hover:text-blue-600 opacity-0 group-hover:opacity-100 transition-all text-xs"></i>
                 </h4>
-                <p className="text-xs text-slate-600 leading-relaxed font-medium">Key talking points for this customer interaction</p>
+                <p className="text-xs text-slate-600 leading-relaxed font-medium">Click to view AI generated talking points for this customer interaction</p>
             </div>
 
             {/* Interaction History */}

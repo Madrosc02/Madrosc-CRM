@@ -14,6 +14,7 @@ import { DealPipeline } from './call-mode/DealPipeline';
 import { RightSidebar } from './call-mode/RightSidebar';
 import { CustomerNavigator } from './call-mode/CustomerNavigator';
 import { InvoiceUploadModal } from './call-mode/InvoiceUploadModal';
+import { useAIActions } from '../hooks/useAIActions';
 
 const CallMode: React.FC = () => {
     const { customers, remarks, invoices, openAddTaskModal, openDetailModal } = useApp();
@@ -30,6 +31,9 @@ const CallMode: React.FC = () => {
     }, [customers, selectedTier]);
 
     const currentCustomer = filteredCustomers[currentIndex];
+    
+    // Calculate AI Actions for the Modal
+    const aiActions = useAIActions(currentCustomer, invoices);
 
     // Real Interaction History from Context
     const customerRemarks = useMemo(() => {
@@ -180,6 +184,7 @@ const CallMode: React.FC = () => {
 
                 {/* Right Sidebar */}
                 <RightSidebar 
+                    customer={currentCustomer}
                     openGoals={openGoals}
                     openSalesHistory={openSalesHistory}
                     openTasks={openTasks}
@@ -222,53 +227,40 @@ const CallMode: React.FC = () => {
                         </div>
 
                         <div className="p-6 space-y-6">
-                            {/* Talking Point */}
-                            <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl p-5 border border-amber-200">
-                                <div className="flex items-start gap-3">
-                                    <div className="w-10 h-10 rounded-lg bg-amber-500 flex items-center justify-center text-white shrink-0">
-                                        <i className="fas fa-lightbulb text-lg"></i>
-                                    </div>
-                                    <div className="flex-1">
-                                        <h3 className="text-lg font-bold text-amber-900 mb-2">Talking Point</h3>
-                                        <p className="text-amber-800 leading-relaxed">
-                                            Sales dropped 15% vs last year. Ask about <strong>Amoxyclav</strong> stock.
-                                        </p>
+                            {aiActions.map((action, idx) => (
+                                <div key={idx} className={`${action.priorityBg} rounded-xl p-5 border`}>
+                                    <div className="flex items-start gap-3">
+                                        <div className={`w-10 h-10 rounded-lg ${action.priorityIconBg} flex items-center justify-center shrink-0`}>
+                                            <i className={`fas fa-lightbulb ${action.iconColor} text-lg`}></i>
+                                        </div>
+                                        <div className="flex-1">
+                                            <div className="flex items-center gap-2 mb-1">
+                                                <h3 className="font-bold text-slate-900">{action.title}</h3>
+                                                <span className={`${action.priorityBg} ${action.priorityColor} text-[10px] uppercase font-bold px-2 py-0.5 rounded border`}>
+                                                    {action.priority}
+                                                </span>
+                                            </div>
+                                            <p className="text-slate-700 text-sm mb-3">
+                                                {action.desc}
+                                            </p>
+                                            <div className="bg-white rounded-lg p-3 border shadow-inner">
+                                                <p className="text-sm font-medium text-slate-800 italic">
+                                                    "{action.scriptSnippet}"
+                                                </p>
+                                            </div>
+                                            <button 
+                                                onClick={() => {
+                                                    setNewRemarkText(action.scriptSnippet);
+                                                    setShowAICallPrep(false);
+                                                }}
+                                                className="mt-3 text-sm font-bold text-indigo-600 hover:text-indigo-700 flex items-center gap-1 transition-colors"
+                                            >
+                                                <i className="fas fa-copy"></i> Use this script
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-
-                            {/* Opportunity */}
-                            <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-xl p-5 border border-emerald-200">
-                                <div className="flex items-start gap-3">
-                                    <div className="w-10 h-10 rounded-lg bg-emerald-500 flex items-center justify-center text-white shrink-0">
-                                        <i className="fas fa-chart-line text-lg"></i>
-                                    </div>
-                                    <div className="flex-1">
-                                        <h3 className="text-lg font-bold text-emerald-900 mb-2">Opportunity</h3>
-                                        <p className="text-emerald-800 leading-relaxed">
-                                            Customer has high potential for upselling in the Cardio segment based on previous purchase patterns.
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Quick Stats */}
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-200">
-                                    <div className="flex items-center gap-2 mb-2">
-                                        <i className="fas fa-trophy text-blue-600"></i>
-                                        <p className="text-xs font-bold text-blue-900 uppercase">Win Probability</p>
-                                    </div>
-                                    <p className="text-2xl font-bold text-blue-700">78%</p>
-                                </div>
-                                <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-4 border border-purple-200">
-                                    <div className="flex items-center gap-2 mb-2">
-                                        <i className="fas fa-clock text-purple-600"></i>
-                                        <p className="text-xs font-bold text-purple-900 uppercase">Best Time</p>
-                                    </div>
-                                    <p className="text-2xl font-bold text-purple-700">10-11 AM</p>
-                                </div>
-                            </div>
+                            ))}
                         </div>
                     </div>
                 </div>
