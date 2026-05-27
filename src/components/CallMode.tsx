@@ -160,7 +160,7 @@ const CallMode: React.FC = () => {
                         </div>
 
                         {/* Section 3: Sales Trend */}
-                        <SalesTrend />
+                        <SalesTrend customer={currentCustomer} />
 
                         {/* Section 4: Deal Pipeline */}
                         <DealPipeline />
