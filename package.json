@@ -20,6 +20,7 @@
     "d3-scale": "^4.0.2",
     "lodash.debounce": "^4.0.8",
     "lucide-react": "^0.554.0",
+    "pdfjs-dist": "^5.7.284",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^7.9.6",

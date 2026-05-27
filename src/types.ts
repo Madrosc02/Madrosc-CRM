@@ -46,6 +46,24 @@ export interface Sale {
   date: string; // ISO string
 }
 
+export interface InvoiceItem {
+  id: string;
+  productName: string;
+  pack: string;
+  quantity: number;
+  rate: number;
+  amount: number;
+}
+
+export interface Invoice {
+  id: string;
+  invoiceNo: string;
+  customerId: string;
+  date: string; // ISO string or DD-MM-YYYY
+  totalAmount: number;
+  items: InvoiceItem[];
+}
+
 export interface Remark {
   id: string;
   customerId: string;

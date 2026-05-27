@@ -15,6 +15,7 @@ export const useCrmData = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [remarks, setRemarks] = useState<Remark[]>([]);
   const [sales, setSales] = useState<Sale[]>([]);
+  const [invoices, setInvoices] = useState<any[]>([]); // To hold uploaded invoices
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filters, setFilters] = useState<Filters>({
@@ -206,12 +207,32 @@ export const useCrmData = () => {
     }
   };
 
+  const addInvoice = async (invoice: any) => {
+    try {
+      // Normally we would save to API here
+      // For now, save locally to context state
+      const newInvoice = { ...invoice, id: `inv-${Date.now()}` };
+      setInvoices(prev => [newInvoice, ...prev]);
+
+      // Automatically update the outstanding balance for the client
+      if (invoice.customerId && invoice.totalAmount) {
+         await addBill(invoice.customerId, invoice.totalAmount);
+      }
+      
+      return newInvoice;
+    } catch (error) {
+      console.error("Error adding invoice:", error);
+      throw error;
+    }
+  };
+
   return {
     loading,
     customers,
     tasks,
     remarks,
     sales,
+    invoices, // Export invoices
     filteredCustomers,
     searchTerm,
     setSearchTerm,
@@ -228,6 +249,7 @@ export const useCrmData = () => {
     addPayment,
     addBill,
     addTask,
+    addInvoice, // Export addInvoice action
     toggleTaskComplete,
 
     // Data Fetchers for Detail View

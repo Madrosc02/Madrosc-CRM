@@ -13,14 +13,16 @@ import { ChatPanel } from './call-mode/ChatPanel';
 import { DealPipeline } from './call-mode/DealPipeline';
 import { RightSidebar } from './call-mode/RightSidebar';
 import { CustomerNavigator } from './call-mode/CustomerNavigator';
+import { InvoiceUploadModal } from './call-mode/InvoiceUploadModal';
 
 const CallMode: React.FC = () => {
-    const { customers, remarks, openAddTaskModal, openDetailModal } = useApp();
+    const { customers, remarks, invoices, openAddTaskModal, openDetailModal } = useApp();
     const navigate = useNavigate();
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isAnimating, setIsAnimating] = useState(false);
     const [selectedTier, setSelectedTier] = useState<string>('All');
     const [showAICallPrep, setShowAICallPrep] = useState(false);
+    const [isInvoiceModalOpen, setIsInvoiceModalOpen] = useState(false);
 
     const filteredCustomers = useMemo(() => {
         if (selectedTier === 'All') return customers;
@@ -172,7 +174,7 @@ const CallMode: React.FC = () => {
                         />
 
                         {/* Section 6: Additional Insights */}
-                        <InsightsGrid />
+                        <InsightsGrid customer={currentCustomer} invoices={invoices} />
                     </div>
                 </main>
 
@@ -182,6 +184,7 @@ const CallMode: React.FC = () => {
                     openSalesHistory={openSalesHistory}
                     openTasks={openTasks}
                     openQuickActions={openQuickActions}
+                    openInvoiceModal={() => setIsInvoiceModalOpen(true)}
                     setShowAICallPrep={setShowAICallPrep}
                 />
             </div>
@@ -191,6 +194,13 @@ const CallMode: React.FC = () => {
                 totalCustomers={filteredCustomers.length}
                 handlePrevious={handlePrevious}
                 handleNext={handleNext}
+            />
+
+            {/* AI Invoice Scanner Modal */}
+            <InvoiceUploadModal 
+                isOpen={isInvoiceModalOpen}
+                onClose={() => setIsInvoiceModalOpen(false)}
+                customerId={currentCustomer?.id || ''}
             />
 
             {/* AI Call Prep Modal */}

@@ -1,7 +1,39 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Package, TrendingDown, Sparkles } from 'lucide-react';
+import { Customer, Invoice } from '../../types';
 
-export const InsightsGrid: React.FC = () => {
+interface InsightsGridProps {
+    customer: Customer;
+    invoices: Invoice[];
+}
+
+export const InsightsGrid: React.FC<InsightsGridProps> = ({ customer, invoices }) => {
+    
+    // Calculate product aggregates
+    const productStats = useMemo(() => {
+        const customerInvoices = invoices.filter(inv => inv.customerId === customer.id);
+        const stats: Record<string, { quantity: number, amount: number }> = {};
+        
+        customerInvoices.forEach(inv => {
+            inv.items.forEach(item => {
+                if (!stats[item.productName]) {
+                    stats[item.productName] = { quantity: 0, amount: 0 };
+                }
+                stats[item.productName].quantity += item.quantity;
+                stats[item.productName].amount += item.amount;
+            });
+        });
+
+        const sortedProducts = Object.entries(stats).sort((a, b) => b[1].quantity - a[1].quantity);
+        return {
+            totalUnique: sortedProducts.length,
+            topProducts: sortedProducts.slice(0, 5), // Top 5
+            all: sortedProducts
+        };
+    }, [customer.id, invoices]);
+
+    const hasData = productStats.totalUnique > 0;
+
     return (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-2">
             <div className="rounded-xl border bg-blue-50 border-blue-200 p-6 shadow-sm">
@@ -10,14 +42,24 @@ export const InsightsGrid: React.FC = () => {
                         <Package className="w-6 h-6 text-blue-600" />
                     </div>
                     <div className="flex-1">
-                        <h3 className="font-semibold text-slate-900 mb-1">Top 10 Products</h3>
-                        <p className="text-sm text-slate-600">High-potential products not being ordered</p>
+                        <h3 className="font-semibold text-slate-900 mb-1">Top Selling Products</h3>
+                        <p className="text-sm text-slate-600">Based on recent uploaded invoices</p>
                     </div>
-                    <div className="text-right">
-                        <div className="text-2xl font-bold text-slate-900">10</div>
-                        <div className="text-xs text-slate-500">Opportunities</div>
+                    <div className="text-right flex flex-col justify-center">
+                        <div className="text-2xl font-bold text-slate-900">{productStats.totalUnique}</div>
+                        <div className="text-xs text-slate-500">Unique Products</div>
                     </div>
                 </div>
+                {hasData && (
+                    <div className="mt-4 space-y-2 border-t border-blue-100 pt-4">
+                        {productStats.topProducts.map(([name, data]) => (
+                            <div key={name} className="flex justify-between items-center text-sm">
+                                <span className="font-medium text-slate-700 truncate max-w-[150px]">{name}</span>
+                                <span className="text-blue-700 font-bold">{data.quantity} units</span>
+                            </div>
+                        ))}
+                    </div>
+                )}
             </div>
 
             <div className="rounded-xl border bg-red-50 border-red-200 p-6 shadow-sm">
@@ -30,13 +72,18 @@ export const InsightsGrid: React.FC = () => {
                         <p className="text-sm text-slate-600">Products with decreasing order volume</p>
                     </div>
                     <div className="text-right">
-                        <div className="text-2xl font-bold text-slate-900">4</div>
+                        <div className="text-2xl font-bold text-slate-900">{hasData ? 0 : 4}</div>
                         <div className="text-xs text-red-600 font-medium">Needs Action</div>
                     </div>
                 </div>
+                {hasData && (
+                    <div className="mt-4 border-t border-red-100 pt-4">
+                        <p className="text-sm text-slate-600 italic">No declining products detected in recent invoices.</p>
+                    </div>
+                )}
             </div>
 
-            <div className="rounded-xl border bg-purple-50 border-purple-200 p-6 shadow-sm h-full flex flex-col justify-center">
+            <div className="rounded-xl border bg-purple-50 border-purple-200 p-6 shadow-sm h-full flex flex-col justify-start">
                 <div className="flex items-start gap-4">
                     <div className="w-12 h-12 rounded-lg bg-purple-200 flex items-center justify-center shrink-0">
                         <Sparkles className="w-6 h-6 text-purple-600" />
@@ -48,11 +95,15 @@ export const InsightsGrid: React.FC = () => {
                         </div>
                         <p className="text-sm text-slate-600">Personalized offers based on behavior</p>
                     </div>
-                    <div className="text-right flex flex-col justify-center">
-                        <div className="text-2xl font-bold text-slate-900">3</div>
-                        <div className="text-xs text-purple-600 font-medium">Perfect Match</div>
-                    </div>
                 </div>
+                {hasData && (
+                    <div className="mt-4 border-t border-purple-100 pt-4 space-y-3">
+                        <div className="bg-white p-3 rounded-lg border border-purple-100 shadow-sm">
+                            <p className="text-xs font-bold text-purple-600 mb-1">BUNDLE OFFER</p>
+                            <p className="text-sm text-slate-800">Buy 50 {productStats.topProducts[0][0]}, Get 10% off next order.</p>
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     );

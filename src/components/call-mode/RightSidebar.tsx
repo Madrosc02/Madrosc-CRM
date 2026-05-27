@@ -7,6 +7,7 @@ interface RightSidebarProps {
     openSalesHistory: () => void;
     openTasks: () => void;
     openQuickActions: () => void;
+    openInvoiceModal: () => void;
     setShowAICallPrep: (show: boolean) => void;
 }
 
@@ -15,11 +16,13 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
     openSalesHistory,
     openTasks,
     openQuickActions,
+    openInvoiceModal,
     setShowAICallPrep
 }) => {
     const [isCollapsed, setIsCollapsed] = useState(false);
 
     const quickActions = [
+        { icon: '📄', label: 'Upload Invoice', count: 'AI Scan', onClick: openInvoiceModal },
         { icon: '⚡', label: 'Quick Actions', count: '8 pending', onClick: openQuickActions },
         { icon: '🎯', label: 'Goals', count: '3 pending', onClick: openGoals },
         { icon: '✓', label: 'Tasks', count: '5 pending', onClick: openTasks },
