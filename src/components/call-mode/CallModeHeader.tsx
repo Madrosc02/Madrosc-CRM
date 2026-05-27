@@ -67,14 +67,14 @@ export const CallModeHeader: React.FC<CallModeHeaderProps> = ({
                         </span>
                     </div>
                     <div className="h-6 w-px bg-slate-200 mx-1"></div>
-                    <button className="text-muted-foreground hover:text-foreground p-2 rounded-lg hover:bg-muted transition-colors">
+                    <button onClick={() => alert('Search functionality coming soon!')} className="text-muted-foreground hover:text-foreground p-2 rounded-lg hover:bg-muted transition-colors">
                         <Search className="w-5 h-5" />
                     </button>
-                    <button className="relative text-muted-foreground hover:text-foreground p-2 rounded-lg hover:bg-muted transition-colors">
+                    <button onClick={() => alert('Notifications coming soon!')} className="relative text-muted-foreground hover:text-foreground p-2 rounded-lg hover:bg-muted transition-colors">
                         <Bell className="w-5 h-5" />
                         <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full"></span>
                     </button>
-                    <button className="text-muted-foreground hover:text-foreground p-2 rounded-lg hover:bg-muted transition-colors">
+                    <button onClick={() => alert('Filter options coming soon!')} className="text-muted-foreground hover:text-foreground p-2 rounded-lg hover:bg-muted transition-colors">
                         <Filter className="w-5 h-5" />
                     </button>
                 </div>

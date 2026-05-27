@@ -94,15 +94,21 @@ const CallMode: React.FC = () => {
     };
 
     const handleWhatsApp = () => {
-        if (currentCustomer?.phone) {
-            const cleanPhone = currentCustomer.phone.replace(/\D/g, '');
+        const phoneToUse = currentCustomer?.contact || currentCustomer?.phone;
+        if (phoneToUse) {
+            const cleanPhone = phoneToUse.replace(/\D/g, '');
             window.open(`https://wa.me/${cleanPhone}`, '_blank');
+        } else {
+            alert('No phone number available for this customer.');
         }
     };
 
     const handleCallNow = () => {
-        if (currentCustomer?.phone) {
-            window.location.href = `tel:${currentCustomer.phone}`;
+        const phoneToUse = currentCustomer?.contact || currentCustomer?.phone;
+        if (phoneToUse) {
+            window.location.href = `tel:${phoneToUse}`;
+        } else {
+            alert('No phone number available for this customer.');
         }
     };
 
