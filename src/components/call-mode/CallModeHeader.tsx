@@ -7,6 +7,7 @@ interface CallModeHeaderProps {
     totalCustomers: number;
     currentCustomer: Customer | undefined;
     selectedTier: string;
+    callDuration: number;
     handleExit: () => void;
     handleTierChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
     handleCreateTask: () => void;
@@ -21,12 +22,18 @@ export const CallModeHeader: React.FC<CallModeHeaderProps> = ({
     totalCustomers,
     currentCustomer,
     selectedTier,
+    callDuration,
     handleExit,
     handleTierChange,
     handleCreateTask,
     handleWhatsApp,
     handleCallNow
 }) => {
+    const formatDuration = (seconds: number) => {
+        const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+        const s = (seconds % 60).toString().padStart(2, '0');
+        return `${m}:${s}`;
+    };
     return (
         <div className="bg-white border-b border-border px-6 py-4 sticky top-0 z-[100]">
             <div className="flex items-center justify-between gap-6">
@@ -51,8 +58,15 @@ export const CallModeHeader: React.FC<CallModeHeaderProps> = ({
                     </div>
                 </div>
 
-                {/* Middle: Search, notifications, filters */}
-                <div className="flex items-center gap-2 flex-shrink-0">
+                {/* Middle: Timer, Search, notifications, filters */}
+                <div className="flex items-center gap-4 flex-shrink-0">
+                    <div className="flex items-center gap-2 bg-slate-50 px-3 py-1.5 rounded-full border border-slate-200">
+                        <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
+                        <span className="text-sm font-mono font-medium text-slate-700 tracking-wider">
+                            {formatDuration(callDuration)}
+                        </span>
+                    </div>
+                    <div className="h-6 w-px bg-slate-200 mx-1"></div>
                     <button className="text-muted-foreground hover:text-foreground p-2 rounded-lg hover:bg-muted transition-colors">
                         <Search className="w-5 h-5" />
                     </button>

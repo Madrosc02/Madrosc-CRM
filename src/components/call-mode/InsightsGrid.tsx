@@ -9,30 +9,66 @@ interface InsightsGridProps {
 
 export const InsightsGrid: React.FC<InsightsGridProps> = ({ customer, invoices }) => {
     
-    // Calculate product aggregates
+    // Calculate product aggregates and declining trends
     const productStats = useMemo(() => {
         const customerInvoices = invoices.filter(inv => inv.customerId === customer.id);
         const stats: Record<string, { quantity: number, amount: number }> = {};
         
+        // Setup for declining products
+        const now = new Date();
+        const ninetyDaysAgo = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
+        const oneEightyDaysAgo = new Date(now.getTime() - 180 * 24 * 60 * 60 * 1000);
+        
+        const recentStats: Record<string, number> = {};
+        const oldStats: Record<string, number> = {};
+        
         customerInvoices.forEach(inv => {
+            const invDate = new Date(inv.date);
+            
             inv.items.forEach(item => {
+                // Total stats
                 if (!stats[item.productName]) {
                     stats[item.productName] = { quantity: 0, amount: 0 };
                 }
                 stats[item.productName].quantity += item.quantity;
                 stats[item.productName].amount += item.amount;
+                
+                // Trend stats
+                if (invDate >= ninetyDaysAgo) {
+                    recentStats[item.productName] = (recentStats[item.productName] || 0) + item.quantity;
+                } else if (invDate >= oneEightyDaysAgo) {
+                    oldStats[item.productName] = (oldStats[item.productName] || 0) + item.quantity;
+                }
             });
         });
+
+        // Calculate declining
+        const decliningProducts: Array<{ name: string, drop: number }> = [];
+        Object.keys(oldStats).forEach(product => {
+            const oldQty = oldStats[product];
+            const recentQty = recentStats[product] || 0;
+            if (oldQty > 0 && recentQty < oldQty * 0.5) {
+                // Dropped by more than 50%
+                decliningProducts.push({
+                    name: product,
+                    drop: Math.round(((oldQty - recentQty) / oldQty) * 100)
+                });
+            }
+        });
+        
+        decliningProducts.sort((a, b) => b.drop - a.drop);
 
         const sortedProducts = Object.entries(stats).sort((a, b) => b[1].quantity - a[1].quantity);
         return {
             totalUnique: sortedProducts.length,
             topProducts: sortedProducts.slice(0, 5), // Top 5
+            decliningProducts: decliningProducts.slice(0, 4), // Top 4 declining
             all: sortedProducts
         };
     }, [customer.id, invoices]);
 
     const hasData = productStats.totalUnique > 0;
+    const hasDeclining = productStats.decliningProducts.length > 0;
 
     return (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-2">
@@ -69,18 +105,26 @@ export const InsightsGrid: React.FC<InsightsGridProps> = ({ customer, invoices }
                     </div>
                     <div className="flex-1">
                         <h3 className="font-semibold text-slate-900 mb-1">Declining Products</h3>
-                        <p className="text-sm text-slate-600">Products with decreasing order volume</p>
+                        <p className="text-sm text-slate-600">Volume dropped &gt;50% in last 3 months</p>
                     </div>
                     <div className="text-right">
-                        <div className="text-2xl font-bold text-slate-900">{hasData ? 0 : 4}</div>
-                        <div className="text-xs text-red-600 font-medium">Needs Action</div>
+                        <div className="text-2xl font-bold text-slate-900">{productStats.decliningProducts.length}</div>
+                        {hasDeclining && <div className="text-xs text-red-600 font-medium">Needs Action</div>}
                     </div>
                 </div>
-                {hasData && (
-                    <div className="mt-4 border-t border-red-100 pt-4">
+                
+                <div className="mt-4 border-t border-red-100 pt-4 space-y-2">
+                    {hasDeclining ? (
+                        productStats.decliningProducts.map((prod) => (
+                            <div key={prod.name} className="flex justify-between items-center text-sm">
+                                <span className="font-medium text-slate-700 truncate max-w-[150px]">{prod.name}</span>
+                                <span className="text-red-600 font-bold">-{prod.drop}%</span>
+                            </div>
+                        ))
+                    ) : (
                         <p className="text-sm text-slate-600 italic">No declining products detected in recent invoices.</p>
-                    </div>
-                )}
+                    )}
+                </div>
             </div>
 
             <div className="rounded-xl border bg-purple-50 border-purple-200 p-6 shadow-sm h-full flex flex-col justify-start">

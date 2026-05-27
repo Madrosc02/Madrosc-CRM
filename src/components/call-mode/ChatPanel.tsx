@@ -11,13 +11,21 @@ interface ChatPanelProps {
     setShowAICallPrep: (show: boolean) => void;
     remarkText: string;
     setRemarkText: (text: string) => void;
+    callDuration: number;
 }
 
 const baseButtonClasses = "inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 h-9 px-4 py-2";
 
-export const ChatPanel: React.FC<ChatPanelProps> = ({ customer, customerRemarks, setShowAICallPrep, remarkText, setRemarkText }) => {
+export const ChatPanel: React.FC<ChatPanelProps> = ({ customer, customerRemarks, setShowAICallPrep, remarkText, setRemarkText, callDuration }) => {
     const { addRemark } = useApp();
     const { addToast } = useToast();
+
+    // Format duration helper
+    const formatDuration = (seconds: number) => {
+        const m = Math.floor(seconds / 60);
+        const s = seconds % 60;
+        return `${m}m ${s}s`;
+    };
 
     return (
         <div className="space-y-4">
@@ -83,7 +91,8 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ customer, customerRemarks,
                         onClick={async () => {
                             if (!remarkText.trim() || !customer) return;
                             try {
-                                await addRemark(customer.id, remarkText);
+                                const remarkWithDuration = `${remarkText.trim()}\n[Call Duration: ${formatDuration(callDuration)}]`;
+                                await addRemark(customer.id, remarkWithDuration);
                                 setRemarkText('');
                                 addToast('Remark added successfully!', 'success');
                             } catch (err) {

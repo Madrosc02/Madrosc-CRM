@@ -10,7 +10,6 @@ import { InsightsGrid } from './call-mode/InsightsGrid';
 import { TerritoryInsights } from './call-mode/TerritoryInsights';
 import { SalesTrend } from './call-mode/SalesTrend';
 import { ChatPanel } from './call-mode/ChatPanel';
-import { DealPipeline } from './call-mode/DealPipeline';
 import { RightSidebar } from './call-mode/RightSidebar';
 import { CustomerNavigator } from './call-mode/CustomerNavigator';
 import { InvoiceUploadModal } from './call-mode/InvoiceUploadModal';
@@ -25,6 +24,16 @@ const CallMode: React.FC = () => {
     const [showAICallPrep, setShowAICallPrep] = useState(false);
     const [isInvoiceModalOpen, setIsInvoiceModalOpen] = useState(false);
     const [remarkText, setRemarkText] = useState('');
+    const [callDuration, setCallDuration] = useState(0);
+
+    // Timer logic
+    useEffect(() => {
+        setCallDuration(0);
+        const timer = setInterval(() => {
+            setCallDuration(prev => prev + 1);
+        }, 1000);
+        return () => clearInterval(timer);
+    }, [currentCustomer?.id]);
 
     const filteredCustomers = useMemo(() => {
         if (selectedTier === 'All') return customers;
@@ -132,6 +141,7 @@ const CallMode: React.FC = () => {
                 totalCustomers={filteredCustomers.length}
                 currentCustomer={currentCustomer}
                 selectedTier={selectedTier}
+                callDuration={callDuration}
                 handleExit={handleExit}
                 handleTierChange={handleTierChange}
                 handleCreateTask={handleCreateTask}
@@ -167,18 +177,16 @@ const CallMode: React.FC = () => {
                         </div>
 
                         {/* Section 3: Sales Trend */}
-                        <SalesTrend customer={currentCustomer} />
+                        <SalesTrend customer={currentCustomer} invoices={invoices} />
 
-                        {/* Section 4: Deal Pipeline */}
-                        <DealPipeline />
-
-                        {/* Section 5: Chat Panel (replaces ActivityTimeline) */}
+                        {/* Section 4: Chat Panel (replaces ActivityTimeline) */}
                         <ChatPanel 
                             customer={currentCustomer}
                             customerRemarks={customerRemarks}
                             setShowAICallPrep={setShowAICallPrep}
                             remarkText={remarkText}
                             setRemarkText={setRemarkText}
+                            callDuration={callDuration}
                         />
 
                         {/* Section 6: Additional Insights */}

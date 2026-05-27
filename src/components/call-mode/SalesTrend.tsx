@@ -1,24 +1,25 @@
 import React, { useState, useMemo } from 'react';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { LineChart as LineIcon, BarChart3, TrendingUp, TrendingDown } from 'lucide-react';
-import { Customer } from '../../types';
+import { Customer, Invoice } from '../../types';
 
 interface SalesTrendProps {
     customer: Customer;
+    invoices: Invoice[];
 }
 
-export const SalesTrend: React.FC<SalesTrendProps> = ({ customer }) => {
+export const SalesTrend: React.FC<SalesTrendProps> = ({ customer, invoices }) => {
     const [chartType, setChartType] = useState<'line' | 'bar'>('line');
     const [timeRange, setTimeRange] = useState<'1M' | '3M' | '6M' | '1Y'>('6M');
 
-    // Generate dynamic chart data based on customer
+    // Generate dynamic chart data based on real invoices
     const chartData = useMemo(() => {
-        const avg = customer.avg6MoSales || 50000;
-        const current = customer.salesThisMonth || 50000;
+        const customerInvoices = invoices.filter(inv => inv.customerId === customer.id);
         
         // Month names for the X-Axis based on current date
         const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
         const currentMonthIndex = new Date().getMonth();
+        const currentYear = new Date().getFullYear();
         
         let numMonths = 6;
         if (timeRange === '1M') numMonths = 1;
@@ -27,21 +28,30 @@ export const SalesTrend: React.FC<SalesTrendProps> = ({ customer }) => {
 
         const data = [];
         for (let i = numMonths - 1; i >= 0; i--) {
-            const mIndex = (currentMonthIndex - i + 12) % 12;
+            let mIndex = currentMonthIndex - i;
+            let targetYear = currentYear;
             
-            // Generate plausible data around average
-            let sales = avg * (0.8 + Math.random() * 0.4);
+            if (mIndex < 0) {
+                mIndex += 12;
+                targetYear -= 1;
+            }
             
-            // Force the last month to be exact 'current'
-            if (i === 0) sales = current;
+            // Calculate real sales for this specific month/year
+            const monthSales = customerInvoices.reduce((sum, inv) => {
+                const invDate = new Date(inv.date);
+                if (invDate.getMonth() === mIndex && invDate.getFullYear() === targetYear) {
+                    return sum + (inv.totalAmount || 0);
+                }
+                return sum;
+            }, 0);
             
             data.push({
                 month: months[mIndex],
-                sales: Math.round(sales)
+                sales: Math.round(monthSales)
             });
         }
         return data;
-    }, [customer, timeRange]);
+    }, [customer.id, invoices, timeRange]);
 
     // Calculate Growth vs previous month (or period)
     const growth = useMemo(() => {
