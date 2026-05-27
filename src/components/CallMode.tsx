@@ -155,7 +155,7 @@ const CallMode: React.FC = () => {
                                 <CustomerHealth customer={currentCustomer} remarks={customerRemarks} />
                             </div>
                             <div className="h-full">
-                                <TerritoryInsights />
+                                <TerritoryInsights customer={currentCustomer} />
                             </div>
                         </div>
 
