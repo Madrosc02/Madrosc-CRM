@@ -149,16 +149,13 @@ const CallMode: React.FC = () => {
                             handleCallNow={handleCallNow}
                         />
 
-                        {/* Section 2: Customer Health + Insights */}
-                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-auto">
+                        {/* Section 2: Customer Health + Territory Insights */}
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-auto">
                             <div className="h-full">
                                 <CustomerHealth />
                             </div>
                             <div className="h-full">
                                 <TerritoryInsights />
-                            </div>
-                            <div className="h-full">
-                                <InsightsGrid />
                             </div>
                         </div>
 
@@ -173,6 +170,9 @@ const CallMode: React.FC = () => {
                             customerRemarks={customerRemarks}
                             setShowAICallPrep={setShowAICallPrep}
                         />
+
+                        {/* Section 6: Additional Insights */}
+                        <InsightsGrid />
                     </div>
                 </main>
 
