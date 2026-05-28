@@ -2,7 +2,7 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { useApp } from '../../contexts/AppContext';
 import { Sale } from '../../types';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import Skeleton from '../ui/Skeleton';
 
 const OverallSalesTrendChart: React.FC = () => {
@@ -63,14 +63,43 @@ const OverallSalesTrendChart: React.FC = () => {
         <div className="h-[400px]">
              <h3 className="text-xl font-bold text-[var(--text-primary-light)] dark:text-[var(--text-primary-dark)] mb-4 px-2">Overall Sales Trend</h3>
             <ResponsiveContainer width="100%" height="90%">
-                <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="var(--border-light, #dee2e6)" className="dark:stroke-[var(--border-dark)]" />
-                    <XAxis dataKey="name" />
-                    <YAxis tickFormatter={(value) => `₹${Number(value)/1000}k`} />
-                    <Tooltip formatter={(value) => [`₹${Number(value).toLocaleString('en-IN')}`, "Sales"]} />
-                    <Legend />
-                    <Line type="monotone" dataKey="sales" stroke="var(--primary-light, #8884d8)" strokeWidth={2} activeDot={{ r: 8 }} />
-                </LineChart>
+                <AreaChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                    <defs>
+                        <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="var(--primary-light, #3b82f6)" stopOpacity={0.4}/>
+                            <stop offset="95%" stopColor="var(--primary-light, #3b82f6)" stopOpacity={0}/>
+                        </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border-light, rgba(200,200,200,0.2))" className="dark:stroke-[var(--border-dark)]" />
+                    <XAxis 
+                        dataKey="name" 
+                        axisLine={false} 
+                        tickLine={false} 
+                        tick={{ fill: '#9ca3af', fontSize: 12 }} 
+                        dy={10}
+                    />
+                    <YAxis 
+                        axisLine={false} 
+                        tickLine={false} 
+                        tick={{ fill: '#9ca3af', fontSize: 12 }}
+                        tickFormatter={(value) => `₹${Number(value)/1000}k`} 
+                        dx={-10}
+                    />
+                    <Tooltip 
+                        formatter={(value) => [`₹${Number(value).toLocaleString('en-IN')}`, "Sales"]}
+                        contentStyle={{ borderRadius: '0.75rem', border: 'none', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)', backgroundColor: 'rgba(255, 255, 255, 0.95)' }}
+                        itemStyle={{ color: '#1f2937', fontWeight: 'bold' }}
+                    />
+                    <Area 
+                        type="monotone" 
+                        dataKey="sales" 
+                        stroke="var(--primary-light, #3b82f6)" 
+                        strokeWidth={3} 
+                        fillOpacity={1} 
+                        fill="url(#colorSales)" 
+                        activeDot={{ r: 6, strokeWidth: 0, fill: '#3b82f6' }}
+                    />
+                </AreaChart>
             </ResponsiveContainer>
         </div>
     );
