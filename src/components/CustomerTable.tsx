@@ -115,7 +115,7 @@ const CustomerTable: React.FC = () => {
             return customers;
         }
 
-        switch (kpiFilter) {
+            switch (kpiFilter) {
             case 'total':
                 return customers; // Show all customers
             case 'pending':
@@ -124,6 +124,12 @@ const CustomerTable: React.FC = () => {
                 return customers.filter(c => c.salesThisMonth > 0); // Has sales this month
             case 'outstanding':
                 return customers.filter(c => c.outstandingBalance > 0); // Has outstanding balance
+            case 'high-risk':
+                return customers.filter(c => c.outstandingBalance > 0 && c.salesThisMonth === 0);
+            case 'upsell':
+                return customers.filter(c => c.outstandingBalance === 0 && c.salesThisMonth === 0);
+            case 'platinum':
+                return customers.filter(c => c.tier === 'Platinum');
             default:
                 return customers;
         }
@@ -149,6 +155,9 @@ const CustomerTable: React.FC = () => {
             case 'pending': return 'Customers with Pending Orders (No Sales This Month)';
             case 'sales': return 'Customers with Sales This Month';
             case 'outstanding': return 'Customers with Outstanding Balance';
+            case 'high-risk': return 'High Risk (No Orders + High Balance)';
+            case 'upsell': return 'Easy Upsell (No Balance + No Orders)';
+            case 'platinum': return 'Platinum Tier Customers';
             case 'ai-search': return `AI Search Results (${sortedCustomers.length} found)`;
             default: return 'Customer Overview';
         }
@@ -212,6 +221,23 @@ const CustomerTable: React.FC = () => {
                     </button>
                 </div>
             </div>
+            
+            {/* Quick Filter Pills */}
+            <div className="flex flex-wrap gap-2 px-2 mb-4">
+                <button onClick={() => setKpiFilter('pending')} className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${kpiFilter === 'pending' ? 'bg-emerald-500 text-white shadow-md scale-105' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 hover:scale-105'}`}>
+                    ⏳ Pending Orders
+                </button>
+                <button onClick={() => setKpiFilter('high-risk')} className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${kpiFilter === 'high-risk' ? 'bg-red-500 text-white shadow-md scale-105' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 hover:scale-105'}`}>
+                    🚨 High Risk
+                </button>
+                <button onClick={() => setKpiFilter('upsell')} className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${kpiFilter === 'upsell' ? 'bg-blue-500 text-white shadow-md scale-105' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 hover:scale-105'}`}>
+                    💎 Easy Upsell
+                </button>
+                <button onClick={() => setKpiFilter('platinum')} className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${kpiFilter === 'platinum' ? 'bg-slate-800 text-white shadow-md scale-105' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 hover:scale-105'}`}>
+                    ⭐ Platinum
+                </button>
+            </div>
+
             <div className="overflow-x-auto pr-2">
                 <table className="w-full text-sm text-left text-[var(--text-secondary-light)] dark:text-[var(--text-secondary-dark)]">
                     <thead className="text-xs uppercase bg-gray-50 dark:bg-white/5">

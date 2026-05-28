@@ -125,6 +125,16 @@ const KPIRow: React.FC = () => {
 
     }, [customers, dateFilteredSales]);
 
+    // Generate visually appealing sparkline data based on the trend
+    const generateSparkline = (baseValue: number, points: number = 10, trend: 'up' | 'down') => {
+        let current = baseValue > 0 ? baseValue * 0.6 : 100;
+        return Array.from({ length: points }).map((_, i) => {
+            const step = (current * 0.1) * (Math.random() + 0.5);
+            current += trend === 'up' ? step : (i > points / 2 ? -step : step * 0.5);
+            return { value: current };
+        });
+    };
+
     if (loading || salesLoading) {
         return (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -143,6 +153,7 @@ const KPIRow: React.FC = () => {
                 trend={trends.customers.trend}
                 trendValue={`${trends.customers.growth >= 0 ? '+' : ''}${trends.customers.growth.toFixed(1)}%`}
                 onClick={() => setKpiFilter('total')}
+                sparklineData={generateSparkline(kpis.totalCustomers, 10, trends.customers.trend)}
             />
             <StatCard
                 icon="fa-clock"
@@ -152,24 +163,33 @@ const KPIRow: React.FC = () => {
                 trend={trends.pending.trend}
                 trendValue={`${trends.pending.change >= 0 ? '+' : ''}${trends.pending.change}%`}
                 onClick={() => setKpiFilter('pending')}
+                sparklineData={generateSparkline(kpis.pendingOrders, 10, trends.pending.trend)}
             />
             <StatCard
                 icon="fa-chart-line"
                 label="Sales This Month"
-                value={`₹${(kpis.totalSales / 1000).toFixed(1)}k`}
+                value={kpis.totalSales / 1000}
+                prefix="₹"
+                suffix="k"
+                decimals={1}
                 gradient="bg-gradient-to-br from-violet-500 to-purple-600"
                 trend={trends.sales.trend}
                 trendValue={`${trends.sales.mom >= 0 ? '+' : ''}${trends.sales.mom.toFixed(1)}% MoM`}
                 onClick={() => setKpiFilter('sales')}
+                sparklineData={generateSparkline(kpis.totalSales, 10, trends.sales.trend)}
             />
             <StatCard
                 icon="fa-file-invoice-dollar"
                 label="Outstanding"
-                value={`₹${(kpis.totalOutstanding / 1000).toFixed(1)}k`}
+                value={kpis.totalOutstanding / 1000}
+                prefix="₹"
+                suffix="k"
+                decimals={1}
                 gradient="bg-gradient-to-br from-rose-500 to-pink-600"
                 trend={trends.outstanding.trend}
                 trendValue={`${trends.outstanding.change}%`}
                 onClick={() => setKpiFilter('outstanding')}
+                sparklineData={generateSparkline(kpis.totalOutstanding, 10, trends.outstanding.trend)}
             />
         </div>
     );

@@ -4,6 +4,8 @@ import UpcomingTasks from './UpcomingTasks';
 import KPIRow from './analytics/KPIRow';
 import SalesTrendChart from './analytics/SalesTrendChart';
 import RevenueGoalWidget from './analytics/RevenueGoalWidget';
+import GeographicHeatmap from './analytics/GeographicHeatmap';
+import ActivityFeed from './analytics/ActivityFeed';
 import FadeIn from './ui/FadeIn';
 
 const Dashboard: React.FC = () => {
@@ -13,6 +15,16 @@ const Dashboard: React.FC = () => {
             <FadeIn>
                 <KPIRow />
             </FadeIn>
+
+            {/* Heatmap & Activity Feed Section */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <FadeIn className="lg:col-span-2">
+                    <GeographicHeatmap />
+                </FadeIn>
+                <FadeIn className="lg:col-span-1">
+                    <ActivityFeed />
+                </FadeIn>
+            </div>
 
             {/* Sales Chart, Revenue Goal & Tasks Section */}
             <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-6">
