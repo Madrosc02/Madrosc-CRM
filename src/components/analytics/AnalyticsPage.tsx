@@ -20,7 +20,7 @@ import RevenueOpportunityAnalyzer from './RevenueOpportunityAnalyzer';
 import TerritoryHeatmap from './TerritoryHeatmap';
 import PerformanceLeaderboard from './PerformanceLeaderboard';
 import CohortAnalysis from './CohortAnalysis';
-import Tabs from '../common/Tabs';
+import AnalyticsTabs from './AnalyticsTabs';
 import PerformanceSnapshot from './PerformanceSnapshot';
 import RevenueChart from './RevenueChart';
 
@@ -37,14 +37,6 @@ const AnalyticsPage: React.FC = () => {
     if (loading) {
         return <DashboardSkeleton />;
     }
-
-    const tabs = [
-        { id: 'overview', label: 'Overview', icon: 'fa-chart-pie' },
-        { id: 'sales', label: 'Sales & Revenue', icon: 'fa-chart-line' },
-        { id: 'customers', label: 'Clients & Risk', icon: 'fa-users' },
-        { id: 'territory', label: 'Territory & Performance', icon: 'fa-map-marked-alt' },
-    ];
-
     return (
         <div className="space-y-6">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -71,11 +63,9 @@ const AnalyticsPage: React.FC = () => {
                 <div className="flex flex-col lg:flex-row gap-6 relative items-start">
                     {/* Main Content Area */}
                     <div className="flex-1 w-full space-y-6 overflow-hidden min-w-0 transition-all duration-300">
-                        <Tabs
-                            tabs={tabs}
+                        <AnalyticsTabs
                             activeTab={activeTab}
-                            onChange={setActiveTab}
-                            className="max-w-4xl mb-6"
+                            setActiveTab={setActiveTab}
                         />
 
                         {/* OVERVIEW TAB */}
