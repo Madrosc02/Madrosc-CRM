@@ -14,7 +14,7 @@ export function Sidebar() {
   ];
 
   return (
-    <div className="w-[260px] bg-[#0f172a] text-white h-screen flex flex-col p-4 shrink-0 relative">
+    <div className="w-[240px] bg-[#0f172a] text-white h-screen flex flex-col p-4 shrink-0 relative">
       {/* Sidebar Edge Collapse Toggle */}
       <button className="absolute -right-3 top-20 w-6 h-6 bg-slate-800 border border-slate-700 rounded-full flex items-center justify-center text-slate-400 hover:text-white transition-colors z-10 hidden lg:flex">
         <i className="fas fa-chevron-left text-[10px]"></i>

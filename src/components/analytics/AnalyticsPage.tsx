@@ -148,8 +148,8 @@ const AnalyticsPage: React.FC = () => {
                     </div>
 
                     {/* Collapsible Right Sidebar */}
-                    {isSidebarOpen && (
-                        <div className="hidden lg:block w-[320px] shrink-0 sticky top-24 max-h-[calc(100vh-8rem)] overflow-y-auto custom-scrollbar animate-fade-in pl-4">
+                    {isSidebarOpen ? (
+                        <div className="hidden lg:block w-[280px] shrink-0 sticky top-24 max-h-[calc(100vh-8rem)] overflow-y-auto custom-scrollbar animate-fade-in pl-4">
                             <div className="flex justify-end mb-2">
                                 <button 
                                     onClick={() => setIsSidebarOpen(false)}
@@ -163,6 +163,17 @@ const AnalyticsPage: React.FC = () => {
                                 <SmartAlerts />
                                 <PerformanceSnapshot />
                             </div>
+                        </div>
+                    ) : (
+                        <div className="hidden lg:flex shrink-0 sticky top-48 h-[100px] items-center justify-end pl-2">
+                            <button
+                                onClick={() => setIsSidebarOpen(true)}
+                                className="w-8 py-6 bg-white border border-slate-200 shadow-sm rounded-l-xl flex flex-col items-center justify-center text-slate-400 hover:text-indigo-600 hover:bg-slate-50 transition-all hover:-translate-x-1"
+                                title="Show Insights Sidebar"
+                            >
+                                <i className="fas fa-angle-double-left mb-2 text-[10px]"></i>
+                                <span className="text-[9px] uppercase font-bold tracking-widest rotate-180" style={{ writingMode: 'vertical-rl' }}>Insights</span>
+                            </button>
                         </div>
                     )}
                 </div>
