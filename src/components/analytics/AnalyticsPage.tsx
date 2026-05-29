@@ -3,7 +3,7 @@ import KPIRow from './KPIRow';
 import SalesByStateChart from './SalesByStateChart';
 import TierDistributionChart from './TierDistributionChart';
 import OverallSalesTrendChart from './OverallSalesTrendChart';
-import AIAnalyticsInsight from './AIAnalyticsInsight';
+import TopClients from './TopClients';
 import { useApp } from '../../contexts/AppContext';
 import DashboardSkeleton from '../skeletons/DashboardSkeleton';
 import AnalyticsFilters from './AnalyticsFilters';
@@ -21,6 +21,8 @@ import TerritoryHeatmap from './TerritoryHeatmap';
 import PerformanceLeaderboard from './PerformanceLeaderboard';
 import CohortAnalysis from './CohortAnalysis';
 import Tabs from '../common/Tabs';
+import PerformanceSnapshot from './PerformanceSnapshot';
+import RevenueChart from './RevenueChart';
 
 const AnalyticsPage: React.FC = () => {
     const { loading, analyticsFilters, customers } = useApp();
@@ -81,9 +83,8 @@ const AnalyticsPage: React.FC = () => {
                             <FadeIn className="space-y-6">
                                 <ExecutiveSummary />
                                 <KPIRow />
-                                <div className="card-base p-6">
-                                    <ActionableInsights />
-                                </div>
+                                <PerformanceSnapshot />
+                                <ActionableInsights />
                             </FadeIn>
                         )}
 
@@ -94,6 +95,7 @@ const AnalyticsPage: React.FC = () => {
                                     <SalesForecast />
                                     <RevenueOpportunityAnalyzer />
                                 </div>
+                                <RevenueChart />
                                 <div className="card-base p-6">
                                     <OverallSalesTrendChart />
                                 </div>
@@ -155,7 +157,7 @@ const AnalyticsPage: React.FC = () => {
                         <div className="hidden lg:block w-[380px] shrink-0 sticky top-24 max-h-[calc(100vh-8rem)] overflow-y-auto custom-scrollbar animate-fade-in pl-2">
                             <div className="space-y-6 pb-6">
                                 <SmartAlerts />
-                                <AIAnalyticsInsight />
+                                <TopClients />
                             </div>
                         </div>
                     )}

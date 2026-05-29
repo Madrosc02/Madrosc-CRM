@@ -1,13 +1,32 @@
-import { cn } from "@/lib/utils"
+import React from 'react';
 
-function Skeleton({ className, ...props }: React.ComponentProps<"div">) {
-  return (
-    <div
-      data-slot="skeleton"
-      className={cn("animate-pulse rounded-md bg-muted", className)}
-      {...props}
-    />
-  )
+interface SkeletonProps {
+  className?: string;
+  variant?: 'text' | 'circular' | 'rectangular';
+  width?: string | number;
+  height?: string | number;
 }
 
-export { Skeleton }
+const Skeleton: React.FC<SkeletonProps> = ({ className = '', variant = 'text', width, height }) => {
+  const baseClasses = "animate-pulse bg-gray-200 dark:bg-gray-700";
+
+  const variantClasses = {
+    text: "rounded",
+    circular: "rounded-full",
+    rectangular: "rounded-md",
+  };
+
+  const style = {
+    width: width,
+    height: height,
+  };
+
+  return (
+    <div
+      className={`${baseClasses} ${variantClasses[variant]} ${className}`}
+      style={style}
+    />
+  );
+};
+
+export default Skeleton;

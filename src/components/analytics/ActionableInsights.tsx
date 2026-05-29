@@ -1,101 +1,125 @@
-// components/analytics/ActionableInsights.tsx
-import React, { useMemo, useState } from 'react';
-import { useApp } from '../../contexts/AppContext';
-import { Customer } from '../../types';
+import { ChevronDown, TrendingUp, AlertTriangle, Clock, AlertCircle } from 'lucide-react';
+import React, { useState } from 'react';
 
-const InsightCategory: React.FC<{ title: string; count: number; children: React.ReactNode }> = ({ title, count, children }) => {
-    const [isOpen, setIsOpen] = useState(true);
-    return (
-        <div className="card-base p-4">
-            <button onClick={() => setIsOpen(!isOpen)} className="w-full text-left flex justify-between items-center">
-                <h4 className="text-lg font-bold text-[var(--text-primary-light)] dark:text-[var(--text-primary-dark)]">{title}</h4>
-                <div className="flex items-center gap-2">
-                    <span className="text-sm font-semibold bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2.5 py-0.5 rounded-full">{count} Clients</span>
-                    <i className={`fas fa-chevron-down transform transition-transform ${isOpen ? 'rotate-180' : ''}`}></i>
-                </div>
-            </button>
-            {isOpen && <div className="mt-4 max-h-48 overflow-y-auto">{children}</div>}
-        </div>
-    );
-};
+interface InsightItem {
+  id: string;
+  name: string;
+  location: string;
+  metric: string;
+}
 
-const CustomerRow: React.FC<{customer: Customer, metric: React.ReactNode, action?: React.ReactNode}> = ({customer, metric, action}) => {
-    const { openDetailModal } = useApp();
-    return (
-        <div className="flex justify-between items-center p-2 rounded-md hover:bg-gray-50 dark:hover:bg-white/5">
-            <div onClick={() => openDetailModal(customer)} className="cursor-pointer flex-grow">
-                <p className="font-semibold">{customer.name}</p>
-                <p className="text-xs text-[var(--text-secondary-light)] dark:text-[var(--text-secondary-dark)]">{customer.district}, {customer.state}</p>
-            </div>
-            <div className="flex items-center gap-4">
-                <p className="text-sm font-mono text-right">{metric}</p>
-                {action}
-            </div>
+const insights = [
+  {
+    id: '1',
+    category: 'Engagement Opportunities',
+    icon: TrendingUp,
+    count: 8,
+    items: [
+      { id: 'a', name: '55ky Healthtech Nashik', location: 'Unknown', metric: 'Avg. ₹0' },
+      { id: 'b', name: 'Aadinath Agency Surat', location: 'Unknown', metric: 'Avg. ₹0' },
+      { id: 'c', name: 'Aakash Medical', location: 'Pune, MH', metric: 'Avg. ₹340' },
+    ],
+  },
+  {
+    category: 'No Sales This Month',
+    icon: AlertTriangle,
+    count: 136,
+    badgeColor: 'bg-orange-100 text-orange-700',
+  },
+  {
+    category: 'Sales Below Average',
+    icon: AlertTriangle,
+    count: 1,
+    badgeColor: 'bg-orange-100 text-orange-700',
+  },
+  {
+    category: 'Inactive (60+ Days)',
+    icon: Clock,
+    count: 0,
+    badgeColor: 'bg-slate-100 text-slate-700',
+  },
+  {
+    category: 'Potential Churn Risk',
+    icon: AlertCircle,
+    count: 6,
+    badgeColor: 'bg-purple-100 text-purple-700',
+  },
+];
+
+interface InsightCategoryProps {
+  insight: typeof insights[0];
+  expanded: boolean;
+  onToggle: (category: string) => void;
+}
+
+function InsightCategory({ insight, expanded, onToggle }: InsightCategoryProps) {
+  const Icon = insight.icon;
+
+  return (
+    <div key={insight.category} className="border-b border-slate-200 last:border-b-0">
+      <button
+        onClick={() => onToggle(insight.category)}
+        className="w-full px-6 py-4 flex items-center justify-between hover:bg-slate-50 transition-colors"
+      >
+        <div className="flex items-center gap-3">
+          <Icon className="w-5 h-5 text-slate-600" />
+          <span className="font-semibold text-slate-900">{insight.category}</span>
+          <span className={`px-2 py-1 text-xs font-bold rounded-full ${insight.badgeColor || 'bg-blue-100 text-blue-700'}`}>
+            {insight.count}
+          </span>
         </div>
-    );
+        <ChevronDown
+          className={`w-5 h-5 text-slate-400 transition-transform ${
+            expanded ? 'rotate-180' : ''
+          }`}
+        />
+      </button>
+
+      {expanded && insight.items && (
+        <div className="bg-slate-50 px-6 py-4 space-y-3">
+          {insight.items.map((item: InsightItem) => (
+            <div key={item.id} className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-slate-900">{item.name}</p>
+                <p className="text-xs text-slate-500">{item.location}</p>
+              </div>
+              <p className="text-sm font-semibold text-slate-900">{item.metric}</p>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
 }
 
 const ActionableInsights: React.FC = () => {
-    const { customers, openAddTaskModal } = useApp();
+  const [expanded, setExpanded] = useState<string>('Engagement Opportunities');
 
-    const insights = useMemo(() => {
-        const noSalesThisMonth = customers.filter(c => c.salesThisMonth === 0 && c.tier !== 'Dead');
-        const salesBelowAvg = customers.filter(c => c.salesThisMonth > 0 && c.salesThisMonth < c.avg6MoSales);
-        const inactive60days = customers.filter(c => c.daysSinceLastOrder > 60 && c.tier !== 'Dead');
-        const churnRisk = customers.filter(c => c.tier !== 'Dead' && c.salesThisMonth < (c.avg6MoSales * 0.5));
-        const engagementOpportunities = customers.filter(c => 
-            (c.tier === 'Gold' || c.tier === 'Silver') && 
-            c.daysSinceLastOrder > 30 &&
-            c.daysSinceLastOrder <= 60
-        );
+  const toggleExpanded = (category: string) => {
+    setExpanded(expanded === category ? '' : category);
+  };
 
-        return { noSalesThisMonth, salesBelowAvg, inactive60days, churnRisk, engagementOpportunities };
-    }, [customers]);
-
-    return (
-        <div>
-            <h3 className="text-2xl font-bold text-[var(--text-primary-light)] dark:text-[var(--text-primary-dark)] mb-4">Actionable Insights</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                 <InsightCategory title="Engagement Opportunities" count={insights.engagementOpportunities.length}>
-                    {insights.engagementOpportunities.map(c => {
-                        const handleCreateTask = () => {
-                            const dueDate = new Date();
-                            dueDate.setDate(dueDate.getDate() + 3); // Due in 3 days
-                            openAddTaskModal({
-                                customerId: c.id,
-                                task: `Schedule a check-in call with ${c.name}`,
-                                dueDate: dueDate.toISOString().slice(0, 16) // Format for datetime-local
-                            });
-                        };
-                        return <CustomerRow 
-                                key={c.id} 
-                                customer={c} 
-                                metric={`${c.daysSinceLastOrder} days inactive`} 
-                                action={<button onClick={handleCreateTask} className="btn-secondary-sm whitespace-nowrap">Create Task</button>}
-                               />
-                    })}
-                </InsightCategory>
-                <InsightCategory title="No Sales This Month" count={insights.noSalesThisMonth.length}>
-                    {insights.noSalesThisMonth.map(c => <CustomerRow key={c.id} customer={c} metric={`Avg: ₹${c.avg6MoSales.toLocaleString('en-IN')}`} />)}
-                </InsightCategory>
-                <InsightCategory title="Sales Below Average" count={insights.salesBelowAvg.length}>
-                     {insights.salesBelowAvg.map(c => <CustomerRow key={c.id} customer={c} metric={`↓ from ₹${c.avg6MoSales.toLocaleString('en-IN')}`} />)}
-                </InsightCategory>
-                <InsightCategory title="Inactive (60+ Days)" count={insights.inactive60days.length}>
-                     {insights.inactive60days.map(c => <CustomerRow key={c.id} customer={c} metric={`${c.daysSinceLastOrder} days`} />)}
-                </InsightCategory>
-                <InsightCategory title="Potential Churn Risk" count={insights.churnRisk.length}>
-                    {insights.churnRisk.map(c => <CustomerRow key={c.id} customer={c} metric={`Sale: ₹${c.salesThisMonth.toLocaleString('en-IN')}`} />)}
-                </InsightCategory>
-            </div>
-             <style>{`
-                 .btn-secondary-sm { padding: 0.3rem 0.8rem; font-size: 0.8rem; font-weight: 500; border: 1px solid var(--border-light); border-radius: 0.375rem; background-color: var(--card-bg-light); transition: background-color 0.2s, border-color 0.2s; }
-                .dark .btn-secondary-sm { border-color: var(--border-dark); background-color: var(--card-bg-dark); }
-                .btn-secondary-sm:hover { background-color: #f8f9fa; border-color: #ced4da; }
-                .dark .btn-secondary-sm:hover { background-color: #ffffff10; border-color: #484f58; }
-            `}</style>
+  return (
+    <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+      <div className="px-6 py-4 border-b border-slate-200">
+        <div className="flex items-center justify-between">
+          <h3 className="text-lg font-bold text-slate-900">Actionable Insights</h3>
+          <span className="text-xs text-slate-500">5 categories</span>
         </div>
-    );
+      </div>
+
+      <div>
+        {insights.map((insight) => (
+          <InsightCategory
+            key={insight.category}
+            insight={insight}
+            expanded={expanded === insight.category}
+            onToggle={toggleExpanded}
+          />
+        ))}
+      </div>
+    </div>
+  );
 };
 
 export default ActionableInsights;
