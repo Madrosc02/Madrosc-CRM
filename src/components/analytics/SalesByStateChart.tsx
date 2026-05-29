@@ -1,41 +1,23 @@
 // components/analytics/SalesByStateChart.tsx
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo } from 'react';
 import { useApp } from '../../contexts/AppContext';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { Sale, Customer } from '../../types';
 import Skeleton from '../ui/Skeleton';
 
-const SalesByStateChart: React.FC = () => {
-    const { customers, getAllSales, analyticsFilters, setSearchQuery, searchQuery } = useApp();
-    const [allSales, setAllSales] = useState<Sale[]>([]);
-    const [loading, setLoading] = useState(true);
+interface SalesByStateChartProps {
+    sales: Sale[];
+    loading?: boolean;
+}
 
-    useEffect(() => {
-        const fetchSales = async () => {
-            setLoading(true);
-            const salesData = await getAllSales();
-            setAllSales(salesData);
-            setLoading(false);
-        };
-        fetchSales();
-    }, [getAllSales]);
+const SalesByStateChart: React.FC<SalesByStateChartProps> = ({ sales, loading }) => {
+    const { customers, analyticsFilters, setSearchQuery, searchQuery } = useApp();
 
     const chartData = useMemo(() => {
-        const { start, end } = analyticsFilters.dateRange;
-        const startDate = new Date(start);
-        startDate.setHours(0, 0, 0, 0);
-        const endDate = new Date(end);
-        endDate.setHours(23, 59, 59, 999);
-
-        const salesInRange = allSales.filter(sale => {
-            const saleDate = new Date(sale.date);
-            return saleDate >= startDate && saleDate <= endDate;
-        });
-
         const customerMap = new Map<string, Customer>(customers.map(c => [c.id, c]));
         const salesByState: { [key: string]: number } = {};
 
-        salesInRange.forEach(sale => {
+        sales.forEach(sale => {
             const customer = customerMap.get(sale.customerId);
             if (customer) {
                 salesByState[customer.state] = (salesByState[customer.state] || 0) + sale.amount;
@@ -47,7 +29,7 @@ const SalesByStateChart: React.FC = () => {
             .filter(item => item.sales > 0)
             .sort((a, b) => b.sales - a.sales)
             .slice(0, 10); // Show top 10 states
-    }, [customers, allSales, analyticsFilters.dateRange]);
+    }, [customers, sales]);
 
     if (loading) {
         return (

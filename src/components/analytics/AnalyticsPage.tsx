@@ -91,15 +91,15 @@ const AnalyticsPage: React.FC = () => {
                         {activeTab === 'sales' && (
                             <FadeIn className="space-y-6">
                                 <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-                                    <SalesForecast />
+                                    <SalesForecast sales={analyticsData.allSales} />
                                     <RevenueOpportunityAnalyzer />
                                 </div>
                                 <div className="card-base p-6">
-                                    <OverallSalesTrendChart />
+                                    <OverallSalesTrendChart sales={analyticsData.filteredSales} />
                                 </div>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div className="card-base p-6">
-                                        <SalesByStateChart />
+                                        <SalesByStateChart sales={analyticsData.filteredSales} />
                                     </div>
                                     <div className="card-base p-6 flex items-center justify-center text-slate-500">
                                         <div className="text-center">

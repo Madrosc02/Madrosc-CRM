@@ -1,40 +1,21 @@
 // components/analytics/OverallSalesTrendChart.tsx
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo } from 'react';
 import { useApp } from '../../contexts/AppContext';
 import { Sale } from '../../types';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import Skeleton from '../ui/Skeleton';
 
-const OverallSalesTrendChart: React.FC = () => {
-    const { getAllSales, analyticsFilters } = useApp();
-    const [sales, setSales] = useState<Sale[]>([]);
-    const [loading, setLoading] = useState(true);
+interface OverallSalesTrendChartProps {
+    sales: Sale[];
+    loading?: boolean;
+}
 
-    useEffect(() => {
-        const fetchData = async () => {
-            setLoading(true);
-            const salesData = await getAllSales();
-            setSales(salesData);
-            setLoading(false);
-        };
-        fetchData();
-    }, [getAllSales]);
-
+const OverallSalesTrendChart: React.FC<OverallSalesTrendChartProps> = ({ sales, loading }) => {
+    const { analyticsFilters } = useApp();
 
     const chartData = useMemo(() => {
-        const { start, end } = analyticsFilters.dateRange;
-        const startDate = new Date(start);
-        startDate.setHours(0, 0, 0, 0);
-        const endDate = new Date(end);
-        endDate.setHours(23, 59, 59, 999);
-
-        const salesInRange = sales.filter(sale => {
-            const saleDate = new Date(sale.date);
-            return saleDate >= startDate && saleDate <= endDate;
-        });
-        
         const monthlySales: { [key: string]: number } = {};
-        salesInRange.forEach(sale => {
+        sales.forEach(sale => {
             const date = new Date(sale.date);
             const monthYear = date.toLocaleString('en-US', { month: 'short', year: '2-digit' });
             monthlySales[monthYear] = (monthlySales[monthYear] || 0) + sale.amount;
@@ -50,7 +31,7 @@ const OverallSalesTrendChart: React.FC = () => {
             name: month,
             sales: monthlySales[month]
         }));
-    }, [sales, analyticsFilters.dateRange]);
+    }, [sales]);
     
     if (loading) {
         return <div className="h-[400px]">

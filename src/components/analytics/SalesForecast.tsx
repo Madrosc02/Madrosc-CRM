@@ -1,18 +1,24 @@
 import React, { useEffect, useState } from 'react';
-import { useApp } from '../../contexts/AppContext';
 import { generateSalesForecast, ForecastData } from '../../services/forecastService';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine, Cell } from 'recharts';
+import { Sale } from '../../types';
 
-const SalesForecast: React.FC = () => {
-    const { getAllSales } = useApp();
+interface SalesForecastProps {
+    sales: Sale[];
+}
+
+const SalesForecast: React.FC<SalesForecastProps> = ({ sales }) => {
     const [forecast, setForecast] = useState<ForecastData | null>(null);
     const [loading, setLoading] = useState(true);
     const [historicalData, setHistoricalData] = useState<{ name: string; amount: number; type: 'actual' | 'predicted' }[]>([]);
 
     useEffect(() => {
-        const fetchData = async () => {
+        const generateData = async () => {
             setLoading(true);
-            const sales = await getAllSales();
+            if (!sales || sales.length === 0) {
+                setLoading(false);
+                return;
+            }
 
             // Generate forecast
             const forecastData = await generateSalesForecast(sales);
@@ -67,8 +73,8 @@ const SalesForecast: React.FC = () => {
             setLoading(false);
         };
 
-        fetchData();
-    }, [getAllSales]);
+        generateData();
+    }, [sales]);
 
     if (loading || !forecast) {
         return (
