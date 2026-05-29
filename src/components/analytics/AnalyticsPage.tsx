@@ -71,9 +71,15 @@ const AnalyticsPage: React.FC = () => {
                         {/* OVERVIEW TAB */}
                         {activeTab === 'overview' && (
                             <FadeIn className="space-y-6">
-                                <ExecutiveSummary />
                                 <KPIRow />
-                                <PerformanceSnapshot />
+                                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+                                    <div className="lg:col-span-2 w-full">
+                                        <RevenueChart />
+                                    </div>
+                                    <div className="lg:col-span-1 w-full">
+                                        <ExecutiveSummary />
+                                    </div>
+                                </div>
                                 <ActionableInsights />
                             </FadeIn>
                         )}
@@ -85,7 +91,6 @@ const AnalyticsPage: React.FC = () => {
                                     <SalesForecast />
                                     <RevenueOpportunityAnalyzer />
                                 </div>
-                                <RevenueChart />
                                 <div className="card-base p-6">
                                     <OverallSalesTrendChart />
                                 </div>
@@ -147,7 +152,7 @@ const AnalyticsPage: React.FC = () => {
                         <div className="hidden lg:block w-[380px] shrink-0 sticky top-24 max-h-[calc(100vh-8rem)] overflow-y-auto custom-scrollbar animate-fade-in pl-2">
                             <div className="space-y-6 pb-6">
                                 <SmartAlerts />
-                                <TopClients />
+                                <PerformanceSnapshot />
                             </div>
                         </div>
                     )}

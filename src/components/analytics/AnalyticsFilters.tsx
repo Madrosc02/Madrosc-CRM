@@ -21,7 +21,7 @@ const AnalyticsFilters: React.FC = () => {
     };
 
     return (
-        <div className="card-base p-4 mb-6 flex flex-wrap items-center gap-4">
+        <div className="flex flex-wrap items-center gap-3">
             <div className="flex items-center gap-2">
                 <label htmlFor="start" className="text-sm font-medium">From:</label>
                 <input
