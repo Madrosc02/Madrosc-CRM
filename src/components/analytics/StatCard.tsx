@@ -30,28 +30,33 @@ const StatCard: React.FC<StatCardProps> = ({
 
   // Extract color from gradient string for the icon background
   // Example gradient prop: "from-blue-500 to-blue-600" -> we just want a soft blue
-  let colorTheme = 'text-indigo-600 bg-indigo-50';
-  let badgeTheme = 'text-indigo-700 bg-indigo-50';
+  let colorTheme = 'text-indigo-600 bg-indigo-100/70';
+  let badgeTheme = 'text-indigo-700 bg-indigo-100/70';
+  let cardBg = 'bg-indigo-50/40 border-indigo-100/60';
+  
   if (gradient.includes('emerald') || gradient.includes('teal')) {
-      colorTheme = 'text-orange-500 bg-orange-50'; // Warning color for pending orders
-      badgeTheme = 'text-orange-700 bg-orange-50';
+      colorTheme = 'text-orange-500 bg-orange-100/70'; 
+      badgeTheme = 'text-orange-700 bg-orange-100/70';
+      cardBg = 'bg-orange-50/40 border-orange-100/60';
   } else if (gradient.includes('violet') || gradient.includes('purple')) {
-      colorTheme = 'text-blue-500 bg-blue-50'; // Sales
-      badgeTheme = 'text-blue-700 bg-blue-50';
+      colorTheme = 'text-blue-500 bg-blue-100/70'; 
+      badgeTheme = 'text-blue-700 bg-blue-100/70';
+      cardBg = 'bg-blue-50/40 border-blue-100/60';
   } else if (gradient.includes('rose') || gradient.includes('pink')) {
-      colorTheme = 'text-purple-600 bg-purple-50'; // Outstanding
-      badgeTheme = 'text-purple-700 bg-purple-50';
+      colorTheme = 'text-purple-600 bg-purple-100/70'; 
+      badgeTheme = 'text-purple-700 bg-purple-100/70';
+      cardBg = 'bg-purple-50/40 border-purple-100/60';
   }
 
   // Override trend badge based on trend direction
   if (trend === 'down') {
-      badgeTheme = 'text-orange-700 bg-orange-50';
+      badgeTheme = 'text-orange-700 bg-orange-100/70';
   }
 
   return (
     <div
       onClick={onClick}
-      className={`bg-white rounded-xl border border-slate-200 p-6 flex flex-col justify-between shadow-sm transition-all duration-300 hover:shadow-md ${onClick ? 'cursor-pointer' : ''} ${className}`}
+      className={`${cardBg} rounded-xl border p-6 flex flex-col justify-between shadow-sm transition-all duration-300 hover:shadow-md ${onClick ? 'cursor-pointer' : ''} ${className}`}
     >
       <div className="flex items-start justify-between mb-4">
         <div className={`p-2.5 rounded-lg ${colorTheme}`}>

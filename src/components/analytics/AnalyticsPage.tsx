@@ -149,7 +149,7 @@ const AnalyticsPage: React.FC = () => {
 
                     {/* Collapsible Right Sidebar */}
                     {isSidebarOpen && (
-                        <div className="hidden lg:block w-[380px] shrink-0 sticky top-24 max-h-[calc(100vh-8rem)] overflow-y-auto custom-scrollbar animate-fade-in pl-4">
+                        <div className="hidden lg:block w-[320px] shrink-0 sticky top-24 max-h-[calc(100vh-8rem)] overflow-y-auto custom-scrollbar animate-fade-in pl-4">
                             <div className="flex justify-end mb-2">
                                 <button 
                                     onClick={() => setIsSidebarOpen(false)}
