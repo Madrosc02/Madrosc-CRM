@@ -38,31 +38,32 @@ const AnalyticsPage: React.FC = () => {
         return <DashboardSkeleton />;
     }
     return (
-        <div className="space-y-6">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div className="flex items-center gap-4">
-                    <h1 className="text-2xl font-bold text-slate-800 dark:text-white">Analytics Hub</h1>
-                    <button 
-                        onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                        className="p-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
-                        title={isSidebarOpen ? "Hide Insights" : "Show Insights"}
-                    >
-                        <i className={`fas fa-${isSidebarOpen ? 'angle-double-right' : 'lightbulb'}`}></i>
-                    </button>
+        <div className="flex flex-col lg:flex-row gap-6 relative items-start w-full">
+            {/* Main Content Area (Left) */}
+            <div className="flex-1 w-full space-y-6 overflow-hidden min-w-0 transition-all duration-300">
+                {/* Header Row */}
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div className="flex items-center gap-4">
+                        <h1 className="text-2xl font-bold text-slate-800 dark:text-white tracking-tight">Analytics Hub</h1>
+                        <button 
+                            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                            className="p-2 rounded-xl bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors"
+                            title={isSidebarOpen ? "Hide Insights" : "Show Insights"}
+                        >
+                            <i className={`fas fa-${isSidebarOpen ? 'angle-double-right' : 'lightbulb'}`}></i>
+                        </button>
+                    </div>
+                    <div className="w-full md:w-auto">
+                        <AnalyticsFilters />
+                    </div>
                 </div>
-                <div className="w-full md:w-auto">
-                    <AnalyticsFilters />
-                </div>
-            </div>
 
-            {selectedCustomerData ? (
-                <FadeIn>
-                    <CustomerPerformanceDetail customer={selectedCustomerData} />
-                </FadeIn>
-            ) : (
-                <div className="flex flex-col lg:flex-row gap-6 relative items-start">
-                    {/* Main Content Area */}
-                    <div className="flex-1 w-full space-y-6 overflow-hidden min-w-0 transition-all duration-300">
+                {selectedCustomerData ? (
+                    <FadeIn>
+                        <CustomerPerformanceDetail customer={selectedCustomerData} />
+                    </FadeIn>
+                ) : (
+                    <div className="space-y-6">
                         <AnalyticsTabs
                             activeTab={activeTab}
                             setActiveTab={setActiveTab}
@@ -146,36 +147,36 @@ const AnalyticsPage: React.FC = () => {
                             </FadeIn>
                         )}
                     </div>
+                )}
+            </div>
 
-                    {/* Collapsible Right Sidebar */}
-                    {isSidebarOpen ? (
-                        <div className="hidden lg:block w-[280px] shrink-0 sticky top-24 max-h-[calc(100vh-8rem)] overflow-y-auto custom-scrollbar animate-fade-in pl-4">
-                            <div className="flex justify-end mb-2">
-                                <button 
-                                    onClick={() => setIsSidebarOpen(false)}
-                                    className="text-xs flex items-center gap-1 text-slate-400 hover:text-slate-700 font-medium transition-colors"
-                                    title="Collapse Sidebar"
-                                >
-                                    Collapse <i className="fas fa-angle-double-right"></i>
-                                </button>
-                            </div>
-                            <div className="space-y-6 pb-6">
-                                <SmartAlerts />
-                                <PerformanceSnapshot />
-                            </div>
-                        </div>
-                    ) : (
-                        <div className="hidden lg:flex shrink-0 sticky top-48 h-[100px] items-center justify-end pl-2">
-                            <button
-                                onClick={() => setIsSidebarOpen(true)}
-                                className="w-8 py-6 bg-white border border-slate-200 shadow-sm rounded-l-xl flex flex-col items-center justify-center text-slate-400 hover:text-indigo-600 hover:bg-slate-50 transition-all hover:-translate-x-1"
-                                title="Show Insights Sidebar"
-                            >
-                                <i className="fas fa-angle-double-left mb-2 text-[10px]"></i>
-                                <span className="text-[9px] uppercase font-bold tracking-widest rotate-180" style={{ writingMode: 'vertical-rl' }}>Insights</span>
-                            </button>
-                        </div>
-                    )}
+            {/* Collapsible Right Sidebar */}
+            {isSidebarOpen ? (
+                <div className="hidden lg:block w-[280px] shrink-0 sticky top-24 max-h-[calc(100vh-8rem)] overflow-y-auto custom-scrollbar animate-fade-in pl-4">
+                    <div className="flex justify-end mb-2">
+                        <button 
+                            onClick={() => setIsSidebarOpen(false)}
+                            className="text-xs flex items-center gap-1 text-slate-400 hover:text-slate-700 font-medium transition-colors"
+                            title="Collapse Sidebar"
+                        >
+                            Collapse <i className="fas fa-angle-double-right"></i>
+                        </button>
+                    </div>
+                    <div className="space-y-6 pb-6">
+                        <SmartAlerts />
+                        <PerformanceSnapshot />
+                    </div>
+                </div>
+            ) : (
+                <div className="hidden lg:flex shrink-0 sticky top-48 h-[100px] items-center justify-end pl-2">
+                    <button
+                        onClick={() => setIsSidebarOpen(true)}
+                        className="w-8 py-6 bg-white border border-slate-200 shadow-sm rounded-l-xl flex flex-col items-center justify-center text-slate-400 hover:text-indigo-600 hover:bg-slate-50 transition-all hover:-translate-x-1"
+                        title="Show Insights Sidebar"
+                    >
+                        <i className="fas fa-angle-double-left mb-2 text-[10px]"></i>
+                        <span className="text-[9px] uppercase font-bold tracking-widest rotate-180" style={{ writingMode: 'vertical-rl' }}>Insights</span>
+                    </button>
                 </div>
             )}
         </div>
