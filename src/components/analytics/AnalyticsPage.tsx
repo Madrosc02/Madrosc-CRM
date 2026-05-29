@@ -165,8 +165,8 @@ const AnalyticsPage: React.FC = () => {
                         </button>
                     </div>
                     <div className="space-y-6 pb-6 mt-1">
-                        <SmartAlerts />
-                        <PerformanceSnapshot />
+                        <SmartAlerts insights={analyticsData.actionableInsights} />
+                        <PerformanceSnapshot customers={customers} healthScore={analyticsData.healthScore} />
                     </div>
                 </div>
             ) : (

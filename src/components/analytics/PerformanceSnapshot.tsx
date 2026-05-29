@@ -1,18 +1,19 @@
 import React from 'react';
 import { BarChart3 } from 'lucide-react';
 
+import { Customer } from '../../types';
+import { HealthScoreData } from '../../hooks/useAnalyticsData';
+
 interface PerformanceMetric {
   label: string;
   value: number;
   color: string;
 }
 
-const metrics: PerformanceMetric[] = [
-  { label: 'Pipeline Health', value: 72, color: 'bg-indigo-600' },
-  { label: 'Follow-up Rate', value: 58, color: 'bg-orange-500' },
-  { label: 'Close Rate', value: 34, color: 'bg-blue-500' },
-  { label: 'Customer Retention', value: 88, color: 'bg-purple-600' },
-];
+interface PerformanceSnapshotProps {
+  customers?: Customer[];
+  healthScore?: HealthScoreData;
+}
 
 function ProgressBar({ label, value, color }: PerformanceMetric) {
   return (
@@ -31,7 +32,33 @@ function ProgressBar({ label, value, color }: PerformanceMetric) {
   );
 }
 
-const PerformanceSnapshot: React.FC = () => {
+const PerformanceSnapshot: React.FC<PerformanceSnapshotProps> = ({ customers = [], healthScore }) => {
+  const metrics: PerformanceMetric[] = React.useMemo(() => {
+    if (customers.length === 0) return [];
+
+    // Pipeline Health = Health Score (or 100 if missing)
+    const pipelineHealth = healthScore ? healthScore.score : 100;
+
+    // Active Engagement = % of customers with sales this month
+    const activeCount = customers.filter(c => c.salesThisMonth > 0).length;
+    const activeEngagement = Math.round((activeCount / customers.length) * 100);
+
+    // Outstanding Balance Health = % of customers with 0 outstanding balance
+    const cleanBalanceCount = customers.filter(c => c.outstandingBalance === 0).length;
+    const balanceHealth = Math.round((cleanBalanceCount / customers.length) * 100);
+
+    // Customer Retention = % of customers active in last 90 days
+    const retainedCount = customers.filter(c => c.daysSinceLastOrder <= 90).length;
+    const retention = Math.round((retainedCount / customers.length) * 100);
+
+    return [
+      { label: 'Overall Health', value: pipelineHealth, color: 'bg-indigo-600' },
+      { label: 'Active Engagement', value: activeEngagement, color: 'bg-orange-500' },
+      { label: 'Balance Health', value: balanceHealth, color: 'bg-blue-500' },
+      { label: '90-Day Retention', value: retention, color: 'bg-purple-600' },
+    ];
+  }, [customers, healthScore]);
+
   return (
     <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
       <h3 className="text-lg font-bold text-slate-900 mb-6 flex items-center gap-2">
