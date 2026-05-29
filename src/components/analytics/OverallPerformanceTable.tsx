@@ -10,35 +10,15 @@ const TrendIndicator: React.FC<{change: number}> = ({ change }) => {
     return <span className="text-gray-500">-</span>;
 };
 
-const OverallPerformanceTable: React.FC = () => {
-    const { getAllSales, analyticsFilters } = useApp();
-    const [allSales, setAllSales] = useState<Sale[]>([]);
-    const [loading, setLoading] = useState(true);
+interface OverallPerformanceTableProps {
+    sales: Sale[];
+    loading?: boolean;
+}
 
-    useEffect(() => {
-        const fetchData = async () => {
-            setLoading(true);
-            const salesData = await getAllSales();
-            setAllSales(salesData);
-            setLoading(false);
-        };
-        fetchData();
-    }, [getAllSales]);
-
+const OverallPerformanceTable: React.FC<OverallPerformanceTableProps> = ({ sales, loading }) => {
     const performanceData = useMemo(() => {
-        const { start, end } = analyticsFilters.dateRange;
-        const startDate = new Date(start);
-        startDate.setHours(0, 0, 0, 0);
-        const endDate = new Date(end);
-        endDate.setHours(23, 59, 59, 999);
-
-        const salesInRange = allSales.filter(s => {
-            const saleDate = new Date(s.date);
-            return saleDate >= startDate && saleDate <= endDate;
-        });
-
         const monthlyData: { [key: string]: { sales: number; orders: number } } = {};
-        salesInRange.forEach(sale => {
+        sales.forEach(sale => {
             const monthYear = new Date(sale.date).toLocaleString('default', { month: 'short', year: '2-digit' });
             if (!monthlyData[monthYear]) {
                 monthlyData[monthYear] = { sales: 0, orders: 0 };
@@ -58,7 +38,7 @@ const OverallPerformanceTable: React.FC = () => {
         });
 
         return tableData.reverse();
-    }, [allSales, analyticsFilters.dateRange]);
+    }, [sales]);
     
     if (loading) {
         return <div className="h-[400px]">

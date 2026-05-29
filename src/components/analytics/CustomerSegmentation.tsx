@@ -3,18 +3,14 @@ import { useApp } from '../../contexts/AppContext';
 import { Sale } from '../../types';
 import { segmentCustomers, CustomerSegment } from '../../utils/segmentation';
 
-const CustomerSegmentation: React.FC = () => {
-    const { customers, getAllSales } = useApp();
-    const [sales, setSales] = React.useState<Sale[]>([]);
-    const [selectedSegment, setSelectedSegment] = useState<string | null>(null);
+interface CustomerSegmentationProps {
+    sales: Sale[];
+    loading?: boolean;
+}
 
-    React.useEffect(() => {
-        const fetchSales = async () => {
-            const data = await getAllSales();
-            setSales(data);
-        };
-        fetchSales();
-    }, [getAllSales]);
+const CustomerSegmentation: React.FC<CustomerSegmentationProps> = ({ sales, loading }) => {
+    const { customers } = useApp();
+    const [selectedSegment, setSelectedSegment] = useState<string | null>(null);
 
     const segments = useMemo(() => {
         return segmentCustomers(customers, sales);

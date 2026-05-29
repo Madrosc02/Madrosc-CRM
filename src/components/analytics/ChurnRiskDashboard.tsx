@@ -1,20 +1,16 @@
 import React, { useMemo, useState } from 'react';
 import { useApp } from '../../contexts/AppContext';
 import { analyzeChurnRisks, ChurnRiskData } from '../../utils/churnPrediction';
-import { Customer } from '../../types';
+import { Customer, Sale } from '../../types';
 
-const ChurnRiskDashboard: React.FC = () => {
-    const { customers, getAllSales, remarks } = useApp();
-    const [sales, setSales] = React.useState<any[]>([]);
+interface ChurnRiskDashboardProps {
+    sales: Sale[];
+    loading?: boolean;
+}
+
+const ChurnRiskDashboard: React.FC<ChurnRiskDashboardProps> = ({ sales, loading }) => {
+    const { customers, remarks } = useApp();
     const [showAll, setShowAll] = useState(false);
-
-    React.useEffect(() => {
-        const fetchData = async () => {
-            const s = await getAllSales();
-            setSales(s);
-        };
-        fetchData();
-    }, [getAllSales]);
 
     const riskData = useMemo(() => {
         if (!customers || !sales || !remarks) return [];

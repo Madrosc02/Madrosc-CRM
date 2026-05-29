@@ -116,18 +116,18 @@ const AnalyticsPage: React.FC = () => {
                         {activeTab === 'customers' && (
                             <FadeIn className="space-y-6">
                                 <div className="card-base p-6">
-                                    <CustomerSegmentation />
+                                    <CustomerSegmentation sales={analyticsData.filteredSales} />
                                 </div>
                                 <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
                                     <div className="card-base p-6">
-                                        <ChurnRiskDashboard />
+                                        <ChurnRiskDashboard sales={analyticsData.filteredSales} />
                                     </div>
                                     <div className="card-base p-6">
                                         <TierDistributionChart />
                                     </div>
                                 </div>
                                 <div className="card-base p-6">
-                                    <CohortAnalysis />
+                                    <CohortAnalysis sales={analyticsData.allSales} />
                                 </div>
                             </FadeIn>
                         )}
@@ -144,7 +144,7 @@ const AnalyticsPage: React.FC = () => {
                                     </div>
                                 </div>
                                 <div className="card-base p-6">
-                                    <OverallPerformanceTable />
+                                    <OverallPerformanceTable sales={analyticsData.allSales} />
                                 </div>
                             </FadeIn>
                         )}

@@ -10,25 +10,15 @@ interface CohortData {
     revenue: number[]; // [Month 0 $, Month 1 $, ...]
 }
 
-const CohortAnalysis: React.FC = () => {
-    const { getAllSales } = useApp();
-    const [sales, setSales] = useState<Sale[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [mode, setMode] = useState<'retention' | 'revenue'>('retention');
+interface CohortAnalysisProps {
+    sales: Sale[];
+    loading?: boolean;
+}
 
-    useEffect(() => {
-        const loadSales = async () => {
-            try {
-                const data = await getAllSales();
-                setSales(data);
-            } catch (error) {
-                console.error("Failed to load sales for cohort analysis", error);
-            } finally {
-                setLoading(false);
-            }
-        };
-        loadSales();
-    }, [getAllSales]);
+const CohortAnalysis: React.FC<CohortAnalysisProps> = ({ sales, loading: externalLoading }) => {
+    const { getAllSales } = useApp();
+    const [loading, setLoading] = useState(false);
+    const [mode, setMode] = useState<'retention' | 'revenue'>('retention');
 
     const cohorts = useMemo(() => {
         if (sales.length === 0) return [];
@@ -121,7 +111,7 @@ const CohortAnalysis: React.FC = () => {
             .range(["#ffffff", "#10b981"]); // White to Emerald
     }, [cohorts]);
 
-    if (loading) return <div className="h-64 flex items-center justify-center">Loading analysis...</div>;
+    if (loading || externalLoading) return <div className="h-64 flex items-center justify-center">Loading analysis...</div>;
     if (cohorts.length === 0) return null;
 
     return (
