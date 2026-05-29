@@ -23,9 +23,11 @@ import CohortAnalysis from './CohortAnalysis';
 import AnalyticsTabs from './AnalyticsTabs';
 import PerformanceSnapshot from './PerformanceSnapshot';
 import RevenueChart from './RevenueChart';
+import { useAnalyticsData } from '../../hooks/useAnalyticsData';
 
 const AnalyticsPage: React.FC = () => {
     const { loading, analyticsFilters, customers } = useApp();
+    const analyticsData = useAnalyticsData();
     const [activeTab, setActiveTab] = useState('overview');
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
@@ -75,13 +77,13 @@ const AnalyticsPage: React.FC = () => {
                                 <KPIRow />
                                 <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
                                     <div>
-                                        <RevenueChart />
+                                        <RevenueChart data={analyticsData.revenueOverview} />
                                     </div>
                                     <div>
-                                        <ExecutiveSummary />
+                                        <ExecutiveSummary data={analyticsData.healthScore} />
                                     </div>
                                 </div>
-                                <ActionableInsights />
+                                <ActionableInsights data={analyticsData.actionableInsights} />
                             </FadeIn>
                         )}
 

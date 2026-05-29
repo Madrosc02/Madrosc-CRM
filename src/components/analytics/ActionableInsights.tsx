@@ -1,59 +1,22 @@
 import { ChevronDown, TrendingUp, AlertTriangle, Clock, AlertCircle } from 'lucide-react';
 import React, { useState } from 'react';
+import { InsightCategoryData, InsightItem } from '../../hooks/useAnalyticsData';
 
-interface InsightItem {
-  id: string;
-  name: string;
-  location: string;
-  metric: string;
-}
-
-const insights = [
-  {
-    id: '1',
-    category: 'Engagement Opportunities',
-    icon: TrendingUp,
-    count: 8,
-    items: [
-      { id: 'a', name: '55ky Healthtech Nashik', location: 'Unknown', metric: 'Avg. ₹0' },
-      { id: 'b', name: 'Aadinath Agency Surat', location: 'Unknown', metric: 'Avg. ₹0' },
-      { id: 'c', name: 'Aakash Medical', location: 'Pune, MH', metric: 'Avg. ₹340' },
-    ],
-  },
-  {
-    category: 'No Sales This Month',
-    icon: AlertTriangle,
-    count: 136,
-    badgeColor: 'bg-orange-100 text-orange-700',
-  },
-  {
-    category: 'Sales Below Average',
-    icon: AlertTriangle,
-    count: 1,
-    badgeColor: 'bg-orange-100 text-orange-700',
-  },
-  {
-    category: 'Inactive (60+ Days)',
-    icon: Clock,
-    count: 0,
-    badgeColor: 'bg-slate-100 text-slate-700',
-  },
-  {
-    category: 'Potential Churn Risk',
-    icon: AlertCircle,
-    count: 6,
-    badgeColor: 'bg-purple-100 text-purple-700',
-  },
-];
+const iconMap = {
+  TrendingUp,
+  AlertTriangle,
+  Clock,
+  AlertCircle
+};
 
 interface InsightCategoryProps {
-  insight: typeof insights[0];
+  insight: InsightCategoryData;
   expanded: boolean;
   onToggle: (category: string) => void;
 }
 
 function InsightCategory({ insight, expanded, onToggle }: InsightCategoryProps) {
-  const Icon = insight.icon;
+  const Icon = iconMap[insight.iconType];
 
   return (
     <div key={insight.category} className="border-b border-slate-200 last:border-b-0">
@@ -62,7 +25,7 @@ function InsightCategory({ insight, expanded, onToggle }: InsightCategoryProps) 
         className="w-full px-6 py-4 flex items-center justify-between hover:bg-slate-50 transition-colors"
       >
         <div className="flex items-center gap-3">
-          <Icon className="w-5 h-5 text-slate-600" />
+          {Icon && <Icon className="w-5 h-5 text-slate-600" />}
           <span className="font-semibold text-slate-900">{insight.category}</span>
           <span className={`px-2 py-1 text-xs font-bold rounded-full ${insight.badgeColor || 'bg-blue-100 text-blue-700'}`}>
             {insight.count}
@@ -75,7 +38,7 @@ function InsightCategory({ insight, expanded, onToggle }: InsightCategoryProps) 
         />
       </button>
 
-      {expanded && insight.items && (
+      {expanded && insight.items && insight.items.length > 0 ? (
         <div className="bg-slate-50 px-6 py-4 space-y-3">
           {insight.items.map((item: InsightItem) => (
             <div key={item.id} className="flex items-center justify-between">
@@ -87,12 +50,20 @@ function InsightCategory({ insight, expanded, onToggle }: InsightCategoryProps) 
             </div>
           ))}
         </div>
+      ) : expanded && (
+         <div className="bg-slate-50 px-6 py-4">
+           <p className="text-sm text-slate-500 italic">No customers match this criteria.</p>
+         </div>
       )}
     </div>
   );
 }
 
-const ActionableInsights: React.FC = () => {
+interface ActionableInsightsProps {
+  data: InsightCategoryData[];
+}
+
+const ActionableInsights: React.FC<ActionableInsightsProps> = ({ data }) => {
   const [expanded, setExpanded] = useState<string>('Engagement Opportunities');
 
   const toggleExpanded = (category: string) => {
@@ -104,12 +75,12 @@ const ActionableInsights: React.FC = () => {
       <div className="px-6 py-4 border-b border-slate-200">
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-bold text-slate-900">Actionable Insights</h3>
-          <span className="text-xs text-slate-500">5 categories</span>
+          <span className="text-xs text-slate-500">{data.length} categories</span>
         </div>
       </div>
 
       <div>
-        {insights.map((insight) => (
+        {data.map((insight) => (
           <InsightCategory
             key={insight.category}
             insight={insight}

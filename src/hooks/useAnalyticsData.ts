@@ -1,0 +1,222 @@
+import { useState, useEffect, useMemo } from 'react';
+import { Customer, Sale } from '../types';
+import { useApp } from '../contexts/AppContext';
+
+export interface RevenueData {
+  month: string;
+  actual: number;
+  target: number;
+}
+
+export interface InsightItem {
+  id: string;
+  name: string;
+  location: string;
+  metric: string;
+}
+
+export interface InsightCategoryData {
+  category: string;
+  iconType: 'TrendingUp' | 'AlertTriangle' | 'Clock' | 'AlertCircle';
+  count: number;
+  badgeColor?: string;
+  items?: InsightItem[];
+}
+
+export interface HealthScoreData {
+  score: number;
+  wins: string[];
+  concerns: string[];
+  actions: string[];
+}
+
+export const useAnalyticsData = () => {
+  const { customers, getAllSales, analyticsFilters } = useApp();
+  const [allSales, setAllSales] = useState<Sale[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchSales = async () => {
+      setLoading(true);
+      try {
+        const salesData = await getAllSales();
+        setAllSales(salesData);
+      } catch (error) {
+        console.error("Failed to fetch sales for analytics:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchSales();
+  }, [getAllSales]);
+
+  // Apply Analytics Date Range Filter
+  const filteredSales = useMemo(() => {
+    const { start, end } = analyticsFilters.dateRange;
+    if (!start || !end) return allSales;
+
+    const startDate = new Date(start);
+    startDate.setHours(0, 0, 0, 0);
+    const endDate = new Date(end);
+    endDate.setHours(23, 59, 59, 999);
+
+    return allSales.filter(sale => {
+      const saleDate = new Date(sale.date);
+      return saleDate >= startDate && saleDate <= endDate;
+    });
+  }, [allSales, analyticsFilters.dateRange]);
+
+  // --- REVENUE OVERVIEW (Actual vs Target) ---
+  const revenueOverview = useMemo<RevenueData[]>(() => {
+    // Generate last 6 months including current
+    const months: RevenueData[] = [];
+    const now = new Date();
+    
+    // Group sales by month-year
+    const monthlySales: Record<string, number> = {};
+    allSales.forEach(sale => {
+      const d = new Date(sale.date);
+      const key = `${d.getFullYear()}-${d.getMonth()}`;
+      monthlySales[key] = (monthlySales[key] || 0) + sale.amount;
+    });
+
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const key = `${d.getFullYear()}-${d.getMonth()}`;
+      const actual = monthlySales[key] || 0;
+      
+      // Target Logic: 10% more than previous month, or base target if no history
+      let prevMonthActual = 0;
+      if (i < 5) {
+        const prev = new Date(now.getFullYear(), now.getMonth() - i - 1, 1);
+        prevMonthActual = monthlySales[`${prev.getFullYear()}-${prev.getMonth()}`] || 0;
+      }
+      
+      const baseTarget = 2000; // Base minimal target
+      const target = prevMonthActual > 0 ? Math.round(prevMonthActual * 1.1) : baseTarget;
+
+      months.push({
+        month: d.toLocaleString('default', { month: 'short' }),
+        actual,
+        target: Math.max(target, baseTarget)
+      });
+    }
+    return months;
+  }, [allSales]);
+
+  // --- HEALTH SCORE & EXECUTIVE SUMMARY ---
+  const healthScore = useMemo<HealthScoreData>(() => {
+    let score = 100;
+    const wins: string[] = [];
+    const concerns: string[] = [];
+    const actions: string[] = [];
+
+    const activeCustomers = customers.filter(c => c.salesThisMonth > 0);
+    const activeRatio = customers.length > 0 ? activeCustomers.length / customers.length : 0;
+    
+    // Check active ratio (deduct up to 30 points)
+    if (activeRatio < 0.3) {
+      score -= 30;
+      concerns.push(`Low active customers ratio (${Math.round(activeRatio * 100)}%)`);
+      actions.push("Launch reactivation campaign");
+    } else if (activeRatio < 0.6) {
+      score -= 15;
+      concerns.push("Moderate active customer engagement");
+    } else {
+      wins.push(`Strong active customer base (${Math.round(activeRatio * 100)}%)`);
+    }
+
+    // Check outstanding balances (deduct up to 30 points)
+    const highOutstanding = customers.filter(c => c.outstandingBalance > 5000);
+    if (highOutstanding.length > customers.length * 0.2) {
+      score -= 30;
+      concerns.push("High number of clients with large outstanding balances");
+      actions.push("Focus on outstanding payments collection");
+    } else if (highOutstanding.length > 0) {
+      score -= 10;
+      actions.push(`Collect payments from ${highOutstanding.length} high-balance clients`);
+    } else {
+      wins.push("Healthy outstanding balance levels");
+    }
+
+    // Check sales growth (deduct up to 40 points)
+    // Using simple comparison of this month vs last month from revenueOverview
+    const thisMonth = revenueOverview[revenueOverview.length - 1];
+    const lastMonth = revenueOverview[revenueOverview.length - 2];
+    
+    if (thisMonth && lastMonth) {
+      if (thisMonth.actual < lastMonth.actual) {
+         score -= 40;
+         concerns.push("Sales are down compared to last month");
+         actions.push("Identify dropping accounts");
+      } else {
+         wins.push(`Sales growth maintained (+${Math.round((thisMonth.actual - lastMonth.actual)/lastMonth.actual*100 || 0)}%)`);
+      }
+    }
+
+    // Ensure score stays within 0-100
+    score = Math.max(0, Math.min(100, score));
+
+    return { score, wins, concerns, actions };
+  }, [customers, revenueOverview]);
+
+  // --- ACTIONABLE INSIGHTS ---
+  const actionableInsights = useMemo<InsightCategoryData[]>(() => {
+    // 1. Engagement Opportunities (High avg sales, no sales this month)
+    const engagementOpps = customers.filter(c => c.avg6MoSales > 1000 && c.salesThisMonth === 0);
+    
+    // 2. No Sales This Month
+    const noSales = customers.filter(c => c.salesThisMonth === 0);
+    
+    // 3. Potential Churn Risk (>60 days since last order)
+    const churnRisk = customers.filter(c => c.daysSinceLastOrder > 60);
+
+    return [
+      {
+        category: 'Engagement Opportunities',
+        iconType: 'TrendingUp',
+        count: engagementOpps.length,
+        badgeColor: 'bg-blue-100 text-blue-700',
+        items: engagementOpps.slice(0, 5).map(c => ({
+          id: c.id,
+          name: c.firmName,
+          location: `${c.district}, ${c.state}`,
+          metric: `Avg. ₹${c.avg6MoSales.toFixed(0)}`
+        }))
+      },
+      {
+        category: 'No Sales This Month',
+        iconType: 'AlertTriangle',
+        count: noSales.length,
+        badgeColor: 'bg-orange-100 text-orange-700',
+        items: noSales.slice(0, 5).map(c => ({
+            id: c.id,
+            name: c.firmName,
+            location: `${c.district}, ${c.state}`,
+            metric: `Last Order: ${c.daysSinceLastOrder} days ago`
+        }))
+      },
+      {
+        category: 'Potential Churn Risk',
+        iconType: 'AlertCircle',
+        count: churnRisk.length,
+        badgeColor: 'bg-purple-100 text-purple-700',
+        items: churnRisk.slice(0, 5).map(c => ({
+            id: c.id,
+            name: c.firmName,
+            location: `${c.district}, ${c.state}`,
+            metric: `Inactive: ${c.daysSinceLastOrder} days`
+        }))
+      }
+    ];
+  }, [customers]);
+
+  return {
+    loading,
+    allSales,
+    filteredSales,
+    revenueOverview,
+    healthScore,
+    actionableInsights
+  };
+};

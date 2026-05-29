@@ -1,11 +1,18 @@
 import React from 'react';
 import { AlertCircle, CheckCircle2, TriangleAlert, Lightbulb } from 'lucide-react';
+import { HealthScoreData } from '../../hooks/useAnalyticsData';
 
-const ExecutiveSummary: React.FC = () => {
-  const score = 35;
+interface ExecutiveSummaryProps {
+  data: HealthScoreData;
+}
+
+const ExecutiveSummary: React.FC<ExecutiveSummaryProps> = ({ data }) => {
+  const { score, wins, concerns, actions } = data;
   const maxScore = 100;
   const percentage = (score / maxScore) * 100;
   const circumference = 2 * Math.PI * 32;
+  
+  const isCritical = score < 50;
 
   return (
     <div className="bg-white rounded-[20px] border border-slate-200 p-6 shadow-sm flex flex-col h-full">
@@ -21,7 +28,7 @@ const ExecutiveSummary: React.FC = () => {
                 cy="50"
                 r="32"
                 fill="none"
-                stroke="#6366f1"
+                stroke={isCritical ? "#ef4444" : "#6366f1"}
                 strokeWidth="7"
                 strokeDasharray={circumference}
                 strokeDashoffset={circumference - (circumference * percentage) / 100}
@@ -34,20 +41,33 @@ const ExecutiveSummary: React.FC = () => {
               <p className="text-[10px] text-slate-400 font-medium mt-0.5">/100</p>
             </div>
           </div>
-          <span className="px-2.5 py-0.5 bg-indigo-50 border border-indigo-100 text-indigo-600 text-[10px] font-bold rounded-full flex items-center gap-1 shadow-sm">
-             <AlertCircle className="w-3 h-3" /> Critical
-          </span>
+          {isCritical ? (
+            <span className="px-2.5 py-0.5 bg-red-50 border border-red-100 text-red-600 text-[10px] font-bold rounded-full flex items-center gap-1 shadow-sm">
+               <AlertCircle className="w-3 h-3" /> Critical
+            </span>
+          ) : (
+             <span className="px-2.5 py-0.5 bg-indigo-50 border border-indigo-100 text-indigo-600 text-[10px] font-bold rounded-full flex items-center gap-1 shadow-sm">
+               <CheckCircle2 className="w-3 h-3" /> Healthy
+            </span>
+          )}
         </div>
 
         {/* Right: Header & Text */}
         <div className="flex-1 pt-1">
           <h3 className="text-[16px] font-bold text-slate-800 mb-2.5 tracking-tight">Executive Summary</h3>
-          <div className="inline-flex items-center gap-1.5 px-2 py-0.5 bg-indigo-50 border border-indigo-100 text-indigo-700 text-[11px] font-semibold rounded-full mb-3 shadow-sm">
-            <AlertCircle className="w-3 h-3" />
-            Needs Attention
-          </div>
+          {isCritical ? (
+            <div className="inline-flex items-center gap-1.5 px-2 py-0.5 bg-red-50 border border-red-100 text-red-700 text-[11px] font-semibold rounded-full mb-3 shadow-sm">
+              <AlertCircle className="w-3 h-3" /> Needs Attention
+            </div>
+          ) : (
+            <div className="inline-flex items-center gap-1.5 px-2 py-0.5 bg-indigo-50 border border-indigo-100 text-indigo-700 text-[11px] font-semibold rounded-full mb-3 shadow-sm">
+              <CheckCircle2 className="w-3 h-3" /> On Track
+            </div>
+          )}
           <p className="text-[13px] text-slate-500 leading-relaxed pr-4">
-            Health score is <span className="font-bold text-indigo-600">below target</span>. 3 critical items need resolution this week.
+            Health score is <span className={`font-bold ${isCritical ? 'text-red-600' : 'text-indigo-600'}`}>
+              {isCritical ? 'below target' : 'healthy'}
+            </span>. {concerns.length} critical items need resolution this week.
           </p>
         </div>
       </div>
@@ -61,12 +81,13 @@ const ExecutiveSummary: React.FC = () => {
             <span className="leading-tight">This Week's<br/>Wins</span>
           </h4>
           <ul className="text-[11.5px] text-slate-600 space-y-3 list-none pl-3 relative flex-1">
-             <li className="relative before:content-[''] before:w-1.5 before:h-1.5 before:bg-blue-400 before:rounded-full before:absolute before:-left-3 before:top-1.5">
-               Steady performance maintained
-             </li>
-             <li className="relative before:content-[''] before:w-1.5 before:h-1.5 before:bg-blue-400 before:rounded-full before:absolute before:-left-3 before:top-1.5">
-               New client onboarding <span className="font-bold text-slate-700">+12%</span>
-             </li>
+             {wins.length > 0 ? wins.map((win, idx) => (
+                <li key={idx} className="relative before:content-[''] before:w-1.5 before:h-1.5 before:bg-blue-400 before:rounded-full before:absolute before:-left-3 before:top-1.5">
+                   {win}
+                </li>
+             )) : (
+               <li className="text-slate-400 italic">No major wins this week.</li>
+             )}
           </ul>
         </div>
 
@@ -77,15 +98,13 @@ const ExecutiveSummary: React.FC = () => {
             <span className="leading-tight">Concerns</span>
           </h4>
           <ul className="text-[11.5px] text-slate-600 space-y-3 list-none pl-3 relative flex-1">
-             <li className="relative before:content-[''] before:w-1.5 before:h-1.5 before:bg-orange-400 before:rounded-full before:absolute before:-left-3 before:top-1.5">
-               High outstanding ratio (23%)
-             </li>
-             <li className="relative before:content-[''] before:w-1.5 before:h-1.5 before:bg-orange-400 before:rounded-full before:absolute before:-left-3 before:top-1.5">
-               Focus on outstanding payments
-             </li>
-             <li className="relative before:content-[''] before:w-1.5 before:h-1.5 before:bg-orange-400 before:rounded-full before:absolute before:-left-3 before:top-1.5">
-               Identify tier-upgrade clients
-             </li>
+             {concerns.length > 0 ? concerns.map((concern, idx) => (
+               <li key={idx} className="relative before:content-[''] before:w-1.5 before:h-1.5 before:bg-orange-400 before:rounded-full before:absolute before:-left-3 before:top-1.5">
+                 {concern}
+               </li>
+             )) : (
+               <li className="text-slate-400 italic">No major concerns.</li>
+             )}
           </ul>
         </div>
 
@@ -96,15 +115,13 @@ const ExecutiveSummary: React.FC = () => {
             <span className="leading-tight">Recommended<br/>Actions</span>
           </h4>
           <ul className="text-[11.5px] text-slate-600 space-y-3 list-none pl-3 relative flex-1">
-             <li className="relative before:content-[''] before:w-1.5 before:h-1.5 before:bg-indigo-400 before:rounded-full before:absolute before:-left-3 before:top-1.5">
-               Collect outstanding payments
-             </li>
-             <li className="relative before:content-[''] before:w-1.5 before:h-1.5 before:bg-indigo-400 before:rounded-full before:absolute before:-left-3 before:top-1.5">
-               Reach 8 engagement opps
-             </li>
-             <li className="relative before:content-[''] before:w-1.5 before:h-1.5 before:bg-indigo-400 before:rounded-full before:absolute before:-left-3 before:top-1.5">
-               Upgrade 3 clients to premium
-             </li>
+             {actions.length > 0 ? actions.map((action, idx) => (
+                <li key={idx} className="relative before:content-[''] before:w-1.5 before:h-1.5 before:bg-indigo-400 before:rounded-full before:absolute before:-left-3 before:top-1.5">
+                  {action}
+                </li>
+             )) : (
+               <li className="text-slate-400 italic">Keep up the good work!</li>
+             )}
           </ul>
         </div>
       </div>

@@ -10,24 +10,19 @@ import {
   ResponsiveContainer,
   ReferenceLine,
 } from 'recharts';
+import { RevenueData } from '../../hooks/useAnalyticsData';
 
-const data = [
-  { month: 'Nov', actual: 1900, target: 2000 },
-  { month: 'Dec', actual: 1500, target: 2000 },
-  { month: 'Jan', actual: 1800, target: 2000 },
-  { month: 'Feb', actual: 1200, target: 2000 },
-  { month: 'Mar', actual: 2200, target: 2000 },
-  { month: 'Apr', actual: 2500, target: 2000 },
-  { month: 'May', actual: 2600, target: 2000 },
-];
+interface RevenueChartProps {
+  data: RevenueData[];
+}
 
-const RevenueChart: React.FC = () => {
+const RevenueChart: React.FC<RevenueChartProps> = ({ data }) => {
   return (
     <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h3 className="text-lg font-bold text-slate-900">Revenue Overview</h3>
-          <p className="text-sm text-slate-500">Actual vs target (₹) — Nov to May</p>
+          <p className="text-sm text-slate-500">Actual vs target (₹) — Last 6 months</p>
         </div>
         <div className="flex gap-2">
           <Button
@@ -75,7 +70,7 @@ const RevenueChart: React.FC = () => {
             y={2000}
             stroke="#cbd5e1"
             strokeDasharray="5 5"
-            label={{ value: 'Target', position: 'left', fill: '#64748b', offset: 10 }}
+            label={{ value: 'Base Target', position: 'left', fill: '#64748b', offset: 10 }}
           />
           <Line
             type="monotone"
