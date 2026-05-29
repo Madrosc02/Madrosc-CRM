@@ -42,18 +42,18 @@ const AnalyticsPage: React.FC = () => {
             {/* Main Content Area (Left) */}
             <div className="flex-1 w-full space-y-6 overflow-hidden min-w-0 transition-all duration-300">
                 {/* Header Row */}
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-4">
-                        <h1 className="text-2xl font-bold text-slate-800 dark:text-white tracking-tight">Analytics Hub</h1>
+                        <h1 className="text-3xl font-bold text-slate-900 tracking-tight whitespace-nowrap">Analytics Hub</h1>
                         <button 
                             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                            className="p-2 rounded-xl bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors"
+                            className="w-8 h-8 flex items-center justify-center rounded-xl bg-white border border-slate-200 text-slate-500 hover:text-indigo-600 hover:bg-slate-50 transition-colors shadow-sm"
                             title={isSidebarOpen ? "Hide Insights" : "Show Insights"}
                         >
-                            <i className={`fas fa-${isSidebarOpen ? 'angle-double-right' : 'lightbulb'}`}></i>
+                            <i className={`fas fa-${isSidebarOpen ? 'angle-double-right' : 'lightbulb'} text-xs`}></i>
                         </button>
                     </div>
-                    <div className="w-full md:w-auto">
+                    <div className="flex-shrink-0">
                         <AnalyticsFilters />
                     </div>
                 </div>

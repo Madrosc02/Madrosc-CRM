@@ -21,55 +21,52 @@ const AnalyticsFilters: React.FC = () => {
     };
 
     return (
-        <div className="flex flex-wrap items-center gap-3">
-            <div className="flex items-center gap-2">
-                <label htmlFor="start" className="text-sm font-medium">From:</label>
+        <div className="flex items-center gap-3 whitespace-nowrap">
+            {/* From Date */}
+            <div className="flex items-center bg-white border border-slate-200 rounded-xl px-3 py-2 focus-within:ring-2 ring-indigo-100 transition-shadow">
+                <i className="far fa-calendar text-indigo-400 mr-2 text-[13px]"></i>
+                <label htmlFor="start" className="text-[13px] font-medium text-slate-500 mr-1.5">From:</label>
                 <input
                     type="date"
                     id="start"
                     name="start"
                     value={analyticsFilters.dateRange.start}
                     onChange={handleDateChange}
-                    className="input-style"
+                    className="text-[13px] font-bold text-slate-700 bg-transparent outline-none cursor-pointer [&::-webkit-calendar-picker-indicator]:hidden"
                 />
             </div>
-            <div className="flex items-center gap-2">
-                 <label htmlFor="end" className="text-sm font-medium">To:</label>
+
+            {/* To Date */}
+            <div className="flex items-center bg-white border border-slate-200 rounded-xl px-3 py-2 focus-within:ring-2 ring-indigo-100 transition-shadow">
+                <i className="far fa-calendar text-indigo-400 mr-2 text-[13px]"></i>
+                <label htmlFor="end" className="text-[13px] font-medium text-slate-500 mr-1.5">To:</label>
                 <input
                     type="date"
                     id="end"
                     name="end"
                     value={analyticsFilters.dateRange.end}
                     onChange={handleDateChange}
-                    className="input-style"
+                    className="text-[13px] font-bold text-slate-700 bg-transparent outline-none cursor-pointer [&::-webkit-calendar-picker-indicator]:hidden"
                 />
             </div>
-             <div className="flex items-center gap-2 flex-grow">
-                 <label htmlFor="customer" className="text-sm font-medium">Client:</label>
+
+            {/* Client Select */}
+            <div className="flex items-center bg-white border border-slate-200 rounded-xl px-3 py-2 focus-within:ring-2 ring-indigo-100 transition-shadow">
+                <label htmlFor="customer" className="text-[13px] font-medium text-slate-500 mr-1.5">Client:</label>
                 <select
                     id="customer"
                     name="customer"
                     value={analyticsFilters.selectedCustomer}
                     onChange={handleCustomerChange}
-                    className="input-style w-full max-w-xs"
+                    className="text-[13px] font-bold text-slate-700 bg-transparent outline-none cursor-pointer appearance-none pr-5 relative z-10"
                 >
                     <option value="all">All Customers</option>
                     {customers.sort((a,b) => a.name.localeCompare(b.name)).map(c => (
                         <option key={c.id} value={c.id}>{c.name}</option>
                     ))}
                 </select>
+                <i className="fas fa-chevron-down text-[10px] text-slate-400 -ml-4 z-0"></i>
             </div>
-             <style>{`
-                .input-style { 
-                  display: block; width: 100%; padding: 0.5rem 0.75rem; border-radius: 0.375rem;
-                  background-color: var(--card-bg-light); border: 1px solid var(--border-light);
-                  color: var(--text-primary-light);
-                  transition: border-color 0.2s, box-shadow 0.2s;
-                }
-                .dark .input-style { background-color: var(--card-bg-dark); border-color: var(--border-dark); color: var(--text-primary-dark); }
-                .input-style:focus { outline: none; border-color: var(--primary-light); box-shadow: 0 0 0 2px var(--primary-light, #0d6efd)30; }
-                .dark .input-style:focus { border-color: var(--primary-dark); box-shadow: 0 0 0 2px var(--primary-dark, #2f81f7)30; }
-            `}</style>
         </div>
     );
 };
