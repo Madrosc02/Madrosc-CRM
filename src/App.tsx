@@ -7,7 +7,9 @@ import { useApp } from './contexts/AppContext';
 import Spinner from './components/ui/Spinner';
 
 // Lazy load main pages
-const AnalyticsPage = React.lazy(() => import('./app/analytics/page'));
+const Dashboard = React.lazy(() => import('./components/Dashboard'));
+const AnalyticsPage = React.lazy(() => import('./components/analytics/AnalyticsPage'));
+const SalesRevenuePage = React.lazy(() => import('./app/analytics/page'));
 const ClientsPage = React.lazy(() => import('./components/ClientsPage'));
 const ReportsPage = React.lazy(() => import('./components/ReportsPage'));
 const SettingsPage = React.lazy(() => import('./components/SettingsPage'));
@@ -50,10 +52,11 @@ const AuthenticatedApp: React.FC = () => {
 
     return (
         <Layout>
-            <Suspense fallback={<div className="flex h-full items-center justify-center"><Spinner size="lg" /></div>}>
+            <Suspense fallback={<div className="flex h-full items-center justify-center"><Spinner className="w-8 h-8" /></div>}>
                 <Routes>
-                    <Route path="/" element={<Navigate to="/analytics" replace />} />
+                    <Route path="/" element={<Dashboard />} />
                     <Route path="/analytics" element={<AnalyticsPage />} />
+                    <Route path="/sales-revenue" element={<SalesRevenuePage />} />
                     <Route path="/call-mode" element={<CallMode />} />
                     <Route path="/clients" element={<ClientsPage />} />
                     <Route path="/reports" element={<ReportsPage />} />

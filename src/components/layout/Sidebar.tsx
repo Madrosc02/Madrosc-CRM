@@ -2,7 +2,7 @@ import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
-import { Phone, BarChart3, Users, FileText, Settings, Moon, Sun, LogOut } from 'lucide-react';
+import { Phone, BarChart3, Users, FileText, Settings, Moon, Sun, LogOut, TrendingUp } from 'lucide-react';
 import { cn } from '../../utils';
 
 const Sidebar: React.FC = () => {
@@ -18,6 +18,7 @@ const Sidebar: React.FC = () => {
     const navItems = [
         { path: '/', label: 'Dashboard', icon: BarChart3 },
         { path: '/analytics', label: 'Analytics', icon: BarChart3 },
+        { path: '/sales-revenue', label: 'Sales & Revenue', icon: TrendingUp },
         { path: '/call-mode', label: 'Call Mode', icon: Phone },
         { path: '/clients', label: 'Clients', icon: Users },
         { path: '/reports', label: 'Reports', icon: FileText },
@@ -102,3 +103,4 @@ const Sidebar: React.FC = () => {
 };
 
 export default Sidebar;
+
