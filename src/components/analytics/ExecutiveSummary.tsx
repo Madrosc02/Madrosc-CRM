@@ -1,6 +1,8 @@
 import React from 'react';
 import { AlertCircle, CheckCircle2, TriangleAlert, Lightbulb } from 'lucide-react';
-import { HealthScoreData } from '../../hooks/useAnalyticsData';
+import { HealthScoreData, HealthAction } from '../../hooks/useAnalyticsData';
+import { useNavigate } from 'react-router-dom';
+import { useApp } from '../../contexts/AppContext';
 
 interface ExecutiveSummaryProps {
   data: HealthScoreData;
@@ -8,11 +10,23 @@ interface ExecutiveSummaryProps {
 
 const ExecutiveSummary: React.FC<ExecutiveSummaryProps> = ({ data }) => {
   const { score, wins, concerns, actions } = data;
+  const navigate = useNavigate();
+  const { setKpiFilter } = useApp();
+  
   const maxScore = 100;
   const percentage = (score / maxScore) * 100;
   const circumference = 2 * Math.PI * 32;
   
   const isCritical = score < 50;
+  
+  const handleActionClick = (action: HealthAction) => {
+    if (action.type === 'collection') {
+      setKpiFilter('high_balance');
+    } else if (action.type === 'churn' || action.type === 'campaign') {
+      setKpiFilter('churn_risk');
+    }
+    navigate('/clients');
+  };
 
   return (
     <div className="bg-white rounded-[20px] border border-slate-200 p-6 shadow-sm flex flex-col h-full">
@@ -59,15 +73,19 @@ const ExecutiveSummary: React.FC<ExecutiveSummaryProps> = ({ data }) => {
             <div className="inline-flex items-center gap-1.5 px-2 py-0.5 bg-red-50 border border-red-100 text-red-700 text-[11px] font-semibold rounded-full mb-3 shadow-sm">
               <AlertCircle className="w-3 h-3" /> Needs Attention
             </div>
+          ) : concerns.length > 0 ? (
+            <div className="inline-flex items-center gap-1.5 px-2 py-0.5 bg-orange-50 border border-orange-100 text-orange-700 text-[11px] font-semibold rounded-full mb-3 shadow-sm">
+              <TriangleAlert className="w-3 h-3" /> Fair
+            </div>
           ) : (
             <div className="inline-flex items-center gap-1.5 px-2 py-0.5 bg-indigo-50 border border-indigo-100 text-indigo-700 text-[11px] font-semibold rounded-full mb-3 shadow-sm">
               <CheckCircle2 className="w-3 h-3" /> On Track
             </div>
           )}
           <p className="text-[13px] text-slate-500 leading-relaxed pr-4">
-            Health score is <span className={`font-bold ${isCritical ? 'text-red-600' : 'text-indigo-600'}`}>
-              {isCritical ? 'below target' : 'healthy'}
-            </span>. {concerns.length} critical items need resolution this week.
+            Health score is <span className={`font-bold ${isCritical ? 'text-red-600' : concerns.length > 0 ? 'text-orange-600' : 'text-indigo-600'}`}>
+              {isCritical ? 'below target' : concerns.length > 0 ? 'fair' : 'healthy'}
+            </span>. {concerns.length} {concerns.length === 1 ? 'concern needs' : 'concerns need'} resolution this week.
           </p>
         </div>
       </div>
@@ -117,7 +135,12 @@ const ExecutiveSummary: React.FC<ExecutiveSummaryProps> = ({ data }) => {
           <ul className="text-[11.5px] text-slate-600 space-y-3 list-none pl-3 relative flex-1">
              {actions.length > 0 ? actions.map((action, idx) => (
                 <li key={idx} className="relative before:content-[''] before:w-1.5 before:h-1.5 before:bg-indigo-400 before:rounded-full before:absolute before:-left-3 before:top-1.5">
-                  {action}
+                  <button 
+                    onClick={() => handleActionClick(action)}
+                    className="text-left hover:text-indigo-600 hover:underline transition-colors focus:outline-none"
+                  >
+                    {action.label}
+                  </button>
                 </li>
              )) : (
                <li className="text-slate-400 italic">Keep up the good work!</li>

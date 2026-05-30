@@ -24,11 +24,16 @@ export interface InsightCategoryData {
   items?: InsightItem[];
 }
 
+export interface HealthAction {
+  label: string;
+  type: string;
+}
+
 export interface HealthScoreData {
   score: number;
   wins: string[];
   concerns: string[];
-  actions: string[];
+  actions: HealthAction[];
 }
 
 export const useAnalyticsData = () => {
@@ -110,7 +115,7 @@ export const useAnalyticsData = () => {
     let score = 100;
     const wins: string[] = [];
     const concerns: string[] = [];
-    const actions: string[] = [];
+    const actions: HealthAction[] = [];
 
     const activeCustomers = customers.filter(c => c.salesThisMonth > 0);
     const activeRatio = customers.length > 0 ? activeCustomers.length / customers.length : 0;
@@ -119,7 +124,7 @@ export const useAnalyticsData = () => {
     if (activeRatio < 0.3) {
       score -= 30;
       concerns.push(`Low active customers ratio (${Math.round(activeRatio * 100)}%)`);
-      actions.push("Launch reactivation campaign");
+      actions.push({ label: "Launch reactivation campaign", type: "campaign" });
     } else if (activeRatio < 0.6) {
       score -= 15;
       concerns.push("Moderate active customer engagement");
@@ -132,10 +137,10 @@ export const useAnalyticsData = () => {
     if (highOutstanding.length > customers.length * 0.2) {
       score -= 30;
       concerns.push("High number of clients with large outstanding balances");
-      actions.push("Focus on outstanding payments collection");
+      actions.push({ label: "Focus on outstanding payments collection", type: "collection" });
     } else if (highOutstanding.length > 0) {
       score -= 10;
-      actions.push(`Collect payments from ${highOutstanding.length} high-balance clients`);
+      actions.push({ label: `Collect payments from ${highOutstanding.length} high-balance clients`, type: "collection" });
     } else {
       wins.push("Healthy outstanding balance levels");
     }
@@ -149,9 +154,15 @@ export const useAnalyticsData = () => {
       if (thisMonth.actual < lastMonth.actual) {
          score -= 40;
          concerns.push("Sales are down compared to last month");
-         actions.push("Identify dropping accounts");
-      } else {
-         wins.push(`Sales growth maintained (+${Math.round((thisMonth.actual - lastMonth.actual)/lastMonth.actual*100 || 0)}%)`);
+         actions.push({ label: "Identify dropping accounts", type: "churn" });
+      } else if (thisMonth.actual > lastMonth.actual) {
+         let percentageStr = "N/A";
+         if (lastMonth.actual > 0) {
+            percentageStr = `+${Math.round((thisMonth.actual - lastMonth.actual)/lastMonth.actual*100)}%`;
+         } else {
+            percentageStr = "+100%"; // Avoid Infinity%
+         }
+         wins.push(`Sales growth maintained (${percentageStr})`);
       }
     }
 

@@ -66,12 +66,7 @@ const RevenueChart: React.FC<RevenueChartProps> = ({ data }) => {
               color: '#fff',
             }}
           />
-          <ReferenceLine
-            y={2000}
-            stroke="#cbd5e1"
-            strokeDasharray="5 5"
-            label={{ value: 'Base Target', position: 'left', fill: '#64748b', offset: 10 }}
-          />
+
           <Line
             type="monotone"
             dataKey="actual"
