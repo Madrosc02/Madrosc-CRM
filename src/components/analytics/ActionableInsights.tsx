@@ -15,7 +15,7 @@ interface InsightCategoryProps {
   onToggle: (category: string) => void;
 }
 
-function InsightCategory({ insight, expanded, onToggle }: InsightCategoryProps) {
+function InsightCategory({ insight, expanded, onToggle, openDetailModal }: InsightCategoryProps & { openDetailModal: (customer: any) => void }) {
   const Icon = iconMap[insight.iconType];
 
   return (
@@ -41,14 +41,32 @@ function InsightCategory({ insight, expanded, onToggle }: InsightCategoryProps) 
       {expanded && insight.items && insight.items.length > 0 ? (
         <div className="bg-slate-50 px-6 py-4 space-y-3">
           {insight.items.map((item: InsightItem) => (
-            <div key={item.id} className="flex items-center justify-between">
+            <div key={item.id} className="flex items-center justify-between bg-white p-3 rounded-xl shadow-sm border border-slate-100">
               <div>
-                <p className="text-sm font-medium text-slate-900">{item.name}</p>
-                <p className="text-xs text-slate-500">{item.location}</p>
+                <p className="text-sm font-semibold text-slate-900">{item.name}</p>
+                <p className="text-xs text-slate-500 flex items-center gap-1 mt-1">
+                  <i className="fas fa-map-marker-alt text-slate-400"></i> {item.location}
+                </p>
               </div>
-              <p className="text-sm font-semibold text-slate-900">{item.metric}</p>
+              <div className="flex items-center gap-4">
+                <span className="text-[13px] font-semibold text-indigo-600 bg-indigo-50 px-2 py-1 rounded-md">{item.metric}</span>
+                <button 
+                  onClick={() => item.customer && openDetailModal(item.customer)}
+                  className="text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 w-8 h-8 flex items-center justify-center rounded-lg transition-colors"
+                  title="View Client Profile"
+                >
+                  <i className="fas fa-arrow-right"></i>
+                </button>
+              </div>
             </div>
           ))}
+          {insight.count > 5 && (
+            <div className="text-center mt-2">
+              <button className="text-xs font-semibold text-indigo-600 hover:text-indigo-700 transition-colors">
+                View all {insight.count} customers
+              </button>
+            </div>
+          )}
         </div>
       ) : expanded && (
          <div className="bg-slate-50 px-6 py-4">
@@ -59,12 +77,15 @@ function InsightCategory({ insight, expanded, onToggle }: InsightCategoryProps) 
   );
 }
 
+import { useApp } from '../../contexts/AppContext';
+
 interface ActionableInsightsProps {
   data: InsightCategoryData[];
 }
 
 const ActionableInsights: React.FC<ActionableInsightsProps> = ({ data }) => {
   const [expanded, setExpanded] = useState<string>('Engagement Opportunities');
+  const { openDetailModal } = useApp();
 
   const toggleExpanded = (category: string) => {
     setExpanded(expanded === category ? '' : category);
@@ -86,6 +107,7 @@ const ActionableInsights: React.FC<ActionableInsightsProps> = ({ data }) => {
             insight={insight}
             expanded={expanded === insight.category}
             onToggle={toggleExpanded}
+            openDetailModal={openDetailModal}
           />
         ))}
       </div>

@@ -13,6 +13,7 @@ export interface InsightItem {
   name: string;
   location: string;
   metric: string;
+  customer?: Customer;
 }
 
 export interface InsightCategoryData {
@@ -181,7 +182,8 @@ export const useAnalyticsData = () => {
           id: c.id,
           name: c.firmName,
           location: `${c.district}, ${c.state}`,
-          metric: `Avg. ₹${c.avg6MoSales.toFixed(0)}`
+          metric: `Avg. ₹${c.avg6MoSales.toFixed(0)}`,
+          customer: c
         }))
       },
       {
@@ -193,7 +195,8 @@ export const useAnalyticsData = () => {
             id: c.id,
             name: c.firmName,
             location: `${c.district}, ${c.state}`,
-            metric: `Last Order: ${c.daysSinceLastOrder} days ago`
+            metric: `Last Order: ${c.daysSinceLastOrder} days ago`,
+            customer: c
         }))
       },
       {
@@ -205,7 +208,8 @@ export const useAnalyticsData = () => {
             id: c.id,
             name: c.firmName,
             location: `${c.district}, ${c.state}`,
-            metric: `Inactive: ${c.daysSinceLastOrder} days`
+            metric: `Inactive: ${c.daysSinceLastOrder} days`,
+            customer: c
         }))
       }
     ];
