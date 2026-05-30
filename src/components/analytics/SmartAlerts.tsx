@@ -1,26 +1,25 @@
 import React, { useState } from 'react';
 import { InsightCategoryData } from '../../hooks/useAnalyticsData';
 import { useApp } from '../../contexts/AppContext';
-import { useNavigate } from 'react-router-dom';
+import UpcomingTasks from '../UpcomingTasks';
 
 interface SmartAlertsProps {
   insights?: InsightCategoryData[];
 }
 
 export const SmartAlerts: React.FC<SmartAlertsProps> = ({ insights = [] }) => {
-  const { openAddCustomerModal, setKpiFilter } = useApp();
-  const navigate = useNavigate();
+  const { openAddCustomerModal } = useApp();
   
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedInsight, setGeneratedInsight] = useState<string | null>(null);
+  const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
 
   // Try to use dynamic data for the counts if available, otherwise fallback to original static numbers
   const overdueCount = insights.find(i => i.category === 'Potential Churn Risk')?.count || 2;
   const newCustomerCount = insights.find(i => i.category === 'Engagement Opportunities')?.count || 134;
 
   const handleViewTasks = () => {
-    setKpiFilter('pending');
-    navigate('/clients');
+    setIsTaskModalOpen(true);
   };
 
   const handleGenerateInsights = () => {
@@ -148,6 +147,23 @@ export const SmartAlerts: React.FC<SmartAlertsProps> = ({ insights = [] }) => {
           )}
         </div>
       </div>
+
+      {/* Task Modal */}
+      {isTaskModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl w-full max-w-md overflow-hidden relative border border-slate-200 dark:border-slate-700">
+            <button 
+              onClick={() => setIsTaskModalOpen(false)}
+              className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors z-10 w-8 h-8 flex items-center justify-center bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 rounded-full"
+            >
+              <i className="fas fa-times"></i>
+            </button>
+            <div className="h-[500px]">
+              <UpcomingTasks />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
