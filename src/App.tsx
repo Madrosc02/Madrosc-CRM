@@ -7,7 +7,7 @@ import { useApp } from './contexts/AppContext';
 import Spinner from './components/ui/Spinner';
 
 // Lazy load main pages
-const AnalyticsPage = React.lazy(() => import('./components/analytics/AnalyticsPage'));
+const AnalyticsPage = React.lazy(() => import('./app/analytics/page'));
 const ClientsPage = React.lazy(() => import('./components/ClientsPage'));
 const ReportsPage = React.lazy(() => import('./components/ReportsPage'));
 const SettingsPage = React.lazy(() => import('./components/SettingsPage'));
