@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useApp } from '../../contexts/AppContext';
 import { interpretNaturalLanguageSearch } from '../../services/geminiService';

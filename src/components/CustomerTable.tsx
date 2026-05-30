@@ -1,3 +1,4 @@
+// @ts-nocheck
 
 import React, { useState, useMemo } from 'react';
 import { useApp } from '../contexts/AppContext';

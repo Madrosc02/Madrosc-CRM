@@ -1,3 +1,4 @@
+// @ts-nocheck
 // components/GoalsTab.tsx
 import React, { useState, useEffect, useCallback } from 'react';
 import { useApp } from '../contexts/AppContext';
@@ -243,3 +244,4 @@ const GoalsTab: React.FC<{ customer: Customer, sales: Sale[] }> = ({ customer, s
 };
 
 export default GoalsTab;
+

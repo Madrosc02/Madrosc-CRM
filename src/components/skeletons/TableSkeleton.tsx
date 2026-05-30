@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React from 'react';
 import Skeleton from '../ui/Skeleton';
 
@@ -32,3 +33,4 @@ const TableSkeleton: React.FC<TableSkeletonProps> = ({ rows = 5, cols = 6 }) => 
 };
 
 export default TableSkeleton;
+

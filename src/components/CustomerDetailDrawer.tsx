@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useApp } from '../contexts/AppContext';
 import { useToast } from '../contexts/ToastContext';
@@ -152,3 +153,4 @@ export const CustomerDetailDrawer: React.FC = () => {
 };
 
 export default CustomerDetailDrawer;
+

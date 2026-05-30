@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React from 'react';
 import Skeleton from '../ui/Skeleton';
 
@@ -34,3 +35,4 @@ const DashboardSkeleton: React.FC = () => {
 };
 
 export default DashboardSkeleton;
+

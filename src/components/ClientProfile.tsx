@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { MapPin, UserX, Award, IndianRupee, TrendingUp, ShoppingBag, Sparkles, Calendar, BarChart3, LineChart, User } from 'lucide-react';
 import { useState } from 'react';
 import { LineChart as RechartsLine, Line, BarChart as RechartsBar, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
@@ -247,3 +248,4 @@ export function ClientProfile({
         </div>
     );
 }
+

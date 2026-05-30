@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronLeft, Robot } from 'lucide-react';
+import { ChevronLeft, Bot } from 'lucide-react';
 import { cn } from '../../utils';
 import { Customer } from '../../types';
 import { useApp } from '../../contexts/AppContext';
@@ -73,7 +73,7 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
                     {aiActions.map((action, idx) => (
                         <div key={idx} className={`${action.priorityBg} border rounded-xl p-4 group-hover:shadow-md transition-shadow duration-300 relative overflow-hidden`}>
                             <div className={`absolute top-0 right-0 w-8 h-8 ${action.priorityIconBg} rounded-bl-xl flex items-center justify-center translate-x-2 -translate-y-2 group-hover:translate-x-0 group-hover:translate-y-0 transition-transform`}>
-                                <i className={`fas fa-robot ${action.iconColor} text-[10px]`}></i>
+                                <i className={`fas fa-Bot ${action.iconColor} text-[10px]`}></i>
                             </div>
                             <p className={`text-[10px] font-black tracking-wider ${action.priorityColor} mb-2`}>{action.priority}</p>
                             <p className="text-sm font-semibold text-slate-900 leading-tight">{action.title}</p>
@@ -149,3 +149,4 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
         </div>
     );
 };
+

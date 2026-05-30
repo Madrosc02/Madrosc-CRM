@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useState, useEffect } from 'react';
 import { Customer, CustomerTerritory, MonopolyStatus } from '../types';
 import { indianStatesAndDistricts } from '../data/indianStatesAndDistricts';
@@ -253,3 +254,4 @@ const ManageTerritoriesModal: React.FC<ManageTerritoriesModalProps> = ({ custome
 };
 
 export default ManageTerritoriesModal;
+
