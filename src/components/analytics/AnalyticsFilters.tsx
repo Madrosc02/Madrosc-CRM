@@ -32,7 +32,14 @@ const AnalyticsFilters: React.FC = () => {
                     name="start"
                     value={analyticsFilters.dateRange.start}
                     onChange={handleDateChange}
-                    className="text-[13px] font-bold text-slate-700 bg-transparent outline-none cursor-pointer [&::-webkit-calendar-picker-indicator]:hidden"
+                    onClick={(e) => {
+                        try {
+                            if ('showPicker' in HTMLInputElement.prototype) {
+                                e.currentTarget.showPicker();
+                            }
+                        } catch (err) {}
+                    }}
+                    className="text-[13px] font-bold text-slate-700 bg-transparent outline-none cursor-pointer flex-1"
                 />
             </div>
 
@@ -46,7 +53,14 @@ const AnalyticsFilters: React.FC = () => {
                     name="end"
                     value={analyticsFilters.dateRange.end}
                     onChange={handleDateChange}
-                    className="text-[13px] font-bold text-slate-700 bg-transparent outline-none cursor-pointer [&::-webkit-calendar-picker-indicator]:hidden"
+                    onClick={(e) => {
+                        try {
+                            if ('showPicker' in HTMLInputElement.prototype) {
+                                e.currentTarget.showPicker();
+                            }
+                        } catch (err) {}
+                    }}
+                    className="text-[13px] font-bold text-slate-700 bg-transparent outline-none cursor-pointer flex-1"
                 />
             </div>
 
