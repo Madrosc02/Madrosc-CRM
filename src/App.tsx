@@ -9,7 +9,6 @@ import Spinner from './components/ui/Spinner';
 // Lazy load main pages
 const Dashboard = React.lazy(() => import('./components/Dashboard'));
 const AnalyticsPage = React.lazy(() => import('./components/analytics/AnalyticsPage'));
-const SalesRevenuePage = React.lazy(() => import('./app/analytics/page'));
 const ClientsPage = React.lazy(() => import('./components/ClientsPage'));
 const ReportsPage = React.lazy(() => import('./components/ReportsPage'));
 const SettingsPage = React.lazy(() => import('./components/SettingsPage'));
@@ -56,8 +55,7 @@ const AuthenticatedApp: React.FC = () => {
                 <Routes>
                     <Route path="/" element={<Dashboard />} />
                     <Route path="/analytics" element={<AnalyticsPage />} />
-                    <Route path="/sales-revenue" element={<SalesRevenuePage />} />
-                    <Route path="/call-mode" element={<CallMode />} />
+                                        <Route path="/call-mode" element={<CallMode />} />
                     <Route path="/clients" element={<ClientsPage />} />
                     <Route path="/reports" element={<ReportsPage />} />
                     <Route path="/settings" element={<SettingsPage />} />
@@ -95,3 +93,4 @@ const App: React.FC = () => {
 };
 
 export default App;
+

@@ -24,6 +24,16 @@ import AnalyticsTabs from './AnalyticsTabs';
 import PerformanceSnapshot from './PerformanceSnapshot';
 import RevenueChart from './RevenueChart';
 import { useAnalyticsData } from '../../hooks/useAnalyticsData';
+import KPICards from '../sales-revenue/KPICards';
+import ZoneDistribution from '../sales-revenue/ZoneDistribution';
+import TopProductsByRevenue from '../sales-revenue/TopProductsByRevenue';
+import TopStatesByRevenue from '../sales-revenue/TopStatesByRevenue';
+import ReceivablesAging from '../sales-revenue/ReceivablesAging';
+import CollectionSummary from '../sales-revenue/CollectionSummary';
+import SalesRepLeaderboard from '../sales-revenue/SalesRepLeaderboard';
+import RevenueVsTarget from '../sales-revenue/RevenueVsTarget';
+import MayTargetProgress from '../sales-revenue/MayTargetProgress';
+import CategoryMix from '../sales-revenue/CategoryMix';
 
 const AnalyticsPage: React.FC = () => {
     const { loading, analyticsFilters, customers } = useApp();
@@ -90,24 +100,19 @@ const AnalyticsPage: React.FC = () => {
                         {/* SALES TAB */}
                         {activeTab === 'sales' && (
                             <FadeIn className="space-y-6">
-                                <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-                                    <SalesForecast sales={analyticsData.allSales} />
-                                    <RevenueOpportunityAnalyzer />
+                                <KPICards dateRange={{ from: '2026-05-01', to: '2026-05-30' }} />
+                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                    <ZoneDistribution />
+                                    <TopProductsByRevenue />
                                 </div>
-                                <div className="card-base p-6">
-                                    <OverallSalesTrendChart sales={analyticsData.filteredSales} />
-                                </div>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div className="card-base p-6">
-                                        <SalesByStateChart sales={analyticsData.filteredSales} />
-                                    </div>
-                                    <div className="card-base p-6 flex items-center justify-center text-slate-500">
-                                        <div className="text-center">
-                                            <i className="fas fa-chart-pie text-4xl mb-3 opacity-50"></i>
-                                            <p className="font-medium">Sales Distribution</p>
-                                            <p className="text-xs mt-1 opacity-70">Coming soon</p>
-                                        </div>
-                                    </div>
+                                <TopStatesByRevenue />
+                                <ReceivablesAging />
+                                <CollectionSummary />
+                                <SalesRepLeaderboard />
+                                <RevenueVsTarget />
+                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                    <MayTargetProgress />
+                                    <CategoryMix />
                                 </div>
                             </FadeIn>
                         )}
