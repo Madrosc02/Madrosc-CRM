@@ -31,14 +31,28 @@ const ChurnRiskDashboard: React.FC<ChurnRiskDashboardProps> = ({ sales, loading 
 
     if (highRiskCustomers.length === 0) {
         return (
-            <div className="card-base p-6 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-green-100 dark:border-green-800">
-                <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-full bg-green-100 dark:bg-green-800 flex items-center justify-center text-green-600 dark:text-green-200">
-                        <i className="fas fa-check-circle text-2xl"></i>
+            <div className="card-base p-8 bg-gradient-to-r from-emerald-50 via-teal-50 to-green-50 dark:from-emerald-900/20 dark:via-teal-900/20 dark:to-green-900/20 border-l-4 border-l-emerald-500 overflow-hidden relative group">
+                <div className="absolute top-0 right-0 -mt-8 -mr-8 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl group-hover:bg-emerald-500/20 transition-all duration-500"></div>
+                <div className="absolute bottom-0 left-0 -mb-8 -ml-8 w-24 h-24 bg-teal-500/10 rounded-full blur-xl group-hover:bg-teal-500/20 transition-all duration-500"></div>
+                
+                <div className="relative flex flex-col items-center text-center">
+                    <div className="w-16 h-16 rounded-full bg-white dark:bg-gray-800 shadow-md flex items-center justify-center text-emerald-500 mb-4 border border-emerald-100 dark:border-emerald-800/50">
+                        <i className="fas fa-shield-check text-3xl"></i>
                     </div>
-                    <div>
-                        <h3 className="text-lg font-bold text-green-900 dark:text-green-100">Low Churn Risk</h3>
-                        <p className="text-green-700 dark:text-green-300">Great job! Your customer base looks healthy.</p>
+                    <h3 className="text-xl font-black text-emerald-900 dark:text-emerald-100 tracking-tight">Optimal Retention Health</h3>
+                    <p className="text-emerald-700 dark:text-emerald-300 mt-2 max-w-md mx-auto text-sm">
+                        Zero high-risk churn indicators detected across your entire active customer base. Engagement and purchasing frequency are stable.
+                    </p>
+                    
+                    <div className="mt-6 flex gap-4">
+                        <div className="px-4 py-2 bg-white/60 dark:bg-gray-900/40 rounded-lg border border-emerald-200/50 dark:border-emerald-700/30">
+                            <div className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider mb-1">Active Accounts</div>
+                            <div className="text-lg font-bold text-gray-900 dark:text-white">{customers.filter(c => c.tier !== 'Dead').length}</div>
+                        </div>
+                        <div className="px-4 py-2 bg-white/60 dark:bg-gray-900/40 rounded-lg border border-emerald-200/50 dark:border-emerald-700/30">
+                            <div className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider mb-1">Risk Status</div>
+                            <div className="text-lg font-bold text-gray-900 dark:text-white">Secure</div>
+                        </div>
                     </div>
                 </div>
             </div>
