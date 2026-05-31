@@ -9,13 +9,12 @@ import { Customer } from '../../types';
 const INDIA_TOPO_JSON = "https://raw.githubusercontent.com/deldersveld/topojson/master/countries/india/india-states.json";
 
 const PROJECTION_CONFIG = {
-    scale: 1000,
+    scale: 1050,
     center: [78.9629, 22.5937] as [number, number]
 };
 
 type MetricType = 'revenue' | 'customers' | 'growth' | 'whitespace';
 
-// Consistent mock random generator based on state name
 const hashString = (str: string) => {
     let hash = 0;
     for (let i = 0; i < str.length; i++) {
@@ -24,7 +23,6 @@ const hashString = (str: string) => {
     return Math.abs(hash);
 };
 
-// Map of coordinates for major Indian states to place markers
 const STATE_CENTERS: Record<string, [number, number]> = {
     "Maharashtra": [76.0, 19.5],
     "Karnataka": [76.5, 14.5],
@@ -56,21 +54,18 @@ const TerritoryHeatmap: React.FC = () => {
                 data[state] = { revenue: 0, customerCount: 0, prevRevenue: 0, customers: [], totalProspects: 0, penetration: 0, hasAlert: false, alertMsg: '' };
             }
             data[state].revenue += customer.salesThisMonth || 0;
-            data[state].prevRevenue += customer.avg6MoSales || 0; // Using avg as prev for mock
+            data[state].prevRevenue += customer.avg6MoSales || 0;
             data[state].customerCount += 1;
             data[state].customers.push(customer);
         });
 
-        // Calculate prospects and alerts
         Object.keys(data).forEach(state => {
             const d = data[state];
-            // Mock total prospects (e.g., active + some random based on state name)
             d.totalProspects = d.customerCount + (hashString(state) % 80) + 10;
             d.penetration = (d.customerCount / d.totalProspects) * 100;
 
             const growth = d.prevRevenue > 0 ? ((d.revenue - d.prevRevenue) / d.prevRevenue) * 100 : 0;
             
-            // Smart Alerts Logic
             if (growth < -15) {
                 d.hasAlert = true;
                 d.alertMsg = `Revenue dropped by ${Math.abs(growth).toFixed(1)}%. Check account health.`;
@@ -89,20 +84,18 @@ const TerritoryHeatmap: React.FC = () => {
 
         if (activeMetric === 'revenue') {
             maxVal = Math.max(...Object.values(stateData).map(d => d.revenue), 1000);
-            return scaleLinear<string>().domain([0, maxVal]).range(["#E0E7FF", "#3730A3"]); // Indigo
+            return scaleLinear<string>().domain([0, maxVal]).range(["#EEF2FF", "#312E81"]); // Indigo light to extremely dark
         } else if (activeMetric === 'customers') {
             maxVal = Math.max(...Object.values(stateData).map(d => d.customerCount), 10);
-            return scaleLinear<string>().domain([0, maxVal]).range(["#ECFEFF", "#0891B2"]); // Cyan
+            return scaleLinear<string>().domain([0, maxVal]).range(["#ECFEFF", "#083344"]); // Cyan light to extremely dark
         } else if (activeMetric === 'whitespace') {
-            // High whitespace (low penetration) = red/orange, high penetration = blue
             maxVal = Math.max(...Object.values(stateData).map(d => d.penetration), 100);
-            return scaleLinear<string>().domain([0, 50, 100]).range(["#FEF2F2", "#FCA5A5", "#EFF6FF"]); 
+            return scaleLinear<string>().domain([0, 50, 100]).range(["#450A0A", "#991B1B", "#F1F5F9"]); // Dark red -> Light red -> Neutral
         } else {
-            // Growth
             const growths = Object.values(stateData).map(d => d.prevRevenue > 0 ? ((d.revenue - d.prevRevenue)/d.prevRevenue)*100 : 0);
             maxVal = Math.max(...growths, 1);
             minVal = Math.min(...growths, -1);
-            return scaleLinear<string>().domain([minVal, 0, maxVal]).range(["#FEF2F2", "#F3F4F6", "#059669"]); // Red-Gray-Emerald
+            return scaleLinear<string>().domain([minVal, 0, maxVal]).range(["#7F1D1D", "#F8FAFC", "#064E3B"]); // Dark red -> White -> Dark Emerald
         }
     }, [stateData, activeMetric]);
 
@@ -115,24 +108,27 @@ const TerritoryHeatmap: React.FC = () => {
 
     return (
         <>
-            <div className="card-base p-6 bg-white dark:bg-slate-900 border-indigo-100 dark:border-indigo-900/50 flex flex-col h-[550px]">
-                <div className="flex justify-between items-start mb-4">
+            <div className="card-base p-0 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 flex flex-col h-[550px] shadow-sm relative overflow-hidden group">
+                
+                {/* Header Section */}
+                <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-start z-10 bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm">
                     <div>
-                        <h3 className="text-lg font-bold text-[var(--text-primary-light)] dark:text-[var(--text-primary-dark)] flex items-center gap-2">
+                        <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
                             Territory Intelligence
-                            <span className="bg-indigo-100 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300 text-[10px] px-2 py-0.5 rounded-full uppercase font-bold tracking-wider">AI Powered</span>
+                            <span className="bg-indigo-100/80 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300 text-[9px] px-2 py-0.5 rounded-full uppercase font-black tracking-widest shadow-sm">AI Powered</span>
                         </h3>
-                        <p className="text-sm text-[var(--text-secondary-light)] dark:text-[var(--text-secondary-dark)]">
-                            Geographic distribution & anomaly detection
+                        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                            Geographic distribution & real-time anomaly detection
                         </p>
                     </div>
                     
-                    <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-lg">
+                    {/* Enterprise segmented control */}
+                    <div className="flex bg-slate-100/80 dark:bg-slate-800/80 p-1 rounded-xl shadow-inner border border-slate-200/50 dark:border-slate-700/50 backdrop-blur-md">
                         {(['revenue', 'customers', 'growth', 'whitespace'] as const).map(m => (
                             <button
                                 key={m}
                                 onClick={() => setActiveMetric(m)}
-                                className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${activeMetric === m ? 'bg-white dark:bg-slate-700 shadow-sm text-indigo-600 dark:text-indigo-400' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}
+                                className={`px-4 py-1.5 text-xs font-bold rounded-lg transition-all duration-300 ${activeMetric === m ? 'bg-white dark:bg-slate-700 shadow-sm text-indigo-600 dark:text-indigo-400 scale-100' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 scale-95 hover:scale-100'}`}
                             >
                                 {m === 'whitespace' ? 'White-Space' : m.charAt(0).toUpperCase() + m.slice(1)}
                             </button>
@@ -140,21 +136,30 @@ const TerritoryHeatmap: React.FC = () => {
                     </div>
                 </div>
 
-                <div className="flex-1 border border-slate-100 dark:border-slate-800 rounded-xl overflow-hidden bg-slate-50/50 dark:bg-slate-900/50 relative">
-                    {/* Legend */}
+                {/* Map Container */}
+                <div className="flex-1 relative bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-slate-50 to-slate-100 dark:from-slate-800/40 dark:to-slate-900 overflow-hidden">
+                    
+                    {/* Subtle grid background for command-center look */}
+                    <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMiIgY3k9IjIiIHI9IjEiIGZpbGw9InJnYmEoMTUwLCAxNTAsIDE1MCwgMC4xKSIvPjwvc3ZnPg==')] z-0 opacity-50 dark:opacity-20"></div>
+
+                    {/* Legend Overlay */}
                     {activeMetric === 'whitespace' && (
-                        <div className="absolute bottom-4 left-4 z-10 bg-white/80 dark:bg-slate-800/80 backdrop-blur border border-slate-200 dark:border-slate-700 rounded-lg p-2 text-xs flex items-center gap-2">
-                            <span className="font-semibold">Penetration:</span>
-                            <div className="w-4 h-4 bg-[#FEF2F2] rounded border border-slate-300" title="Low (High Whitespace)"></div>
-                            <div className="w-4 h-4 bg-[#FCA5A5] rounded border border-slate-300" title="Medium"></div>
-                            <div className="w-4 h-4 bg-[#EFF6FF] rounded border border-slate-300" title="High"></div>
+                        <div className="absolute bottom-6 left-6 z-10 bg-white/90 dark:bg-slate-800/90 backdrop-blur-md border border-slate-200 dark:border-slate-700 rounded-xl p-3 shadow-lg flex items-center gap-3">
+                            <span className="font-bold text-xs text-slate-700 dark:text-slate-300 tracking-wide">PENETRATION:</span>
+                            <div className="flex gap-1 items-center">
+                                <div className="w-5 h-5 bg-[#450A0A] rounded-md border border-slate-300/50 shadow-inner" title="Low (High Whitespace)"></div>
+                                <span className="text-[10px] text-slate-500 font-medium mr-1">Low</span>
+                                <div className="w-5 h-5 bg-[#991B1B] rounded-md border border-slate-300/50 shadow-inner" title="Medium"></div>
+                                <div className="w-5 h-5 bg-[#F1F5F9] rounded-md border border-slate-300/50 shadow-inner" title="High"></div>
+                                <span className="text-[10px] text-slate-500 font-medium ml-1">High</span>
+                            </div>
                         </div>
                     )}
 
                     <ComposableMap
                         projection="geoMercator"
                         projectionConfig={PROJECTION_CONFIG}
-                        className="w-full h-full outline-none"
+                        className="w-full h-full outline-none drop-shadow-2xl z-10 relative"
                     >
                         <ZoomableGroup center={[78.9629, 22.5937]} zoom={1.3}>
                             <Geographies geography={INDIA_TOPO_JSON}>
@@ -172,9 +177,7 @@ const TerritoryHeatmap: React.FC = () => {
                                             else val = cur.prevRevenue > 0 ? ((cur.revenue - cur.prevRevenue)/cur.prevRevenue)*100 : 0;
                                         }
 
-                                        // For whitespace, we want to color it even if we have 0 customers (if we simulate prospects)
-                                        // But for this mock, states with no customers in CRM won't be in stateData. Let's color them neutral.
-                                        const fill = hasData ? colorScale(val) : "#F8FAFC";
+                                        const fill = hasData ? colorScale(val) : (activeMetric === 'whitespace' ? '#F1F5F9' : "#E2E8F0"); // Darker default for enterprise look
 
                                         return (
                                             <Geography
@@ -184,8 +187,8 @@ const TerritoryHeatmap: React.FC = () => {
                                                 stroke="#CBD5E1"
                                                 strokeWidth={0.5}
                                                 style={{
-                                                    default: { outline: "none" },
-                                                    hover: { fill: hasData ? "#F59E0B" : "#F1F5F9", outline: "none", cursor: hasData ? "pointer" : "default" },
+                                                    default: { outline: "none", transition: 'all 250ms' },
+                                                    hover: { fill: hasData ? "#F59E0B" : fill, outline: "none", cursor: hasData ? "pointer" : "default", opacity: hasData ? 1 : 0.8 },
                                                     pressed: { outline: "none" },
                                                 }}
                                                 onClick={() => hasData && handleStateClick(stateName)}
@@ -200,22 +203,16 @@ const TerritoryHeatmap: React.FC = () => {
                                 }
                             </Geographies>
 
-                            {/* Smart Alert Markers */}
+                            {/* Smart Alert Markers with Pulse Animation */}
                             {Object.entries(stateData).map(([state, data]) => {
                                 if (data.hasAlert && STATE_CENTERS[state]) {
                                     return (
                                         <Marker key={`${state}-alert`} coordinates={STATE_CENTERS[state]}>
-                                            <g
-                                                fill="none"
-                                                stroke="#EF4444"
-                                                strokeWidth="2"
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                                transform="translate(-12, -24)"
-                                            >
-                                                <circle cx="12" cy="12" r="10" fill="white" />
-                                                <path d="M12 8v4" />
-                                                <path d="M12 16h.01" />
+                                            <g transform="translate(-12, -24)" className="cursor-pointer">
+                                                <circle cx="12" cy="12" r="14" fill="#EF4444" opacity="0.3" className="animate-ping" />
+                                                <circle cx="12" cy="12" r="10" fill="#EF4444" className="drop-shadow-md" />
+                                                <path d="M12 8v4" stroke="white" strokeWidth="2" strokeLinecap="round" />
+                                                <path d="M12 16h.01" stroke="white" strokeWidth="2" strokeLinecap="round" />
                                             </g>
                                         </Marker>
                                     );
@@ -226,53 +223,51 @@ const TerritoryHeatmap: React.FC = () => {
                         </ZoomableGroup>
                     </ComposableMap>
                     
+                    {/* Ultra-modern Tooltip */}
                     <Tooltip 
                         id="map-tooltip" 
                         isOpen={!!hoveredState}
-                        className="!bg-slate-900/95 !backdrop-blur-md !p-4 !rounded-xl !shadow-2xl z-50 !border !border-slate-700/50"
+                        className="!bg-slate-900/95 !backdrop-blur-xl !p-5 !rounded-2xl !shadow-2xl z-50 !border !border-slate-700/50 !transition-all !duration-200"
                     >
                         {hoveredState && stateData[hoveredState] && (
-                            <div className="min-w-[200px]">
-                                <h4 className="font-bold text-white mb-2 pb-2 border-b border-slate-700/50 flex justify-between items-center">
+                            <div className="min-w-[220px]">
+                                <h4 className="font-bold text-white mb-3 pb-3 border-b border-slate-700/50 flex justify-between items-center text-base">
                                     {hoveredState}
                                     {stateData[hoveredState].hasAlert && (
-                                        <i className="fas fa-exclamation-circle text-red-400"></i>
+                                        <div className="bg-red-500/20 px-2 py-0.5 rounded text-[10px] text-red-400 font-black uppercase tracking-wider animate-pulse border border-red-500/30">
+                                            Alert
+                                        </div>
                                     )}
                                 </h4>
-                                <div className="space-y-2">
+                                <div className="space-y-3">
                                     {stateData[hoveredState].hasAlert && (
-                                        <div className="bg-red-500/20 border border-red-500/30 text-red-200 text-xs p-2 rounded mb-3">
+                                        <div className="bg-red-500/10 border-l-2 border-red-500 text-red-300 text-xs p-2 rounded-r bg-gradient-to-r from-red-500/10 to-transparent mb-4 font-medium leading-relaxed">
                                             {stateData[hoveredState].alertMsg}
                                         </div>
                                     )}
-                                    <div className="flex justify-between gap-4 text-sm">
-                                        <span className="text-slate-400">Revenue</span>
-                                        <span className="font-mono text-emerald-400 font-medium">₹{(stateData[hoveredState].revenue / 1000).toFixed(1)}k</span>
+                                    <div className="flex justify-between items-end gap-6 text-sm">
+                                        <span className="text-slate-400 font-medium">Revenue</span>
+                                        <span className="font-mono text-emerald-400 font-bold text-lg leading-none">₹{(stateData[hoveredState].revenue / 1000).toFixed(1)}k</span>
                                     </div>
-                                    <div className="flex justify-between gap-4 text-sm">
-                                        <span className="text-slate-400">Active Customers</span>
-                                        <span className="font-mono text-white font-medium">{stateData[hoveredState].customerCount}</span>
+                                    <div className="flex justify-between items-end gap-6 text-sm">
+                                        <span className="text-slate-400 font-medium">Customers</span>
+                                        <span className="font-mono text-white font-bold leading-none">{stateData[hoveredState].customerCount}</span>
                                     </div>
-                                    <div className="flex justify-between gap-4 text-sm">
-                                        <span className="text-slate-400">Total Prospects</span>
-                                        <span className="font-mono text-slate-300 font-medium">{stateData[hoveredState].totalProspects}</span>
+                                    <div className="flex justify-between items-end gap-6 text-sm">
+                                        <span className="text-slate-400 font-medium">Prospects</span>
+                                        <span className="font-mono text-slate-300 font-bold leading-none">{stateData[hoveredState].totalProspects}</span>
                                     </div>
-                                    <div className="flex justify-between gap-4 text-sm">
-                                        <span className="text-slate-400">Penetration Rate</span>
-                                        <span className="font-mono text-white font-medium">{stateData[hoveredState].penetration.toFixed(1)}%</span>
+                                    
+                                    <div className="pt-3 mt-3 border-t border-slate-800">
+                                        <div className="flex justify-between items-end gap-6 text-sm mb-1">
+                                            <span className="text-slate-400 font-medium">Penetration</span>
+                                            <span className="font-mono text-indigo-300 font-bold leading-none">{stateData[hoveredState].penetration.toFixed(1)}%</span>
+                                        </div>
+                                        <div className="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                                            <div className="h-full bg-indigo-500 rounded-full" style={{ width: `${stateData[hoveredState].penetration}%` }}></div>
+                                        </div>
                                     </div>
-                                    <div className="flex justify-between gap-4 text-sm">
-                                        <span className="text-slate-400">Growth</span>
-                                        <span className="font-mono text-white font-medium">
-                                            {(() => {
-                                                const p = stateData[hoveredState].prevRevenue;
-                                                const c = stateData[hoveredState].revenue;
-                                                if (p === 0) return 'N/A';
-                                                const g = ((c - p)/p)*100;
-                                                return <span className={g >= 0 ? 'text-emerald-400' : 'text-red-400'}>{g>0?'+':''}{g.toFixed(1)}%</span>;
-                                            })()}
-                                        </span>
-                                    </div>
+
                                 </div>
                             </div>
                         )}
