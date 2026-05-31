@@ -74,10 +74,18 @@ export const useAnalyticsData = () => {
 
   // --- REVENUE OVERVIEW (Actual vs Target) ---
   const revenueOverview = useMemo<RevenueData[]>(() => {
-    // Generate last 6 months including current
-    const months: RevenueData[] = [];
+    const data: RevenueData[] = [];
     const now = new Date();
     
+    let startD = new Date(now.getFullYear(), now.getMonth() - 5, 1);
+    let endD = new Date(now.getFullYear(), now.getMonth(), 1);
+
+    if (analyticsFilters.dateRange.start && analyticsFilters.dateRange.end) {
+        startD = new Date(analyticsFilters.dateRange.start);
+        startD.setDate(1); // Start at beginning of month for grouping
+        endD = new Date(analyticsFilters.dateRange.end);
+    }
+
     // Group sales by month-year
     const monthlySales: Record<string, number> = {};
     allSales.forEach(sale => {
@@ -86,29 +94,31 @@ export const useAnalyticsData = () => {
       monthlySales[key] = (monthlySales[key] || 0) + sale.amount;
     });
 
-    for (let i = 5; i >= 0; i--) {
-      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-      const key = `${d.getFullYear()}-${d.getMonth()}`;
+    // Generate month objects between startD and endD
+    let currentD = new Date(startD);
+    while (currentD <= endD || (currentD.getFullYear() === endD.getFullYear() && currentD.getMonth() === endD.getMonth())) {
+      const key = `${currentD.getFullYear()}-${currentD.getMonth()}`;
       const actual = monthlySales[key] || 0;
       
       // Target Logic: 10% more than previous month, or base target if no history
-      let prevMonthActual = 0;
-      if (i < 5) {
-        const prev = new Date(now.getFullYear(), now.getMonth() - i - 1, 1);
-        prevMonthActual = monthlySales[`${prev.getFullYear()}-${prev.getMonth()}`] || 0;
-      }
+      const prev = new Date(currentD.getFullYear(), currentD.getMonth() - 1, 1);
+      const prevMonthActual = monthlySales[`${prev.getFullYear()}-${prev.getMonth()}`] || 0;
       
       const baseTarget = 2000; // Base minimal target
       const target = prevMonthActual > 0 ? Math.round(prevMonthActual * 1.1) : baseTarget;
 
-      months.push({
-        month: d.toLocaleString('default', { month: 'short' }),
+      data.push({
+        month: currentD.toLocaleString('default', { month: 'short' }) + (startD.getFullYear() !== endD.getFullYear() ? ` '${currentD.getFullYear().toString().slice(2)}` : ''),
         actual,
         target: Math.max(target, baseTarget)
       });
+
+      // Move to next month
+      currentD = new Date(currentD.getFullYear(), currentD.getMonth() + 1, 1);
     }
-    return months;
-  }, [allSales]);
+    
+    return data;
+  }, [allSales, analyticsFilters.dateRange]);
 
   // --- HEALTH SCORE & EXECUTIVE SUMMARY ---
   const healthScore = useMemo<HealthScoreData>(() => {

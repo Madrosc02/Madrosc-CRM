@@ -14,12 +14,13 @@ interface StatCardProps {
   trendValue?: string;
   className?: string;
   onClick?: () => void;
+  onInfoClick?: (e: React.MouseEvent) => void;
   sparklineData?: { value: number }[];
 }
 
 const StatCard: React.FC<StatCardProps> = ({ 
   icon, label, value, prefix = '', suffix = '', decimals = 0, 
-  gradient, trend, trendValue, className = '', onClick, sparklineData
+  gradient, trend, trendValue, className = '', onClick, onInfoClick, sparklineData
 }) => {
   const animatedValue = useCountUp(value, 2000);
 
@@ -75,9 +76,19 @@ const StatCard: React.FC<StatCardProps> = ({
           </div>
         )}
 
-        <button className="text-slate-300 hover:text-slate-500 transition-colors z-10 mt-1 mr-1">
-          <i className="far fa-info-circle text-[13px]"></i>
-        </button>
+        {onInfoClick && (
+          <button 
+            onClick={(e) => {
+              e.stopPropagation();
+              onInfoClick(e);
+            }} 
+            className="text-slate-400 hover:text-slate-600 transition-colors z-20 mt-1 mr-1 p-1 rounded-md hover:bg-slate-100 flex items-center gap-1"
+            title="View Details"
+          >
+            <span className="text-[10px] font-semibold uppercase tracking-wider hidden sm:inline-block">View</span>
+            <i className="far fa-list-alt text-[13px]"></i>
+          </button>
+        )}
       </div>
 
       <div className="relative z-10 mt-1">

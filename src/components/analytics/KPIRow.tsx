@@ -3,7 +3,8 @@ import React, { useState, useEffect, useMemo } from 'react';
 import StatCard from './StatCard';
 import { useApp } from '../../contexts/AppContext';
 import Skeleton from '../ui/Skeleton';
-import { Sale } from '../../types';
+import { Sale, Customer } from '../../types';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 
 const StatCardSkeleton: React.FC = () => (
@@ -180,55 +181,118 @@ const KPIRow: React.FC = () => {
         );
     }
 
+    const [detailsModal, setDetailsModal] = useState<'total' | 'pending' | 'sales' | 'outstanding' | null>(null);
+
+    const getModalData = () => {
+        if (!detailsModal) return { title: '', list: [] };
+        switch (detailsModal) {
+            case 'total':
+                return { title: 'Total Clients', list: customers };
+            case 'pending':
+                return { title: 'Clients with Pending Orders', list: customers.filter(c => c.salesThisMonth === 0) };
+            case 'sales':
+                return { title: 'Clients with Sales This Month', list: customers.filter(c => c.salesThisMonth > 0) };
+            case 'outstanding':
+                return { title: 'Clients with Outstanding Balance', list: customers.filter(c => c.outstandingBalance > 0) };
+            default:
+                return { title: '', list: [] };
+        }
+    };
+    
+    const modalData = getModalData();
+
     return (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <StatCard
-                icon="fa-users"
-                label="Total Clients"
-                value={kpis.totalCustomers}
-                gradient="bg-gradient-to-br from-blue-500 to-blue-600"
-                trend={trends.customers.trend}
-                trendValue={`${trends.customers.growth >= 0 ? '+' : ''}${trends.customers.growth.toFixed(1)}%`}
-                onClick={() => setKpiFilter('total')}
-                sparklineData={generateSparkline('customers')}
-            />
-            <StatCard
-                icon="fa-clock"
-                label="Pending Orders"
-                value={kpis.pendingOrders}
-                gradient="bg-gradient-to-br from-emerald-500 to-teal-600"
-                trend={trends.pending.trend}
-                trendValue={`${trends.pending.change >= 0 ? '+' : ''}${trends.pending.change}%`}
-                onClick={() => setKpiFilter('pending')}
-                sparklineData={generateSparkline('pending')}
-            />
-            <StatCard
-                icon="fa-chart-line"
-                label="Sales This Month"
-                value={kpis.totalSales / 1000}
-                prefix="₹"
-                suffix="k"
-                decimals={1}
-                gradient="bg-gradient-to-br from-violet-500 to-purple-600"
-                trend={trends.sales.trend}
-                trendValue={`${trends.sales.mom >= 0 ? '+' : ''}${trends.sales.mom.toFixed(1)}% MoM`}
-                onClick={() => setKpiFilter('sales')}
-                sparklineData={generateSparkline('sales')}
-            />
-            <StatCard
-                icon="fa-file-invoice-dollar"
-                label="Outstanding"
-                value={kpis.totalOutstanding / 1000}
-                prefix="₹"
-                suffix="k"
-                decimals={1}
-                gradient="bg-gradient-to-br from-rose-500 to-pink-600"
-                trend={trends.outstanding.trend}
-                trendValue={`${trends.outstanding.change}%`}
-                onClick={() => setKpiFilter('outstanding')}
-                sparklineData={generateSparkline('outstanding')}
-            />
-        </div>
+        <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <StatCard
+                    icon="fa-users"
+                    label="Total Clients"
+                    value={kpis.totalCustomers}
+                    gradient="bg-gradient-to-br from-blue-500 to-blue-600"
+                    trend={trends.customers.trend}
+                    trendValue={`${trends.customers.growth >= 0 ? '+' : ''}${trends.customers.growth.toFixed(1)}%`}
+                    onClick={() => setKpiFilter('total')}
+                    onInfoClick={() => setDetailsModal('total')}
+                    sparklineData={generateSparkline('customers')}
+                />
+                <StatCard
+                    icon="fa-clock"
+                    label="Pending Orders"
+                    value={kpis.pendingOrders}
+                    gradient="bg-gradient-to-br from-emerald-500 to-teal-600"
+                    trend={trends.pending.trend}
+                    trendValue={`${trends.pending.change >= 0 ? '+' : ''}${trends.pending.change}%`}
+                    onClick={() => setKpiFilter('pending')}
+                    onInfoClick={() => setDetailsModal('pending')}
+                    sparklineData={generateSparkline('pending')}
+                />
+                <StatCard
+                    icon="fa-chart-line"
+                    label="Sales This Month"
+                    value={kpis.totalSales / 1000}
+                    prefix="₹"
+                    suffix="k"
+                    decimals={1}
+                    gradient="bg-gradient-to-br from-violet-500 to-purple-600"
+                    trend={trends.sales.trend}
+                    trendValue={`${trends.sales.mom >= 0 ? '+' : ''}${trends.sales.mom.toFixed(1)}% MoM`}
+                    onClick={() => setKpiFilter('sales')}
+                    onInfoClick={() => setDetailsModal('sales')}
+                    sparklineData={generateSparkline('sales')}
+                />
+                <StatCard
+                    icon="fa-file-invoice-dollar"
+                    label="Outstanding"
+                    value={kpis.totalOutstanding / 1000}
+                    prefix="₹"
+                    suffix="k"
+                    decimals={1}
+                    gradient="bg-gradient-to-br from-rose-500 to-pink-600"
+                    trend={trends.outstanding.trend}
+                    trendValue={`${trends.outstanding.change}%`}
+                    onClick={() => setKpiFilter('outstanding')}
+                    onInfoClick={() => setDetailsModal('outstanding')}
+                    sparklineData={generateSparkline('outstanding')}
+                />
+            </div>
+            
+            <Dialog open={detailsModal !== null} onOpenChange={(open) => !open && setDetailsModal(null)}>
+                <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+                    <DialogHeader>
+                        <DialogTitle>{modalData.title}</DialogTitle>
+                    </DialogHeader>
+                    <div className="mt-4">
+                        {modalData.list.length > 0 ? (
+                            <ul className="divide-y divide-slate-100">
+                                {modalData.list.map(c => (
+                                    <li key={c.id} className="py-3 flex items-center justify-between">
+                                        <div>
+                                            <p className="font-semibold text-slate-800 text-sm">{c.name}</p>
+                                            <p className="text-xs text-slate-500">{c.district}, {c.state}</p>
+                                        </div>
+                                        <div className="text-right">
+                                            {detailsModal === 'outstanding' && (
+                                                <span className="font-semibold text-red-600 text-sm">₹{c.outstandingBalance.toLocaleString('en-IN')}</span>
+                                            )}
+                                            {detailsModal === 'sales' && (
+                                                <span className="font-semibold text-emerald-600 text-sm">₹{c.salesThisMonth.toLocaleString('en-IN')}</span>
+                                            )}
+                                            {detailsModal === 'pending' && (
+                                                <span className="font-medium text-slate-500 text-xs text-right block max-w-[120px]">
+                                                    Last order {c.daysSinceLastOrder} days ago
+                                                </span>
+                                            )}
+                                        </div>
+                                    </li>
+                                ))}
+                            </ul>
+                        ) : (
+                            <p className="text-sm text-slate-500 py-4 text-center">No clients found for this category.</p>
+                        )}
+                    </div>
+                </DialogContent>
+            </Dialog>
+        </>
     );
 };
 
