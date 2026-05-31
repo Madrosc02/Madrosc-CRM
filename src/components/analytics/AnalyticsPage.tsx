@@ -1,50 +1,56 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, lazy, Suspense } from 'react';
 import KPIRow from './KPIRow';
-import SalesByStateChart from './SalesByStateChart';
-import TierDistributionChart from './TierDistributionChart';
-import OverallSalesTrendChart from './OverallSalesTrendChart';
-import TopClients from './TopClients';
 import { useApp } from '../../contexts/AppContext';
 import DashboardSkeleton from '../skeletons/DashboardSkeleton';
 import AnalyticsFilters from './AnalyticsFilters';
-import CustomerPerformanceDetail from './CustomerPerformanceDetail';
-import ActionableInsights from './ActionableInsights';
-import OverallPerformanceTable from './OverallPerformanceTable';
 import FadeIn from '../ui/FadeIn';
-import SalesForecast from './SalesForecast';
-import ExecutiveSummary from './ExecutiveSummary';
-import CustomerSegmentation from './CustomerSegmentation';
-import ChurnRiskDashboard from './ChurnRiskDashboard';
-import SmartAlerts from './SmartAlerts';
-import RevenueOpportunityAnalyzer from './RevenueOpportunityAnalyzer';
-import TerritoryHeatmap from './TerritoryHeatmap';
-import StateLeaderboard from './StateLeaderboard';
-import TerritoryMatrix from './TerritoryMatrix';
-import TerritoryKPIRow from './TerritoryKPIRow';
-import CohortAnalysis from './CohortAnalysis';
 import AnalyticsTabs from './AnalyticsTabs';
-import PerformanceSnapshot from './PerformanceSnapshot';
-import RevenueChart from './RevenueChart';
 import { useAnalyticsData } from '../../hooks/useAnalyticsData';
-import KPICards from '../sales-revenue/KPICards';
-import ZoneDistribution from '../sales-revenue/ZoneDistribution';
-import TopProductsByRevenue from '../sales-revenue/TopProductsByRevenue';
-import TopStatesByRevenue from '../sales-revenue/TopStatesByRevenue';
-import ReceivablesAging from '../sales-revenue/ReceivablesAging';
-import CollectionSummary from '../sales-revenue/CollectionSummary';
-import SalesRepLeaderboard from '../sales-revenue/SalesRepLeaderboard';
-import RevenueVsTarget from '../sales-revenue/RevenueVsTarget';
-import MayTargetProgress from '../sales-revenue/MayTargetProgress';
-import CategoryMix from '../sales-revenue/CategoryMix';
-import CreditRiskExposure from './CreditRiskExposure';
-import CrossSellMatrix from './CrossSellMatrix';
-
 import AnalyticsControlBar from './AnalyticsControlBar';
+import Skeleton from '../ui/Skeleton';
+
+// Lazy load heavy chart components
+const SalesByStateChart = lazy(() => import('./SalesByStateChart'));
+const TierDistributionChart = lazy(() => import('./TierDistributionChart'));
+const OverallSalesTrendChart = lazy(() => import('./OverallSalesTrendChart'));
+const TopClients = lazy(() => import('./TopClients'));
+const CustomerPerformanceDetail = lazy(() => import('./CustomerPerformanceDetail'));
+const ActionableInsights = lazy(() => import('./ActionableInsights'));
+const OverallPerformanceTable = lazy(() => import('./OverallPerformanceTable'));
+const SalesForecast = lazy(() => import('./SalesForecast'));
+const ExecutiveSummary = lazy(() => import('./ExecutiveSummary'));
+const CustomerSegmentation = lazy(() => import('./CustomerSegmentation'));
+const ChurnRiskDashboard = lazy(() => import('./ChurnRiskDashboard'));
+const SmartAlerts = lazy(() => import('./SmartAlerts'));
+const RevenueOpportunityAnalyzer = lazy(() => import('./RevenueOpportunityAnalyzer'));
+const TerritoryHeatmap = lazy(() => import('./TerritoryHeatmap'));
+const StateLeaderboard = lazy(() => import('./StateLeaderboard'));
+const TerritoryMatrix = lazy(() => import('./TerritoryMatrix'));
+const TerritoryKPIRow = lazy(() => import('./TerritoryKPIRow'));
+const CohortAnalysis = lazy(() => import('./CohortAnalysis'));
+const PerformanceSnapshot = lazy(() => import('./PerformanceSnapshot'));
+const RevenueChart = lazy(() => import('./RevenueChart'));
+const KPICards = lazy(() => import('../sales-revenue/KPICards'));
+const ZoneDistribution = lazy(() => import('../sales-revenue/ZoneDistribution'));
+const TopProductsByRevenue = lazy(() => import('../sales-revenue/TopProductsByRevenue'));
+const TopStatesByRevenue = lazy(() => import('../sales-revenue/TopStatesByRevenue'));
+const ReceivablesAging = lazy(() => import('../sales-revenue/ReceivablesAging'));
+const CollectionSummary = lazy(() => import('../sales-revenue/CollectionSummary'));
+const SalesRepLeaderboard = lazy(() => import('../sales-revenue/SalesRepLeaderboard'));
+const RevenueVsTarget = lazy(() => import('../sales-revenue/RevenueVsTarget'));
+const MayTargetProgress = lazy(() => import('../sales-revenue/MayTargetProgress'));
+const CategoryMix = lazy(() => import('../sales-revenue/CategoryMix'));
+const CreditRiskExposure = lazy(() => import('./CreditRiskExposure'));
+const CrossSellMatrix = lazy(() => import('./CrossSellMatrix'));
+
+const ChartFallback = () => <div className="h-64 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 flex items-center justify-center"><div className="animate-pulse flex flex-col items-center"><div className="w-8 h-8 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mb-4"></div><div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-24"></div></div></div>;
 
 const AnalyticsPage: React.FC = () => {
     const { loading, analyticsFilters, customers, invoices } = useApp();
     const analyticsData = useAnalyticsData();
     const [activeTab, setActiveTab] = useState('overview');
+    const [salesSubTab, setSalesSubTab] = useState('performance');
+    const [customersSubTab, setCustomersSubTab] = useState('risk');
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
     const [globalDateRange, setGlobalDateRange] = useState({ start: '2026-05-01', end: '2026-05-31' });
@@ -99,7 +105,9 @@ const AnalyticsPage: React.FC = () => {
 
                 {selectedCustomerData ? (
                     <FadeIn>
-                        <CustomerPerformanceDetail customer={selectedCustomerData} />
+                        <Suspense fallback={<ChartFallback />}>
+                            <CustomerPerformanceDetail customer={selectedCustomerData} />
+                        </Suspense>
                     </FadeIn>
                 ) : (
                     <div className="space-y-6">
@@ -108,83 +116,134 @@ const AnalyticsPage: React.FC = () => {
                             setActiveTab={setActiveTab}
                         />
 
-                        {/* OVERVIEW TAB */}
-                        {activeTab === 'overview' && (
-                            <FadeIn className="space-y-6">
-                                <KPIRow />
-                                <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                        <Suspense fallback={<ChartFallback />}>
+                            {/* OVERVIEW TAB */}
+                            {activeTab === 'overview' && (
+                                <FadeIn className="space-y-6">
+                                    <KPIRow />
+                                    <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                                        <div>
+                                            <RevenueChart data={analyticsData.revenueOverview} />
+                                        </div>
+                                        <div>
+                                            <ExecutiveSummary data={analyticsData.healthScore} />
+                                        </div>
+                                    </div>
+                                    <ActionableInsights data={analyticsData.actionableInsights} />
+                                </FadeIn>
+                            )}
+
+                            {/* SALES TAB */}
+                            {activeTab === 'sales' && (
+                                <FadeIn className="space-y-6">
+                                    <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-lg w-fit mb-4">
+                                        {(['performance', 'receivables', 'products_regions'] as const).map(tab => (
+                                            <button
+                                                key={tab}
+                                                onClick={() => setSalesSubTab(tab)}
+                                                className={`px-4 py-2 text-sm font-medium rounded-md transition-all ${salesSubTab === tab ? 'bg-white dark:bg-slate-700 shadow-sm text-indigo-600 dark:text-indigo-400' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}
+                                            >
+                                                {tab === 'products_regions' ? 'Products & Regions' : tab.charAt(0).toUpperCase() + tab.slice(1)}
+                                            </button>
+                                        ))}
+                                    </div>
+
+                                    {salesSubTab === 'performance' && (
+                                        <div className="space-y-6">
+                                            <KPICards dateRange={globalDateRange} />
+                                            <RevenueVsTarget />
+                                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                                <MayTargetProgress />
+                                                <SalesRepLeaderboard />
+                                            </div>
+                                        </div>
+                                    )}
+                                    
+                                    {salesSubTab === 'receivables' && (
+                                        <div className="space-y-6">
+                                            <ReceivablesAging />
+                                            <CollectionSummary />
+                                        </div>
+                                    )}
+
+                                    {salesSubTab === 'products_regions' && (
+                                        <div className="space-y-6">
+                                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                                <TopProductsByRevenue />
+                                                <CategoryMix />
+                                            </div>
+                                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                                <TopStatesByRevenue />
+                                                <ZoneDistribution />
+                                            </div>
+                                        </div>
+                                    )}
+                                </FadeIn>
+                            )}
+
+                            {/* CUSTOMERS TAB */}
+                            {activeTab === 'customers' && (
+                                <FadeIn className="space-y-6">
+                                    <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-lg w-fit mb-4">
+                                        {(['risk', 'segmentation'] as const).map(tab => (
+                                            <button
+                                                key={tab}
+                                                onClick={() => setCustomersSubTab(tab)}
+                                                className={`px-4 py-2 text-sm font-medium rounded-md transition-all ${customersSubTab === tab ? 'bg-white dark:bg-slate-700 shadow-sm text-indigo-600 dark:text-indigo-400' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}
+                                            >
+                                                {tab === 'risk' ? 'Risk & Retention' : 'Segmentation & Cross-Sell'}
+                                            </button>
+                                        ))}
+                                    </div>
+
+                                    {customersSubTab === 'risk' && (
+                                        <div className="space-y-6">
+                                            <CreditRiskExposure customers={customers} />
+                                            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                                                <div className="card-base p-6">
+                                                    <ChurnRiskDashboard sales={analyticsData.filteredSales} />
+                                                </div>
+                                                <div className="card-base p-6">
+                                                    <CohortAnalysis sales={analyticsData.allSales} />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {customersSubTab === 'segmentation' && (
+                                        <div className="space-y-6">
+                                            <CrossSellMatrix customers={customers} invoices={invoices} />
+                                            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                                                <div className="card-base p-6">
+                                                    <CustomerSegmentation sales={analyticsData.filteredSales} />
+                                                </div>
+                                                <div className="card-base p-6">
+                                                    <TierDistributionChart />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+                                </FadeIn>
+                            )}
+
+                            {/* TERRITORY TAB */}
+                            {activeTab === 'territory' && (
+                                <FadeIn className="space-y-6">
+                                    <TerritoryKPIRow customers={customers} />
+                                    <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                                        <div className="h-full">
+                                            <TerritoryHeatmap />
+                                        </div>
+                                        <div className="h-full">
+                                            <StateLeaderboard customers={customers} />
+                                        </div>
+                                    </div>
                                     <div>
-                                        <RevenueChart data={analyticsData.revenueOverview} />
+                                        <TerritoryMatrix customers={customers} />
                                     </div>
-                                    <div>
-                                        <ExecutiveSummary data={analyticsData.healthScore} />
-                                    </div>
-                                </div>
-                                <ActionableInsights data={analyticsData.actionableInsights} />
-                            </FadeIn>
-                        )}
-
-                        {/* SALES TAB */}
-                        {activeTab === 'sales' && (
-                            <FadeIn className="space-y-6">
-                                <KPICards dateRange={{ from: '2026-05-01', to: '2026-05-30' }} />
-                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                                    <ZoneDistribution />
-                                    <TopProductsByRevenue />
-                                </div>
-                                <TopStatesByRevenue />
-                                <ReceivablesAging />
-                                <CollectionSummary />
-                                <SalesRepLeaderboard />
-                                <RevenueVsTarget />
-                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                                    <MayTargetProgress />
-                                    <CategoryMix />
-                                </div>
-                            </FadeIn>
-                        )}
-
-                        {/* CUSTOMERS TAB */}
-                        {activeTab === 'customers' && (
-                            <FadeIn className="space-y-6">
-                                <CreditRiskExposure customers={customers} />
-                                
-                                <CrossSellMatrix customers={customers} invoices={invoices} />
-
-                                <div className="card-base p-6">
-                                    <CustomerSegmentation sales={analyticsData.filteredSales} />
-                                </div>
-                                <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-                                    <div className="card-base p-6">
-                                        <ChurnRiskDashboard sales={analyticsData.filteredSales} />
-                                    </div>
-                                    <div className="card-base p-6">
-                                        <TierDistributionChart />
-                                    </div>
-                                </div>
-                                <div className="card-base p-6">
-                                    <CohortAnalysis sales={analyticsData.allSales} />
-                                </div>
-                            </FadeIn>
-                        )}
-
-                        {/* TERRITORY TAB */}
-                        {activeTab === 'territory' && (
-                            <FadeIn className="space-y-6">
-                                <TerritoryKPIRow customers={customers} />
-                                <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-                                    <div className="h-full">
-                                        <TerritoryHeatmap />
-                                    </div>
-                                    <div className="h-full">
-                                        <StateLeaderboard customers={customers} />
-                                    </div>
-                                </div>
-                                <div>
-                                    <TerritoryMatrix customers={customers} />
-                                </div>
-                            </FadeIn>
-                        )}
+                                </FadeIn>
+                            )}
+                        </Suspense>
                     </div>
                 )}
             </div>
@@ -202,8 +261,10 @@ const AnalyticsPage: React.FC = () => {
                         </button>
                     </div>
                     <div className="space-y-6 pb-6 mt-1">
-                        <SmartAlerts insights={analyticsData.actionableInsights} />
-                        <PerformanceSnapshot customers={customers} healthScore={analyticsData.healthScore} />
+                        <Suspense fallback={<ChartFallback />}>
+                            <SmartAlerts insights={analyticsData.actionableInsights} />
+                            <PerformanceSnapshot customers={customers} healthScore={analyticsData.healthScore} />
+                        </Suspense>
                     </div>
                 </div>
             ) : (
