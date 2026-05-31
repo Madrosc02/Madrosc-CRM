@@ -18,7 +18,9 @@ import ChurnRiskDashboard from './ChurnRiskDashboard';
 import SmartAlerts from './SmartAlerts';
 import RevenueOpportunityAnalyzer from './RevenueOpportunityAnalyzer';
 import TerritoryHeatmap from './TerritoryHeatmap';
-import PerformanceLeaderboard from './PerformanceLeaderboard';
+import StateLeaderboard from './StateLeaderboard';
+import TerritoryMatrix from './TerritoryMatrix';
+import TerritoryKPIRow from './TerritoryKPIRow';
 import CohortAnalysis from './CohortAnalysis';
 import AnalyticsTabs from './AnalyticsTabs';
 import PerformanceSnapshot from './PerformanceSnapshot';
@@ -146,16 +148,17 @@ const AnalyticsPage: React.FC = () => {
                         {/* TERRITORY TAB */}
                         {activeTab === 'territory' && (
                             <FadeIn className="space-y-6">
+                                <TerritoryKPIRow customers={customers} />
                                 <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-                                    <div className="card-base p-6">
+                                    <div className="h-full">
                                         <TerritoryHeatmap />
                                     </div>
-                                    <div className="card-base p-6">
-                                        <PerformanceLeaderboard />
+                                    <div className="h-full">
+                                        <StateLeaderboard customers={customers} />
                                     </div>
                                 </div>
-                                <div className="card-base p-6">
-                                    <OverallPerformanceTable sales={analyticsData.allSales} />
+                                <div>
+                                    <TerritoryMatrix customers={customers} />
                                 </div>
                             </FadeIn>
                         )}
