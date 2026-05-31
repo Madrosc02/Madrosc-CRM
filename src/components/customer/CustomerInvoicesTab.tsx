@@ -68,6 +68,25 @@ export const CustomerInvoicesTab: React.FC<Props> = ({ customer }) => {
         }
     };
 
+    const handleAddBill = async (e: React.FormEvent) => {
+        e.preventDefault();
+        try {
+            const { addInvoiceRecord } = await import('../../services/api');
+            await addInvoiceRecord({
+                customerId: customer.id,
+                invoiceNo: `MANUAL-${Date.now().toString().slice(-4)}`,
+                totalAmount: Number(billAmount),
+                date: billDate,
+                items: []
+            });
+            addToast("Manual bill recorded successfully", "success");
+            setIsAddBillOpen(false);
+            fetchData(); // refresh list
+        } catch (e) {
+            addToast("Failed to record manual bill", "error");
+        }
+    };
+
     return (
         <div className="space-y-6 pb-20">
             <div className="grid grid-cols-2 gap-4">
@@ -77,17 +96,23 @@ export const CustomerInvoicesTab: React.FC<Props> = ({ customer }) => {
                 </div>
                 <div className="flex flex-col gap-2">
                     <button 
-                        onClick={() => setIsAddPaymentOpen(true)}
+                        onClick={() => { setIsAddPaymentOpen(true); setIsAddBillOpen(false); }}
                         className="w-full flex-1 flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors text-sm font-semibold shadow-sm"
                     >
                         <DollarSign className="w-4 h-4" /> Receive Payment
                     </button>
                     <div className="flex gap-2">
                         <button 
+                            onClick={() => { setIsAddBillOpen(true); setIsAddPaymentOpen(false); }}
+                            className="flex-1 flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors text-xs font-semibold py-2 shadow-sm"
+                        >
+                            <Plus className="w-4 h-4" /> Manual Bill
+                        </button>
+                        <button 
                             onClick={() => setIsUploadModalOpen(true)}
                             className="flex-1 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors text-xs font-semibold py-2 shadow-sm"
                         >
-                            <UploadCloud className="w-4 h-4" /> Upload GST PDF
+                            <UploadCloud className="w-4 h-4" /> PDF Invoice
                         </button>
                         <button 
                             onClick={fetchData}
@@ -98,6 +123,38 @@ export const CustomerInvoicesTab: React.FC<Props> = ({ customer }) => {
                     </div>
                 </div>
             </div>
+
+            {isAddBillOpen && (
+                <form onSubmit={handleAddBill} className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-xl animate-in fade-in slide-in-from-top-2">
+                    <h4 className="font-semibold text-slate-800 dark:text-slate-200 mb-4">Add Manual Outstanding Bill</h4>
+                    <div className="grid grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label className="block text-xs font-medium text-slate-500 mb-1">Amount (₹)</label>
+                            <input 
+                                type="number" 
+                                required
+                                value={billAmount}
+                                onChange={e => setBillAmount(e.target.value)}
+                                className="w-full p-2 border border-slate-200 rounded-md dark:bg-slate-800 dark:border-slate-700" 
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-xs font-medium text-slate-500 mb-1">Date</label>
+                            <input 
+                                type="date" 
+                                required
+                                value={billDate}
+                                onChange={e => setBillDate(e.target.value)}
+                                className="w-full p-2 border border-slate-200 rounded-md dark:bg-slate-800 dark:border-slate-700" 
+                            />
+                        </div>
+                    </div>
+                    <div className="flex justify-end gap-2">
+                        <button type="button" onClick={() => setIsAddBillOpen(false)} className="px-3 py-1.5 text-sm text-slate-600 hover:bg-slate-200 rounded-md">Cancel</button>
+                        <button type="submit" className="px-3 py-1.5 text-sm bg-red-600 text-white hover:bg-red-700 rounded-md">Save Outstanding</button>
+                    </div>
+                </form>
+            )}
 
             {isAddPaymentOpen && (
                 <form onSubmit={handleAddPayment} className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-xl animate-in fade-in slide-in-from-top-2">
