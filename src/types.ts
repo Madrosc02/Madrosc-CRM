@@ -140,3 +140,34 @@ export interface HistoricalSnapshot {
   totalSales: number;
 }
 
+export interface InvoiceItem {
+  id?: string;
+  invoiceId?: string;
+  productName: string;
+  pack: string;
+  quantity: number;
+  rate: number;
+  amount: number;
+}
+
+export interface Invoice {
+  id: string;
+  customerId: string;
+  invoiceNo: string;
+  date: string; // ISO string
+  totalAmount: number;
+  pdfUrl?: string;
+  items: InvoiceItem[];
+  createdAt?: string;
+}
+
+export interface Payment {
+  id: string;
+  customerId: string;
+  amount: number;
+  date: string; // ISO string
+  paymentMode: string;
+  referenceNo?: string;
+  createdAt?: string;
+}
+

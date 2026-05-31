@@ -229,19 +229,40 @@ export const useCrmData = () => {
 
   const addInvoice = async (invoice: any) => {
     try {
-      // Normally we would save to API here
-      // For now, save locally to context state
-      const newInvoice = { ...invoice, id: `inv-${Date.now()}` };
+      const newInvoice = await api.addInvoiceRecord(invoice);
       setInvoices(prev => [newInvoice, ...prev]);
 
-      // Automatically update the outstanding balance for the client
-      if (invoice.customerId && invoice.totalAmount) {
-         await addBill(invoice.customerId, invoice.totalAmount);
+      // Refetch customer to reflect new balance
+      const updatedCustomer = await api.fetchCustomerById(invoice.customerId);
+      if (updatedCustomer) {
+         setCustomers(prev => prev.map(c => c.id === invoice.customerId ? updatedCustomer : c));
       }
+      
+      // Auto-add a remark about this invoice
+      await addRemark(invoice.customerId, `📄 Invoice ${invoice.invoiceNo} generated for ₹${invoice.totalAmount.toLocaleString('en-IN')}`);
       
       return newInvoice;
     } catch (error) {
       console.error("Error adding invoice:", error);
+      throw error;
+    }
+  };
+
+  const addPaymentRecord = async (payment: any) => {
+    try {
+      const newPayment = await api.addPaymentRecord(payment);
+      
+      // Refetch customer to reflect new balance
+      const updatedCustomer = await api.fetchCustomerById(payment.customerId);
+      if (updatedCustomer) {
+         setCustomers(prev => prev.map(c => c.id === payment.customerId ? updatedCustomer : c));
+      }
+
+      await addRemark(payment.customerId, `💰 Payment of ₹${payment.amount.toLocaleString('en-IN')} received via ${payment.paymentMode}`);
+      
+      return newPayment;
+    } catch (error) {
+      console.error("Error adding payment:", error);
       throw error;
     }
   };
@@ -319,11 +340,14 @@ export const useCrmData = () => {
     updateSettings,
     createSnapshot,
     updateCustomerTags,
+    addPaymentRecord,
 
     // Data Fetchers for Detail View
     getSalesForCustomer: api.fetchSalesForCustomer,
     getRemarksForCustomer: api.fetchRemarksForCustomer,
     getTasksForCustomer: api.fetchTasksForCustomer,
+    getInvoicesForCustomer: api.fetchInvoices,
+    getPaymentsForCustomer: api.fetchPayments,
     getAllSales: api.fetchAllSales,
     getGoalsForCustomer: api.fetchGoalsForCustomer,
     addGoal: api.addGoal,

@@ -51,16 +51,22 @@ export const InvoiceUploadModal: React.FC<InvoiceUploadModalProps> = ({ isOpen, 
     };
 
     const handleApprove = async () => {
-        if (!parsedData) return;
+        if (!parsedData || !file) return;
         setIsSaving(true);
         try {
+            // Upload the PDF physically to storage first
+            const { uploadInvoicePdf } = await import('../../services/api');
+            const pdfUrl = await uploadInvoicePdf(file);
+            
             await addInvoice({
                 ...parsedData,
-                customerId
+                customerId,
+                pdfUrl
             });
             onClose();
         } catch (err) {
-            setError('Failed to save invoice and update balances.');
+            console.error(err);
+            setError('Failed to save invoice and update balances. Ensure you ran the SQL migration.');
         } finally {
             setIsSaving(false);
         }

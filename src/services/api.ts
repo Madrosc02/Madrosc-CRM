@@ -1,6 +1,6 @@
 // services/api.ts
 import { supabase } from '../lib/supabase';
-import { Customer, Sale, Remark, Task, CustomerFormData, Goal, Milestone, CustomerTerritory, UserSettings, HistoricalSnapshot } from '../types';
+import { Customer, Sale, Remark, Task, CustomerFormData, Goal, Milestone, CustomerTerritory, UserSettings, HistoricalSnapshot, Invoice, InvoiceItem, Payment } from '../types';
 import { analyzeRemarkSentiment } from './geminiService';
 
 // --- HELPERS ---
@@ -678,4 +678,140 @@ export const addHistoricalSnapshot = async (snapshotData: Omit<HistoricalSnapsho
 
     if (error) throw error;
     return mapHistoricalSnapshot(data);
+};
+
+// --- INVOICE & PAYMENT API ---
+
+export const uploadInvoicePdf = async (file: File): Promise<string> => {
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${Math.random()}.${fileExt}`;
+    const filePath = `invoices/${fileName}`;
+
+    const { error: uploadError, data } = await supabase.storage
+        .from('invoice_pdfs')
+        .upload(filePath, file);
+
+    if (uploadError) throw uploadError;
+
+    const { data: { publicUrl } } = supabase.storage
+        .from('invoice_pdfs')
+        .getPublicUrl(filePath);
+
+    return publicUrl;
+};
+
+const mapInvoiceItem = (dbData: any): InvoiceItem => ({
+    id: dbData.id,
+    invoiceId: dbData.invoice_id,
+    productName: dbData.product_name,
+    pack: dbData.pack,
+    quantity: dbData.quantity,
+    rate: dbData.rate,
+    amount: dbData.amount
+});
+
+const mapInvoice = (dbData: any): Invoice => ({
+    id: dbData.id,
+    customerId: dbData.customer_id,
+    invoiceNo: dbData.invoice_no,
+    date: dbData.date,
+    totalAmount: dbData.total_amount,
+    pdfUrl: dbData.pdf_url,
+    items: [],
+    createdAt: dbData.created_at
+});
+
+export const addInvoiceRecord = async (invoice: Omit<Invoice, 'id' | 'createdAt'>): Promise<Invoice> => {
+    const { data: invData, error: invError } = await supabase
+        .from('invoices')
+        .insert([{
+            customer_id: invoice.customerId,
+            invoice_no: invoice.invoiceNo,
+            date: invoice.date,
+            total_amount: invoice.totalAmount,
+            pdf_url: invoice.pdfUrl
+        }])
+        .select()
+        .single();
+
+    if (invError) throw invError;
+
+    let itemsData: any[] = [];
+    if (invoice.items && invoice.items.length > 0) {
+        const itemsToInsert = invoice.items.map(item => ({
+            invoice_id: invData.id,
+            product_name: item.productName,
+            pack: item.pack,
+            quantity: item.quantity,
+            rate: item.rate,
+            amount: item.amount
+        }));
+
+        const { data: insertedItems, error: itemsError } = await supabase
+            .from('invoice_items')
+            .insert(itemsToInsert)
+            .select();
+
+        if (itemsError) throw itemsError;
+        itemsData = insertedItems;
+    }
+
+    await addBill(invoice.customerId, invoice.totalAmount);
+
+    return { ...mapInvoice(invData), items: itemsData.map(mapInvoiceItem) };
+};
+
+export const fetchInvoices = async (customerId: string): Promise<Invoice[]> => {
+    const { data: invoicesData, error: invError } = await supabase
+        .from('invoices')
+        .select('*, invoice_items(*)')
+        .eq('customer_id', customerId)
+        .order('date', { ascending: false });
+
+    if (invError) throw invError;
+
+    return (invoicesData || []).map(inv => {
+        const mapped = mapInvoice(inv);
+        mapped.items = (inv.invoice_items || []).map(mapInvoiceItem);
+        return mapped;
+    });
+};
+
+const mapPaymentRecord = (dbData: any): Payment => ({
+    id: dbData.id,
+    customerId: dbData.customer_id,
+    amount: dbData.amount,
+    date: dbData.date,
+    paymentMode: dbData.payment_mode,
+    referenceNo: dbData.reference_no,
+    createdAt: dbData.created_at
+});
+
+export const addPaymentRecord = async (payment: Omit<Payment, 'id' | 'createdAt'>): Promise<Payment> => {
+    const { data, error } = await supabase
+        .from('payments')
+        .insert([{
+            customer_id: payment.customerId,
+            amount: payment.amount,
+            date: payment.date,
+            payment_mode: payment.paymentMode,
+            reference_no: payment.referenceNo
+        }])
+        .select()
+        .single();
+
+    if (error) throw error;
+    await addPayment(payment.customerId, payment.amount, payment.date);
+    return mapPaymentRecord(data);
+};
+
+export const fetchPayments = async (customerId: string): Promise<Payment[]> => {
+    const { data, error } = await supabase
+        .from('payments')
+        .select('*')
+        .eq('customer_id', customerId)
+        .order('date', { ascending: false });
+
+    if (error) throw error;
+    return (data || []).map(mapPaymentRecord);
 };

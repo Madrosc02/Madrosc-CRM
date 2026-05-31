@@ -11,6 +11,7 @@ import { CustomerSales } from './customer/CustomerSales';
 import { CustomerTasks } from './customer/CustomerTasks';
 import { CustomerRemarks } from './customer/CustomerRemarks';
 import { CustomerActions } from './customer/CustomerActions';
+import { CustomerInvoicesTab } from './customer/CustomerInvoicesTab';
 
 export const CustomerDetailDrawer: React.FC = () => {
     const { detailModalCustomer, closeDetailModal, getSalesForCustomer, getRemarksForCustomer, updateCustomer, deleteCustomer, customers, detailModalInitialTab } = useApp();
@@ -86,6 +87,7 @@ export const CustomerDetailDrawer: React.FC = () => {
 
     const TABS = [
         { id: 'overview', label: 'Overview', icon: 'fa-chart-line' },
+        { id: 'invoices', label: 'Invoices & Payments', icon: 'fa-file-invoice-dollar' },
         { id: 'goals', label: 'Goals', icon: 'fa-bullseye' },
         { id: 'sales', label: 'Sales History', icon: 'fa-chart-area' },
         { id: 'remarks', label: 'Remarks', icon: 'fa-comments' },
@@ -98,55 +100,70 @@ export const CustomerDetailDrawer: React.FC = () => {
             open={!!detailModalCustomer}
             onOpenChange={(open) => !open && closeDetailModal()}
         >
-            <SheetContent side="right" className="w-full sm:max-w-4xl p-0 flex flex-col h-full bg-white dark:bg-slate-900 border-l border-slate-200 dark:border-slate-800">
-                {customer && (
-                    <>
-                        <SheetHeader className="px-6 pt-6 pb-2 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
-                            <div className="flex items-center justify-between">
-                                <SheetTitle className="text-xl font-bold text-slate-800 dark:text-white">
-                                    {customer.name}
-                                </SheetTitle>
-                                <button onClick={handleDelete} className="text-sm text-red-500 hover:text-red-600 hover:bg-red-50 px-3 py-1.5 rounded-md transition-colors flex items-center mr-8">
-                                    <i className="fas fa-trash-alt mr-2"></i> Delete
-                                </button>
+            <SheetContent side="right" className="w-full sm:max-w-[600px] p-0 flex flex-col h-full bg-white dark:bg-slate-900 border-l border-slate-200 dark:border-slate-800">
+                <SheetHeader className="p-6 border-b border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50">
+                    <SheetTitle className="flex items-center gap-4">
+                        <img src={customer?.avatar} alt={customer?.name} className="w-12 h-12 rounded-full border-2 border-white dark:border-slate-800 shadow-sm object-cover" />
+                        <div className="flex-1">
+                            <div className="flex items-center gap-2">
+                                <span className="text-xl font-bold text-slate-800 dark:text-slate-100">{customer?.firmName}</span>
+                                {customer?.tier && (
+                                    <span className={`px-2 py-0.5 text-xs font-bold rounded-full ${
+                                        customer.tier === 'Platinum' ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/50 dark:text-purple-300' :
+                                        customer.tier === 'Gold' ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300' :
+                                        customer.tier === 'Silver' ? 'bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-300' :
+                                        'bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300'
+                                    }`}>
+                                        {customer.tier}
+                                    </span>
+                                )}
                             </div>
-                            
-                            {/* Tabs */}
-                            <div className="flex space-x-1 overflow-x-auto pt-4 pb-0 scrollbar-hide">
-                                {TABS.map(tab => (
-                                    <button
-                                        key={tab.id}
-                                        onClick={() => { setActiveTab(tab.id); setIsEditMode(false); }}
-                                        className={`py-2.5 px-4 font-medium text-sm rounded-t-lg transition-all duration-200 flex-shrink-0 border-b-2 ${activeTab === tab.id
-                                            ? 'border-primary text-primary bg-primary/5'
-                                            : 'border-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800'
-                                            }`}
-                                    >
-                                        <i className={`fas ${tab.icon} mr-2`}></i>{tab.label}
-                                    </button>
-                                ))}
-                            </div>
-                        </SheetHeader>
-
-                        {/* Body */}
-                        <div className="flex-1 overflow-y-auto p-6 bg-white dark:bg-slate-900">
-                            {isLoading ? (
-                                <div className="flex items-center justify-center h-64">
-                                    <Spinner />
-                                </div>
-                            ) : (
-                                <div className="animate-in fade-in duration-300">
-                                    {activeTab === 'overview' && !isEditMode && <CustomerOverview customer={customer} sales={sales} remarks={remarks} onEditMode={() => setIsEditMode(true)} />}
-                                    {isEditMode && <EditDetailsForm customer={customer} onCancel={() => setIsEditMode(false)} onSave={handleSave} />}
-                                    {activeTab === 'goals' && <GoalsTab customer={customer} sales={sales} />}
-                                    {activeTab === 'sales' && <CustomerSales sales={sales} />}
-                                    {activeTab === 'remarks' && <CustomerRemarks customer={customer} remarks={remarks} onRemarkAdded={fetchData} />}
-                                    {activeTab === 'tasks' && <CustomerTasks customerId={customer.id} />}
-                                    {activeTab === 'actions' && <CustomerActions customer={customer} onSave={fetchData} />}
-                                </div>
-                            )}
+                            <span className="text-sm text-slate-500 dark:text-slate-400">{customer?.personName}</span>
                         </div>
-                    </>
+                    </SheetTitle>
+                    
+                    {/* TABS HEADER */}
+                    <div className="flex gap-1 mt-6 overflow-x-auto pb-1 scrollbar-hide">
+                        {TABS.map(tab => (
+                            <button
+                                key={tab.id}
+                                onClick={() => setActiveTab(tab.id)}
+                                className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-all whitespace-nowrap ${
+                                    activeTab === tab.id 
+                                    ? 'bg-blue-600 text-white shadow-sm' 
+                                    : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-200'
+                                }`}
+                            >
+                                <i className={`fas ${tab.icon}`}></i> {tab.label}
+                            </button>
+                        ))}
+                    </div>
+                </SheetHeader>
+
+                {isLoading ? (
+                    <div className="flex-1 flex items-center justify-center">
+                        <Spinner />
+                    </div>
+                ) : (
+                    <div className="flex-1 overflow-y-auto p-6 bg-white dark:bg-slate-900">
+                        {customer && (
+                            <>
+                                {activeTab === 'overview' && (
+                                    isEditMode ? (
+                                        <EditDetailsForm customer={customer} onSave={handleSave} onCancel={() => setIsEditMode(false)} />
+                                    ) : (
+                                        <CustomerOverview customer={customer} sales={sales} remarks={remarks} onEdit={() => setIsEditMode(true)} onDelete={handleDelete} />
+                                    )
+                                )}
+                                {activeTab === 'invoices' && <CustomerInvoicesTab customer={customer} />}
+                                {activeTab === 'goals' && <GoalsTab customerId={customer.id} />}
+                                {activeTab === 'sales' && <CustomerSales customer={customer} sales={sales} />}
+                                {activeTab === 'remarks' && <CustomerRemarks customerId={customer.id} initialRemarks={remarks} />}
+                                {activeTab === 'tasks' && <CustomerTasks customer={customer} />}
+                                {activeTab === 'actions' && <CustomerActions customer={customer} />}
+                            </>
+                        )}
+                    </div>
                 )}
             </SheetContent>
         </Sheet>
