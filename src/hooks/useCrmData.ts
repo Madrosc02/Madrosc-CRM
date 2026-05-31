@@ -31,14 +31,28 @@ export const useCrmData = () => {
     const loadData = async () => {
       setLoading(true);
       try {
-        const [customersData, tasksData, remarksData, salesData, settingsData, snapshotsData] = await Promise.all([
+        const [customersData, tasksData, remarksData, salesData] = await Promise.all([
           api.fetchCustomers(),
           api.fetchTasks(),
           api.fetchRemarks(),
-          api.fetchAllSales(),
-          api.fetchUserSettings(),
-          api.fetchHistoricalSnapshots()
+          api.fetchAllSales()
         ]);
+
+        let settingsData = null;
+        let snapshotsData: HistoricalSnapshot[] = [];
+        
+        try {
+          settingsData = await api.fetchUserSettings();
+        } catch (err) {
+          console.warn("Failed to fetch settings, using defaults.", err);
+        }
+
+        try {
+          snapshotsData = await api.fetchHistoricalSnapshots();
+        } catch (err) {
+          console.warn("Failed to fetch historical snapshots.", err);
+        }
+
         setCustomers(customersData);
         setTasks(tasksData.sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()));
         setRemarks(remarksData);
