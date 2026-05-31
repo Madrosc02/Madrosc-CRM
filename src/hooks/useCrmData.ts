@@ -16,6 +16,7 @@ export const useCrmData = () => {
   const [remarks, setRemarks] = useState<Remark[]>([]);
   const [sales, setSales] = useState<Sale[]>([]);
   const [invoices, setInvoices] = useState<any[]>([]); // To hold uploaded invoices
+  const [allPayments, setAllPayments] = useState<any[]>([]);
   const [userSettings, setUserSettings] = useState<UserSettings | null>(null);
   const [historicalSnapshots, setHistoricalSnapshots] = useState<HistoricalSnapshot[]>([]);
   const [loading, setLoading] = useState(true);
@@ -31,11 +32,13 @@ export const useCrmData = () => {
     const loadData = async () => {
       setLoading(true);
       try {
-        const [customersData, tasksData, remarksData, salesData] = await Promise.all([
+        const [customersData, tasksData, remarksData, salesData, invoicesData, paymentsData] = await Promise.all([
           api.fetchCustomers(),
           api.fetchTasks(),
           api.fetchRemarks(),
-          api.fetchAllSales()
+          api.fetchAllSales(),
+          api.fetchAllInvoices(),
+          api.fetchAllPayments()
         ]);
 
         let settingsData = null;
@@ -57,6 +60,8 @@ export const useCrmData = () => {
         setTasks(tasksData.sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()));
         setRemarks(remarksData);
         setSales(salesData);
+        setInvoices(invoicesData);
+        setAllPayments(paymentsData);
         setUserSettings(settingsData);
         setHistoricalSnapshots(snapshotsData);
       } catch (error) {
@@ -317,6 +322,7 @@ export const useCrmData = () => {
     remarks,
     sales,
     invoices, // Export invoices
+    allPayments,
     userSettings,
     historicalSnapshots,
     filteredCustomers,

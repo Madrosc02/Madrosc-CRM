@@ -815,3 +815,28 @@ export const fetchPayments = async (customerId: string): Promise<Payment[]> => {
     if (error) throw error;
     return (data || []).map(mapPaymentRecord);
 };
+
+export const fetchAllInvoices = async (): Promise<Invoice[]> => {
+    const { data: invoicesData, error: invError } = await supabase
+        .from('invoices')
+        .select('*, invoice_items(*)')
+        .order('date', { ascending: false });
+
+    if (invError) throw invError;
+
+    return (invoicesData || []).map(inv => {
+        const mapped = mapInvoice(inv);
+        mapped.items = (inv.invoice_items || []).map(mapInvoiceItem);
+        return mapped;
+    });
+};
+
+export const fetchAllPayments = async (): Promise<Payment[]> => {
+    const { data, error } = await supabase
+        .from('payments')
+        .select('*')
+        .order('date', { ascending: false });
+
+    if (error) throw error;
+    return (data || []).map(mapPaymentRecord);
+};

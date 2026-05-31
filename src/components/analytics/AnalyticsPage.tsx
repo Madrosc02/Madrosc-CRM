@@ -34,9 +34,11 @@ import SalesRepLeaderboard from '../sales-revenue/SalesRepLeaderboard';
 import RevenueVsTarget from '../sales-revenue/RevenueVsTarget';
 import MayTargetProgress from '../sales-revenue/MayTargetProgress';
 import CategoryMix from '../sales-revenue/CategoryMix';
+import CreditRiskExposure from './CreditRiskExposure';
+import CrossSellMatrix from './CrossSellMatrix';
 
 const AnalyticsPage: React.FC = () => {
-    const { loading, analyticsFilters, customers } = useApp();
+    const { loading, analyticsFilters, customers, invoices } = useApp();
     const analyticsData = useAnalyticsData();
     const [activeTab, setActiveTab] = useState('overview');
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -120,6 +122,10 @@ const AnalyticsPage: React.FC = () => {
                         {/* CUSTOMERS TAB */}
                         {activeTab === 'customers' && (
                             <FadeIn className="space-y-6">
+                                <CreditRiskExposure customers={customers} />
+                                
+                                <CrossSellMatrix customers={customers} invoices={invoices} />
+
                                 <div className="card-base p-6">
                                     <CustomerSegmentation sales={analyticsData.filteredSales} />
                                 </div>
