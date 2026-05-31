@@ -25,6 +25,7 @@ const mapCustomer = (data: any): Customer => ({
     daysSinceLastOrder: Number(data.days_since_last_order),
     lastUpdated: data.last_updated,
     flag: data.flag,
+    tags: data.tags || [],
 });
 
 const mapSale = (data: any): Sale => ({
@@ -467,6 +468,15 @@ export const addGoal = async (goalData: Omit<Goal, 'id' | 'currentAmount' | 'sta
 
     if (error) throw error;
     return mapGoal(data);
+};
+
+export const updateCustomerTags = async (id: string, tags: string[]): Promise<void> => {
+    const { error } = await supabase
+        .from('customers')
+        .update({ tags, last_updated: new Date().toISOString() })
+        .eq('id', id);
+
+    if (error) throw error;
 };
 
 export const deleteGoal = async (goalId: string): Promise<void> => {

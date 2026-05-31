@@ -15,6 +15,7 @@ create table public.customers (
   avg_6_mo_sales numeric default 0,
   outstanding_balance numeric default 0,
   days_since_last_order numeric default 0,
+  tags text[] default '{}',
   last_updated timestamptz default now()
 );
 

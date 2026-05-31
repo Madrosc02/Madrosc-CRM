@@ -50,6 +50,10 @@ interface AppContextType extends CrmDataHook {
   openBulkImportModal: () => void;
   closeBulkImportModal: () => void;
 
+  isBulkActionModalOpen: boolean;
+  openBulkActionModal: () => void;
+  closeBulkActionModal: () => void;
+
   isAddTaskModalOpen: boolean;
   openAddTaskModal: (initialData?: AddTaskInitialData) => void;
   closeAddTaskModal: () => void;
@@ -94,6 +98,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [detailModalInitialTab, setDetailModalInitialTab] = useState<string>('overview');
   const [isAddCustomerModalOpen, setIsAddCustomerModalOpen] = useState(false);
   const [isBulkImportModalOpen, setIsBulkImportModalOpen] = useState(false);
+  const [isBulkActionModalOpen, setIsBulkActionModalOpen] = useState(false);
   const [isAddTaskModalOpen, setIsAddTaskModalOpen] = useState(false);
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
   const [addTaskInitialData, setAddTaskInitialData] = useState<AddTaskInitialData | null>(null);
@@ -121,6 +126,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   const openBulkImportModal = () => setIsBulkImportModalOpen(true);
   const closeBulkImportModal = () => setIsBulkImportModalOpen(false);
+
+  const openBulkActionModal = () => setIsBulkActionModalOpen(true);
+  const closeBulkActionModal = () => setIsBulkActionModalOpen(false);
 
   const openAddTaskModal = (initialData?: AddTaskInitialData) => {
     if (initialData) {
@@ -156,6 +164,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     isBulkImportModalOpen,
     openBulkImportModal,
     closeBulkImportModal,
+    isBulkActionModalOpen,
+    openBulkActionModal,
+    closeBulkActionModal,
     isAddTaskModalOpen,
     openAddTaskModal,
     closeAddTaskModal,

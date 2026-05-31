@@ -257,6 +257,16 @@ export const useCrmData = () => {
     }
   };
 
+  const updateCustomerTags = async (customerId: string, tags: string[]) => {
+    try {
+      await api.updateCustomerTags(customerId, tags);
+      setCustomers(prev => prev.map(c => c.id === customerId ? { ...c, tags } : c));
+    } catch (error) {
+      console.error("Error updating tags:", error);
+      throw error;
+    }
+  };
+
   const createSnapshot = async () => {
     try {
       const activeCustomers = customers.filter(c => c.salesThisMonth > 0 || c.daysSinceLastOrder <= 30).length;
@@ -308,6 +318,7 @@ export const useCrmData = () => {
     toggleTaskComplete,
     updateSettings,
     createSnapshot,
+    updateCustomerTags,
 
     // Data Fetchers for Detail View
     getSalesForCustomer: api.fetchSalesForCustomer,

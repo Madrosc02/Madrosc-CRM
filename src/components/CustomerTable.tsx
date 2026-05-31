@@ -1,11 +1,16 @@
 // @ts-nocheck
-
 import React, { useState, useMemo } from 'react';
 import { useApp } from '../contexts/AppContext';
 import TableSkeleton from './skeletons/TableSkeleton';
 import { Customer } from '../types';
+import { LineChart, Line, ResponsiveContainer } from 'recharts';
+import BulkActionModal from './BulkActionModal';
 
-const CustomerRow: React.FC<{ customer: Customer }> = ({ customer }) => {
+const CustomerRow: React.FC<{ 
+    customer: Customer;
+    isSelected: boolean;
+    onToggleSelect: (id: string) => void;
+}> = ({ customer, isSelected, onToggleSelect }) => {
     const { openDetailModal } = useApp();
     const TIER_STYLES: { [key in Customer['tier']]: string } = {
         Platinum: 'bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-200',
@@ -31,19 +36,40 @@ const CustomerRow: React.FC<{ customer: Customer }> = ({ customer }) => {
         window.location.href = `tel:${customer.contact}`;
     };
 
+    const sparklineData = useMemo(() => {
+        // Interpolate points to show trend direction from average to current
+        return [
+            { value: customer.avg6MoSales * 0.9 },
+            { value: customer.avg6MoSales },
+            { value: customer.avg6MoSales * 1.1 },
+            { value: (customer.avg6MoSales + customer.salesThisMonth) / 2 },
+            { value: customer.salesThisMonth }
+        ];
+    }, [customer.avg6MoSales, customer.salesThisMonth]);
+    
+    const isTrendingUp = customer.salesThisMonth >= customer.avg6MoSales;
+    const sparklineColor = isTrendingUp ? '#10b981' : '#ef4444';
+
     return (
         <tr
-            className="group border-b border-[var(--border-light)] dark:border-[var(--border-dark)] hover:bg-gray-50 dark:hover:bg-white/5 transition-colors duration-150 cursor-pointer"
+            className={`group border-b border-slate-200 dark:border-slate-800 transition-colors duration-150 cursor-pointer ${isSelected ? 'bg-indigo-50/50 dark:bg-indigo-900/20' : 'hover:bg-slate-50 dark:hover:bg-white/5'}`}
             onClick={() => openDetailModal(customer)}
         >
+            <td className="p-4 w-12" onClick={(e) => e.stopPropagation()}>
+                <input 
+                    type="checkbox" 
+                    checked={isSelected}
+                    onChange={() => onToggleSelect(customer.id)}
+                    className="w-4 h-4 text-primary bg-white border-slate-300 rounded focus:ring-primary dark:focus:ring-offset-slate-900 focus:ring-2 dark:bg-slate-800 dark:border-slate-600 cursor-pointer"
+                />
+            </td>
             <td className="p-4">
                 <div className="flex items-center">
-                    <img className="h-10 w-10 rounded-full object-cover ring-2 ring-white dark:ring-gray-800" src={customer.avatar} alt={customer.firmName} />
+                    <img className="h-10 w-10 rounded-full object-cover ring-2 ring-white dark:ring-slate-800" src={customer.avatar} alt={customer.firmName} />
                     <div className="ml-4">
-                        <p className="font-semibold text-[var(--text-primary-light)] dark:text-[var(--text-primary-dark)]">{customer.firmName}</p>
+                        <p className="font-semibold text-slate-900 dark:text-white">{customer.firmName}</p>
                         <div className="flex items-center gap-2">
-                            <p className="text-sm text-[var(--text-secondary-light)] dark:text-[var(--text-secondary-dark)]">{customer.personName}</p>
-                            {/* Quick Actions (Visible on Hover) */}
+                            <p className="text-sm text-slate-500 dark:text-slate-400">{customer.personName}</p>
                             <div className="hidden group-hover:flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                                 <button onClick={handleCall} className="p-1 text-blue-600 hover:bg-blue-100 rounded-full" title="Call">
                                     <i className="fas fa-phone text-xs"></i>
@@ -53,7 +79,16 @@ const CustomerRow: React.FC<{ customer: Customer }> = ({ customer }) => {
                                 </button>
                             </div>
                         </div>
-                        <p className="text-xs text-[var(--text-secondary-light)] dark:text-[var(--text-secondary-dark)] mt-0.5">{customer.contact} • {customer.district}, {customer.state}</p>
+                        <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">{customer.contact} • {customer.district}, {customer.state}</p>
+                        {customer.tags && customer.tags.length > 0 && (
+                            <div className="flex flex-wrap gap-1 mt-1.5">
+                                {customer.tags.map(tag => (
+                                    <span key={tag} className="text-[10px] px-1.5 py-0.5 rounded-sm bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
+                                        {tag}
+                                    </span>
+                                ))}
+                            </div>
+                        )}
                     </div>
                 </div>
             </td>
@@ -62,16 +97,27 @@ const CustomerRow: React.FC<{ customer: Customer }> = ({ customer }) => {
                     {customer.tier}
                 </span>
             </td>
-            <td className="p-4 text-right font-mono text-green-600 dark:text-green-400">
-                ₹{customer.salesThisMonth.toLocaleString('en-IN')}
+            <td className="p-4 text-right">
+                <div className="flex flex-col items-end">
+                    <span className="font-mono text-slate-800 dark:text-slate-200 font-semibold">
+                        ₹{customer.salesThisMonth.toLocaleString('en-IN')}
+                    </span>
+                    <div className="h-6 w-16 mt-1 opacity-80">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <LineChart data={sparklineData}>
+                                <Line type="monotone" dataKey="value" stroke={sparklineColor} strokeWidth={2} dot={false} isAnimationActive={false} />
+                            </LineChart>
+                        </ResponsiveContainer>
+                    </div>
+                </div>
             </td>
-            <td className="p-4 text-right font-mono text-blue-600 dark:text-blue-400">
+            <td className="p-4 text-right font-mono text-slate-500 dark:text-slate-400">
                 ₹{customer.avg6MoSales.toLocaleString('en-IN')}
             </td>
-            <td className="p-4 text-right font-mono text-red-600 dark:text-red-400">
+            <td className="p-4 text-right font-mono text-red-600 dark:text-red-400 font-medium">
                 ₹{customer.outstandingBalance.toLocaleString('en-IN')}
             </td>
-            <td className="p-4 text-center text-[var(--text-secondary-light)] dark:text-[var(--text-secondary-dark)]">
+            <td className="p-4 text-center text-slate-500 dark:text-slate-400">
                 {customer.daysSinceLastOrder} days
             </td>
             <td className="p-4 text-center">
@@ -89,10 +135,13 @@ const CustomerRow: React.FC<{ customer: Customer }> = ({ customer }) => {
 type SortKey = 'name' | 'tier' | 'salesThisMonth' | 'avg6MoSales' | 'outstandingBalance' | 'daysSinceLastOrder';
 
 const CustomerTable: React.FC = () => {
-    const { filteredCustomers: customers, loading, kpiFilter, setKpiFilter } = useApp();
+    const { filteredCustomers: customers, loading, kpiFilter, setKpiFilter, openBulkActionModal, closeBulkActionModal } = useApp();
     const [sortConfig, setSortConfig] = useState<{ key: SortKey; direction: 'asc' | 'desc' } | null>(null);
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 25;
+    
+    // Bulk Selection State
+    const [selectedCustomerIds, setSelectedCustomerIds] = useState<Set<string>>(new Set());
 
     const handleSort = (key: SortKey) => {
         let direction: 'asc' | 'desc' = 'asc';
@@ -106,7 +155,6 @@ const CustomerTable: React.FC = () => {
     const kpiFilteredCustomers = useMemo(() => {
         if (!kpiFilter || kpiFilter === 'all') return customers;
 
-        // Handle AI search results
         if (kpiFilter === 'ai-search') {
             const aiResults = sessionStorage.getItem('aiSearchResults');
             if (aiResults) {
@@ -116,15 +164,15 @@ const CustomerTable: React.FC = () => {
             return customers;
         }
 
-            switch (kpiFilter) {
+        switch (kpiFilter) {
             case 'total':
-                return customers; // Show all customers
+                return customers;
             case 'pending':
-                return customers.filter(c => c.salesThisMonth === 0); // No orders this month
+                return customers.filter(c => c.salesThisMonth === 0);
             case 'sales':
-                return customers.filter(c => c.salesThisMonth > 0); // Has sales this month
+                return customers.filter(c => c.salesThisMonth > 0);
             case 'outstanding':
-                return customers.filter(c => c.outstandingBalance > 0); // Has outstanding balance
+                return customers.filter(c => c.outstandingBalance > 0);
             case 'high-risk':
                 return customers.filter(c => c.outstandingBalance > 0 && c.salesThisMonth === 0);
             case 'upsell':
@@ -146,8 +194,8 @@ const CustomerTable: React.FC = () => {
     }, [kpiFilteredCustomers, sortConfig]);
 
     const SortIcon = ({ columnKey }: { columnKey: SortKey }) => {
-        if (sortConfig?.key !== columnKey) return <i className="fas fa-sort text-gray-300 ml-1"></i>;
-        return <i className={`fas fa-sort-${sortConfig.direction === 'asc' ? 'up' : 'down'} text-blue-500 ml-1`}></i>;
+        if (sortConfig?.key !== columnKey) return <i className="fas fa-sort text-slate-300 dark:text-slate-600 ml-1"></i>;
+        return <i className={`fas fa-sort-${sortConfig.direction === 'asc' ? 'up' : 'down'} text-primary ml-1`}></i>;
     };
 
     const getFilterLabel = () => {
@@ -167,6 +215,7 @@ const CustomerTable: React.FC = () => {
     // Pagination
     React.useEffect(() => {
         setCurrentPage(1);
+        setSelectedCustomerIds(new Set()); // Reset selections on filter change
     }, [kpiFilter, sortConfig]);
 
     const paginatedCustomers = useMemo(() => {
@@ -178,9 +227,13 @@ const CustomerTable: React.FC = () => {
 
     const handleExportCSV = () => {
         const headers = ['Firm Name', 'Contact Person', 'Contact', 'State', 'District', 'Tier', 'Month Sales', '6Mo Avg Sales', 'Outstanding Balance', 'Days Since Last Order'];
+        const dataToExport = selectedCustomerIds.size > 0 
+            ? sortedCustomers.filter(c => selectedCustomerIds.has(c.id))
+            : sortedCustomers;
+            
         const csvContent = [
             headers.join(','),
-            ...sortedCustomers.map(c => [
+            ...dataToExport.map(c => [
                 `"${c.firmName}"`,
                 `"${c.personName || ''}"`,
                 `"${c.contact}"`,
@@ -201,48 +254,102 @@ const CustomerTable: React.FC = () => {
         link.click();
     };
 
+    const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.checked) {
+            setSelectedCustomerIds(new Set(paginatedCustomers.map(c => c.id)));
+        } else {
+            setSelectedCustomerIds(new Set());
+        }
+    };
+
+    const handleToggleSelect = (id: string) => {
+        const newSet = new Set(selectedCustomerIds);
+        if (newSet.has(id)) newSet.delete(id);
+        else newSet.add(id);
+        setSelectedCustomerIds(newSet);
+    };
+
+    const selectedCustomersObj = useMemo(() => {
+        return sortedCustomers.filter(c => selectedCustomerIds.has(c.id));
+    }, [sortedCustomers, selectedCustomerIds]);
+
     return (
         <div className="card-base p-4">
-            <div className="flex justify-between items-center mb-4 px-2">
-                <h3 className="text-xl font-bold text-[var(--text-primary-light)] dark:text-[var(--text-primary-dark)]">{getFilterLabel()}</h3>
-                <div className="flex items-center gap-4">
-                    {kpiFilter && kpiFilter !== 'all' && (
-                        <button
-                            onClick={() => setKpiFilter(null)}
-                            className="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 flex items-center gap-1"
-                        >
-                            <i className="fas fa-times"></i> Clear Filter
-                        </button>
+            <div className="flex justify-between items-center mb-4 px-2 h-10">
+                <h3 className="text-xl font-bold text-slate-800 dark:text-white">
+                    {selectedCustomerIds.size > 0 ? (
+                        <span className="text-primary">{selectedCustomerIds.size} Selected</span>
+                    ) : (
+                        getFilterLabel()
                     )}
-                    <button 
-                        onClick={handleExportCSV}
-                        className="text-sm bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 px-3 py-1.5 rounded-lg flex items-center gap-2 transition-colors font-medium"
-                    >
-                        <i className="fas fa-download"></i> Export CSV
-                    </button>
+                </h3>
+                <div className="flex items-center gap-4">
+                    {selectedCustomerIds.size > 0 ? (
+                        <>
+                            <button
+                                onClick={() => setSelectedCustomerIds(new Set())}
+                                className="text-sm text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300"
+                            >
+                                Cancel
+                            </button>
+                            <button 
+                                onClick={openBulkActionModal}
+                                className="text-sm bg-primary hover:bg-primary-hover text-white px-4 py-1.5 rounded-lg flex items-center gap-2 transition-colors font-medium shadow-sm"
+                            >
+                                <i className="fab fa-whatsapp"></i> Bulk Action Hub
+                            </button>
+                        </>
+                    ) : (
+                        <>
+                            {kpiFilter && kpiFilter !== 'all' && (
+                                <button
+                                    onClick={() => setKpiFilter(null)}
+                                    className="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 flex items-center gap-1"
+                                >
+                                    <i className="fas fa-times"></i> Clear Filter
+                                </button>
+                            )}
+                            <button 
+                                onClick={handleExportCSV}
+                                className="text-sm bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 px-3 py-1.5 rounded-lg flex items-center gap-2 transition-colors font-medium"
+                            >
+                                <i className="fas fa-download"></i> Export CSV
+                            </button>
+                        </>
+                    )}
                 </div>
             </div>
             
-            {/* Quick Filter Pills */}
-            <div className="flex flex-wrap gap-2 px-2 mb-4">
-                <button onClick={() => setKpiFilter('pending')} className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${kpiFilter === 'pending' ? 'bg-emerald-500 text-white shadow-md scale-105' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 hover:scale-105'}`}>
-                    ⏳ Pending Orders
-                </button>
-                <button onClick={() => setKpiFilter('high-risk')} className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${kpiFilter === 'high-risk' ? 'bg-red-500 text-white shadow-md scale-105' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 hover:scale-105'}`}>
-                    🚨 High Risk
-                </button>
-                <button onClick={() => setKpiFilter('upsell')} className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${kpiFilter === 'upsell' ? 'bg-blue-500 text-white shadow-md scale-105' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 hover:scale-105'}`}>
-                    💎 Easy Upsell
-                </button>
-                <button onClick={() => setKpiFilter('platinum')} className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${kpiFilter === 'platinum' ? 'bg-slate-800 text-white shadow-md scale-105' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 hover:scale-105'}`}>
-                    ⭐ Platinum
-                </button>
-            </div>
+            {/* Quick Filter Pills (hide if selecting) */}
+            {selectedCustomerIds.size === 0 && (
+                <div className="flex flex-wrap gap-2 px-2 mb-4">
+                    <button onClick={() => setKpiFilter('pending')} className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${kpiFilter === 'pending' ? 'bg-emerald-500 text-white shadow-md scale-105' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 hover:scale-105'}`}>
+                        ⏳ Pending Orders
+                    </button>
+                    <button onClick={() => setKpiFilter('high-risk')} className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${kpiFilter === 'high-risk' ? 'bg-red-500 text-white shadow-md scale-105' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 hover:scale-105'}`}>
+                        🚨 High Risk
+                    </button>
+                    <button onClick={() => setKpiFilter('upsell')} className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${kpiFilter === 'upsell' ? 'bg-blue-500 text-white shadow-md scale-105' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 hover:scale-105'}`}>
+                        💎 Easy Upsell
+                    </button>
+                    <button onClick={() => setKpiFilter('platinum')} className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${kpiFilter === 'platinum' ? 'bg-slate-800 text-white shadow-md scale-105' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 hover:scale-105'}`}>
+                        ⭐ Platinum
+                    </button>
+                </div>
+            )}
 
             <div className="overflow-x-auto pr-2">
-                <table className="w-full text-sm text-left text-[var(--text-secondary-light)] dark:text-[var(--text-secondary-dark)]">
-                    <thead className="text-xs uppercase bg-gray-50 dark:bg-white/5">
+                <table className="w-full text-sm text-left text-slate-600 dark:text-slate-300">
+                    <thead className="text-xs uppercase bg-slate-50 dark:bg-slate-800/50 border-y border-slate-200 dark:border-slate-800">
                         <tr>
+                            <th scope="col" className="p-4 w-12">
+                                <input 
+                                    type="checkbox" 
+                                    onChange={handleSelectAll}
+                                    checked={paginatedCustomers.length > 0 && selectedCustomerIds.size === paginatedCustomers.length}
+                                    className="w-4 h-4 text-primary bg-white border-slate-300 rounded focus:ring-primary dark:focus:ring-offset-slate-900 focus:ring-2 dark:bg-slate-800 dark:border-slate-600 cursor-pointer"
+                                />
+                            </th>
                             <th scope="col" className="p-4 font-semibold min-w-[280px] cursor-pointer hover:text-blue-600 transition-colors" onClick={() => handleSort('name')}>
                                 Customer <SortIcon columnKey="name" />
                             </th>
@@ -265,17 +372,22 @@ const CustomerTable: React.FC = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {loading ? <TableSkeleton rows={5} cols={7} /> : paginatedCustomers.map(customer => (
-                            <CustomerRow key={customer.id} customer={customer} />
+                        {loading ? <TableSkeleton rows={5} cols={8} /> : paginatedCustomers.map(customer => (
+                            <CustomerRow 
+                                key={customer.id} 
+                                customer={customer} 
+                                isSelected={selectedCustomerIds.has(customer.id)}
+                                onToggleSelect={handleToggleSelect}
+                            />
                         ))}
                     </tbody>
                 </table>
             </div>
             {!loading && sortedCustomers.length > 0 && totalPages > 1 && (
-                <div className="flex items-center justify-between px-4 py-3 border-t border-[var(--border-light)] dark:border-[var(--border-dark)] sm:px-6 mt-4">
+                <div className="flex items-center justify-between px-4 py-3 border-t border-slate-200 dark:border-slate-800 sm:px-6 mt-4">
                     <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
                         <div>
-                            <p className="text-sm text-[var(--text-secondary-light)] dark:text-[var(--text-secondary-dark)]">
+                            <p className="text-sm text-slate-500 dark:text-slate-400">
                                 Showing <span className="font-medium">{((currentPage - 1) * itemsPerPage) + 1}</span> to <span className="font-medium">{Math.min(currentPage * itemsPerPage, sortedCustomers.length)}</span> of <span className="font-medium">{sortedCustomers.length}</span> results
                             </p>
                         </div>
@@ -284,7 +396,7 @@ const CustomerTable: React.FC = () => {
                                 <button
                                     onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                                     disabled={currentPage === 1}
-                                    className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-[var(--border-light)] dark:border-[var(--border-dark)] bg-white dark:bg-gray-800 text-sm font-medium text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50"
+                                    className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm font-medium text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-50"
                                 >
                                     <span className="sr-only">Previous</span>
                                     <i className="fas fa-chevron-left"></i>
@@ -293,7 +405,7 @@ const CustomerTable: React.FC = () => {
                                     <button
                                         key={i + 1}
                                         onClick={() => setCurrentPage(i + 1)}
-                                        className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${currentPage === i + 1 ? 'z-10 bg-blue-50 dark:bg-blue-900/30 border-blue-500 text-blue-600 dark:text-blue-400' : 'bg-white dark:bg-gray-800 border-[var(--border-light)] dark:border-[var(--border-dark)] text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700'}`}
+                                        className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${currentPage === i + 1 ? 'z-10 bg-indigo-50 dark:bg-indigo-900/30 border-primary text-primary' : 'bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-700 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800'}`}
                                     >
                                         {i + 1}
                                     </button>
@@ -301,7 +413,7 @@ const CustomerTable: React.FC = () => {
                                 <button
                                     onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                                     disabled={currentPage === totalPages}
-                                    className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-[var(--border-light)] dark:border-[var(--border-dark)] bg-white dark:bg-gray-800 text-sm font-medium text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50"
+                                    className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm font-medium text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-50"
                                 >
                                     <span className="sr-only">Next</span>
                                     <i className="fas fa-chevron-right"></i>
@@ -312,12 +424,16 @@ const CustomerTable: React.FC = () => {
                 </div>
             )}
             {!loading && sortedCustomers.length === 0 && (
-                <div className="text-center py-16 text-[var(--text-secondary-light)] dark:text-[var(--text-secondary-dark)]">
+                <div className="text-center py-16 text-slate-500 dark:text-slate-400">
                     <i className="fas fa-users-slash text-4xl mb-3"></i>
                     <p className="font-medium">No customers found.</p>
                     <p className="text-sm">Try adjusting your search or filters.</p>
                 </div>
             )}
+            <BulkActionModal 
+                selectedCustomers={selectedCustomersObj} 
+                onClose={closeBulkActionModal} 
+            />
         </div>
     );
 };

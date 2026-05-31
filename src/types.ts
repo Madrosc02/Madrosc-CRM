@@ -37,6 +37,7 @@ export interface Customer {
   daysSinceLastOrder: number;
   lastUpdated: string; // ISO string
   flag?: 'Green' | 'Red'; // Added for Call Mode
+  tags?: string[]; // Custom labels
 }
 
 export interface Sale {
