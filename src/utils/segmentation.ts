@@ -178,5 +178,5 @@ export function segmentCustomers(customers: Customer[], sales: Sale[]): Customer
             color: 'from-red-500 to-rose-600',
             priority: 8
         }
-    ].filter(seg => seg.customers.length > 0); // Only return non-empty segments
+    ];
 }
