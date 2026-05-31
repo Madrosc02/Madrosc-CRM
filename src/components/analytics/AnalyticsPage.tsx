@@ -214,7 +214,7 @@ const AnalyticsPage: React.FC = () => {
                                             <div className="card-base p-6">
                                                 <CustomerSegmentation sales={analyticsData.filteredSales} />
                                             </div>
-                                            <div className="card-base p-6 xl:w-1/2">
+                                            <div className="card-base p-6">
                                                 <TierDistributionChart />
                                             </div>
                                         </div>
