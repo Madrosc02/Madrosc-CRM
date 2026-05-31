@@ -39,11 +39,24 @@ import CategoryMix from '../sales-revenue/CategoryMix';
 import CreditRiskExposure from './CreditRiskExposure';
 import CrossSellMatrix from './CrossSellMatrix';
 
+import AnalyticsControlBar from './AnalyticsControlBar';
+
 const AnalyticsPage: React.FC = () => {
     const { loading, analyticsFilters, customers, invoices } = useApp();
     const analyticsData = useAnalyticsData();
     const [activeTab, setActiveTab] = useState('overview');
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+
+    const [globalDateRange, setGlobalDateRange] = useState({ start: '2026-05-01', end: '2026-05-31' });
+    const [globalTier, setGlobalTier] = useState('all');
+    const [globalState, setGlobalState] = useState('all');
+
+    const availableStates = useMemo(() => {
+        if (!customers) return [];
+        const states = new Set<string>();
+        customers.forEach(c => c.state && states.add(c.state.trim()));
+        return Array.from(states).sort();
+    }, [customers]);
 
     const selectedCustomerData = useMemo(() => {
         if (analyticsFilters.selectedCustomer === 'all') return null;
@@ -58,7 +71,7 @@ const AnalyticsPage: React.FC = () => {
             {/* Main Content Area (Left) */}
             <div className="flex-1 w-full space-y-6 overflow-hidden min-w-0 transition-all duration-300">
                 {/* Header Row */}
-                <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-4">
                         <h1 className="text-2xl font-bold text-slate-900 tracking-tight whitespace-nowrap">Analytics Hub</h1>
                         <button 
@@ -73,6 +86,16 @@ const AnalyticsPage: React.FC = () => {
                         <AnalyticsFilters />
                     </div>
                 </div>
+
+                <AnalyticsControlBar
+                    dateRange={globalDateRange}
+                    setDateRange={setGlobalDateRange}
+                    tierFilter={globalTier}
+                    setTierFilter={setGlobalTier}
+                    stateFilter={globalState}
+                    setStateFilter={setGlobalState}
+                    availableStates={availableStates}
+                />
 
                 {selectedCustomerData ? (
                     <FadeIn>
