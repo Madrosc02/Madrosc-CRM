@@ -158,7 +158,7 @@ export const CustomerDetailDrawer: React.FC = () => {
                                 {activeTab === 'invoices' && <CustomerInvoicesTab customer={customer} />}
                                 {activeTab === 'goals' && <GoalsTab customer={customer} sales={sales} />}
                                 {activeTab === 'sales' && <CustomerSales customer={customer} sales={sales} />}
-                                {activeTab === 'remarks' && <CustomerRemarks customerId={customer.id} initialRemarks={remarks} />}
+                                {activeTab === 'remarks' && <CustomerRemarks customer={customer} remarks={remarks} onRemarkAdded={fetchData} />}
                                 {activeTab === 'tasks' && <CustomerTasks customer={customer} />}
                                 {activeTab === 'actions' && <CustomerActions customer={customer} />}
                             </>
