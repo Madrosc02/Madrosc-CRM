@@ -199,13 +199,11 @@ const AnalyticsPage: React.FC = () => {
                                     {customersSubTab === 'risk' && (
                                         <div className="space-y-6">
                                             <CreditRiskExposure customers={customers} />
-                                            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-                                                <div className="card-base p-6">
-                                                    <ChurnRiskDashboard sales={analyticsData.filteredSales} />
-                                                </div>
-                                                <div className="card-base p-6">
-                                                    <CohortAnalysis sales={analyticsData.allSales} />
-                                                </div>
+                                            <div className="card-base p-6">
+                                                <ChurnRiskDashboard sales={analyticsData.filteredSales} />
+                                            </div>
+                                            <div className="card-base p-6">
+                                                <CohortAnalysis sales={analyticsData.allSales} />
                                             </div>
                                         </div>
                                     )}
@@ -213,13 +211,11 @@ const AnalyticsPage: React.FC = () => {
                                     {customersSubTab === 'segmentation' && (
                                         <div className="space-y-6">
                                             <CrossSellMatrix customers={customers} invoices={invoices} />
-                                            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-                                                <div className="card-base p-6">
-                                                    <CustomerSegmentation sales={analyticsData.filteredSales} />
-                                                </div>
-                                                <div className="card-base p-6">
-                                                    <TierDistributionChart />
-                                                </div>
+                                            <div className="card-base p-6">
+                                                <CustomerSegmentation sales={analyticsData.filteredSales} />
+                                            </div>
+                                            <div className="card-base p-6 xl:w-1/2">
+                                                <TierDistributionChart />
                                             </div>
                                         </div>
                                     )}
