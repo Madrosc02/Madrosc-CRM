@@ -77,7 +77,7 @@ const CustomerRow: React.FC<{ customer: Customer }> = ({ customer }) => {
             <td className="p-4 text-center">
                 <button
                     onClick={(e) => { e.stopPropagation(); openDetailModal(customer); }}
-                    className="text-sm font-medium text-[var(--primary-light)] dark:text-[var(--primary-dark)] hover:underline"
+                    className="text-sm font-medium text-blue-600 dark:text-blue-400 hover:underline"
                 >
                     View Details
                 </button>

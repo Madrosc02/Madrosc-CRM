@@ -4,7 +4,7 @@ import { useApp } from '../contexts/AppContext';
 import { useToast } from '../contexts/ToastContext';
 import { Sale, Remark, CustomerFormData } from '../types';
 import Spinner from './ui/Spinner';
-import Drawer from './ui/Drawer';
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from './ui/sheet';
 import GoalsTab from './GoalsTab';
 import { CustomerOverview, EditDetailsForm } from './customer/CustomerOverview';
 import { CustomerSales } from './customer/CustomerSales';
@@ -84,8 +84,6 @@ export const CustomerDetailDrawer: React.FC = () => {
         }
     }
 
-    if (!customer) return null;
-
     const TABS = [
         { id: 'overview', label: 'Overview', icon: 'fa-chart-line' },
         { id: 'goals', label: 'Goals', icon: 'fa-bullseye' },
@@ -96,59 +94,62 @@ export const CustomerDetailDrawer: React.FC = () => {
     ];
 
     return (
-        <Drawer
-            isOpen={!!detailModalCustomer}
-            onClose={closeDetailModal}
-            title={customer.name}
-            width="max-w-4xl"
+        <Sheet
+            open={!!detailModalCustomer}
+            onOpenChange={(open) => !open && closeDetailModal()}
         >
-            <div className="flex flex-col">
-                {/* Header Actions */}
-                <div className="flex justify-end mb-4">
-                    <button onClick={handleDelete} className="text-sm text-red-500 hover:underline flex items-center">
-                        <i className="fas fa-trash-alt mr-2"></i> Delete Customer
-                    </button>
-                </div>
+            <SheetContent side="right" className="w-full sm:max-w-4xl p-0 flex flex-col h-full bg-white dark:bg-slate-900 border-l border-slate-200 dark:border-slate-800">
+                {customer && (
+                    <>
+                        <SheetHeader className="px-6 pt-6 pb-2 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
+                            <div className="flex items-center justify-between">
+                                <SheetTitle className="text-xl font-bold text-slate-800 dark:text-white">
+                                    {customer.name}
+                                </SheetTitle>
+                                <button onClick={handleDelete} className="text-sm text-red-500 hover:text-red-600 hover:bg-red-50 px-3 py-1.5 rounded-md transition-colors flex items-center mr-8">
+                                    <i className="fas fa-trash-alt mr-2"></i> Delete
+                                </button>
+                            </div>
+                            
+                            {/* Tabs */}
+                            <div className="flex space-x-1 overflow-x-auto pt-4 pb-0 scrollbar-hide">
+                                {TABS.map(tab => (
+                                    <button
+                                        key={tab.id}
+                                        onClick={() => { setActiveTab(tab.id); setIsEditMode(false); }}
+                                        className={`py-2.5 px-4 font-medium text-sm rounded-t-lg transition-all duration-200 flex-shrink-0 border-b-2 ${activeTab === tab.id
+                                            ? 'border-primary text-primary bg-primary/5'
+                                            : 'border-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800'
+                                            }`}
+                                    >
+                                        <i className={`fas ${tab.icon} mr-2`}></i>{tab.label}
+                                    </button>
+                                ))}
+                            </div>
+                        </SheetHeader>
 
-                {/* Tabs */}
-                <div className="border-b border-[var(--color-border-light)] dark:border-[var(--color-border-dark)] mb-6">
-                    <div className="flex space-x-1 overflow-x-auto pb-1">
-                        {TABS.map(tab => (
-                            <button
-                                key={tab.id}
-                                onClick={() => { setActiveTab(tab.id); setIsEditMode(false); }}
-                                className={`py-2 px-4 font-medium text-sm rounded-t-md transition-colors duration-200 flex-shrink-0 border-b-2 ${activeTab === tab.id
-                                    ? 'border-[var(--color-primary)] text-[var(--color-primary)] bg-[var(--color-primary)]/5'
-                                    : 'border-transparent text-[var(--color-text-secondary-light)] dark:text-[var(--color-text-secondary-dark)] hover:text-[var(--color-text-primary-light)] dark:hover:text-[var(--color-text-primary-dark)] hover:bg-gray-50 dark:hover:bg-white/5'
-                                    }`}
-                            >
-                                <i className={`fas ${tab.icon} mr-2`}></i>{tab.label}
-                            </button>
-                        ))}
-                    </div>
-                </div>
-
-
-                {/* Body */}
-                <div className="flex-grow overflow-y-auto">
-                    {isLoading ? (
-                        <div className="flex items-center justify-center h-64">
-                            <Spinner />
+                        {/* Body */}
+                        <div className="flex-1 overflow-y-auto p-6 bg-white dark:bg-slate-900">
+                            {isLoading ? (
+                                <div className="flex items-center justify-center h-64">
+                                    <Spinner />
+                                </div>
+                            ) : (
+                                <div className="animate-in fade-in duration-300">
+                                    {activeTab === 'overview' && !isEditMode && <CustomerOverview customer={customer} sales={sales} remarks={remarks} onEditMode={() => setIsEditMode(true)} />}
+                                    {isEditMode && <EditDetailsForm customer={customer} onCancel={() => setIsEditMode(false)} onSave={handleSave} />}
+                                    {activeTab === 'goals' && <GoalsTab customer={customer} sales={sales} />}
+                                    {activeTab === 'sales' && <CustomerSales sales={sales} />}
+                                    {activeTab === 'remarks' && <CustomerRemarks customer={customer} remarks={remarks} onRemarkAdded={fetchData} />}
+                                    {activeTab === 'tasks' && <CustomerTasks customerId={customer.id} />}
+                                    {activeTab === 'actions' && <CustomerActions customer={customer} onSave={fetchData} />}
+                                </div>
+                            )}
                         </div>
-                    ) : (
-                        <div className="animate-fade-in">
-                            {activeTab === 'overview' && !isEditMode && <CustomerOverview customer={customer} sales={sales} remarks={remarks} onEditMode={() => setIsEditMode(true)} />}
-                            {isEditMode && <EditDetailsForm customer={customer} onCancel={() => setIsEditMode(false)} onSave={handleSave} />}
-                            {activeTab === 'goals' && <GoalsTab customer={customer} sales={sales} />}
-                            {activeTab === 'sales' && <CustomerSales sales={sales} />}
-                            {activeTab === 'remarks' && <CustomerRemarks customer={customer} remarks={remarks} onRemarkAdded={fetchData} />}
-                            {activeTab === 'tasks' && <CustomerTasks customerId={customer.id} />}
-                            {activeTab === 'actions' && <CustomerActions customer={customer} onSave={fetchData} />}
-                        </div>
-                    )}
-                </div>
-            </div>
-        </Drawer>
+                    </>
+                )}
+            </SheetContent>
+        </Sheet>
     );
 };
 
