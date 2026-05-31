@@ -8,27 +8,34 @@ interface SmartAlertsProps {
 }
 
 export const SmartAlerts: React.FC<SmartAlertsProps> = ({ insights = [] }) => {
-  const { openAddCustomerModal } = useApp();
+  const { openAddCustomerModal, tasks, customers } = useApp();
   
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedInsight, setGeneratedInsight] = useState<string | null>(null);
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
 
-  // Try to use dynamic data for the counts if available, otherwise fallback to original static numbers
-  const overdueCount = insights.find(i => i.category === 'Potential Churn Risk')?.count || 2;
-  const newCustomerCount = insights.find(i => i.category === 'Engagement Opportunities')?.count || 134;
+  // Use dynamic real data for counts
+  const overdueCount = tasks.filter(t => new Date(t.dueDate) < new Date() && !t.completed).length;
+  // Consider a customer 'new' if added in the last 30 days. We don't have createdDate, so we can use Engagement Opportunities as a proxy, or default to 0.
+  const newCustomerCount = insights.find(i => i.category === 'Engagement Opportunities')?.count || 0;
 
   const handleViewTasks = () => {
     setIsTaskModalOpen(true);
   };
 
-  const handleGenerateInsights = () => {
+  const handleGenerateInsights = async () => {
     setIsGenerating(true);
     setGeneratedInsight(null);
-    setTimeout(() => {
-      setIsGenerating(false);
-      setGeneratedInsight("Focus on engaging the 134 new customers to improve first-month retention by 15%. Also, clearing the 2 overdue tasks could prevent potential churn.");
-    }, 1500);
+    try {
+        const { generateShortAIInsight } = await import('../../services/geminiService');
+        const summary = await generateShortAIInsight(customers, tasks);
+        setGeneratedInsight(summary);
+    } catch (error) {
+        console.error("Failed to generate insights:", error);
+        setGeneratedInsight("Failed to connect to AI service.");
+    } finally {
+        setIsGenerating(false);
+    }
   };
 
   return (

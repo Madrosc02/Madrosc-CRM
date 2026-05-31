@@ -125,14 +125,51 @@ const KPIRow: React.FC = () => {
 
     }, [customers, dateFilteredSales]);
 
-    // Generate visually appealing sparkline data based on the trend
-    const generateSparkline = (baseValue: number, points: number = 10, trend: 'up' | 'down') => {
-        let current = baseValue > 0 ? baseValue * 0.6 : 100;
-        return Array.from({ length: points }).map((_, i) => {
-            const step = (current * 0.1) * (Math.random() + 0.5);
-            current += trend === 'up' ? step : (i > points / 2 ? -step : step * 0.5);
-            return { value: current };
-        });
+    // Generate visually appealing sparkline data based on real data where possible
+    const generateSparkline = (metricType: 'sales' | 'customers' | 'pending' | 'outstanding', points: number = 10) => {
+        const now = new Date();
+        const data = [];
+        
+        for (let i = points - 1; i >= 0; i--) {
+            const dateStr = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i).toISOString().split('T')[0];
+            
+            if (metricType === 'sales') {
+                // Calculate actual sales for this specific day
+                const daySales = allSales
+                    .filter(s => s.date.startsWith(dateStr))
+                    .reduce((sum, s) => sum + s.amount, 0);
+                
+                // Add to a cumulative sum or just show daily trend (showing cumulative for stability)
+                const previousTotal = data.length > 0 ? data[data.length - 1].value : kpis.totalSales * 0.8; 
+                data.push({ value: previousTotal + daySales });
+            } else {
+                // For other metrics where we don't have historical logs, 
+                // we create a stable line that trends towards the current value
+                const currentValue = metricType === 'customers' ? kpis.totalCustomers : 
+                                     metricType === 'pending' ? kpis.pendingOrders : 
+                                     kpis.totalOutstanding;
+                                     
+                const trendInfo = metricType === 'customers' ? trends.customers :
+                                  metricType === 'pending' ? trends.pending :
+                                  trends.outstanding;
+                
+                // Back-calculate a plausible historical line based on the calculated MoM trend
+                const changeRate = (trendInfo as any).change !== undefined ? (trendInfo as any).change : (trendInfo as any).growth;
+                const startValue = currentValue / (1 + (changeRate / 100));
+                
+                const step = (currentValue - startValue) / points;
+                data.push({ value: startValue + (step * (points - 1 - i)) });
+            }
+        }
+        
+        // Ensure values aren't zero/negative for sparklines to render nicely
+        const minVal = Math.min(...data.map(d => d.value));
+        if (minVal <= 0) {
+            const offset = Math.abs(minVal) + 10;
+            return data.map(d => ({ value: d.value + offset }));
+        }
+        
+        return data;
     };
 
     if (loading || salesLoading) {
@@ -153,7 +190,7 @@ const KPIRow: React.FC = () => {
                 trend={trends.customers.trend}
                 trendValue={`${trends.customers.growth >= 0 ? '+' : ''}${trends.customers.growth.toFixed(1)}%`}
                 onClick={() => setKpiFilter('total')}
-                sparklineData={generateSparkline(kpis.totalCustomers, 10, trends.customers.trend)}
+                sparklineData={generateSparkline('customers')}
             />
             <StatCard
                 icon="fa-clock"
@@ -163,7 +200,7 @@ const KPIRow: React.FC = () => {
                 trend={trends.pending.trend}
                 trendValue={`${trends.pending.change >= 0 ? '+' : ''}${trends.pending.change}%`}
                 onClick={() => setKpiFilter('pending')}
-                sparklineData={generateSparkline(kpis.pendingOrders, 10, trends.pending.trend)}
+                sparklineData={generateSparkline('pending')}
             />
             <StatCard
                 icon="fa-chart-line"
@@ -176,7 +213,7 @@ const KPIRow: React.FC = () => {
                 trend={trends.sales.trend}
                 trendValue={`${trends.sales.mom >= 0 ? '+' : ''}${trends.sales.mom.toFixed(1)}% MoM`}
                 onClick={() => setKpiFilter('sales')}
-                sparklineData={generateSparkline(kpis.totalSales, 10, trends.sales.trend)}
+                sparklineData={generateSparkline('sales')}
             />
             <StatCard
                 icon="fa-file-invoice-dollar"
@@ -189,7 +226,7 @@ const KPIRow: React.FC = () => {
                 trend={trends.outstanding.trend}
                 trendValue={`${trends.outstanding.change}%`}
                 onClick={() => setKpiFilter('outstanding')}
-                sparklineData={generateSparkline(kpis.totalOutstanding, 10, trends.outstanding.trend)}
+                sparklineData={generateSparkline('outstanding')}
             />
         </div>
     );

@@ -104,6 +104,40 @@ export const generateAIAnalyticsSummary = async (
     }
 }
 
+export const generateShortAIInsight = async (
+    customers: Customer[],
+    tasks: Task[]
+): Promise<string> => {
+    try {
+        const totalCustomers = customers.length;
+        const totalOutstanding = customers.reduce((sum, c) => sum + c.outstandingBalance, 0);
+        const activeCustomers = customers.filter(c => c.salesThisMonth > 0).length;
+        const overdueTasks = tasks.filter(t => new Date(t.dueDate) < new Date() && !t.completed).length;
+
+        const prompt = `
+            Analyze the following overall CRM data and provide a single, short, actionable insight sentence for a sales manager.
+            Do NOT use markdown. Keep it plain text, under 25 words.
+            Focus on the most pressing issue (like high outstanding balances or overdue tasks) or a positive trend to capitalize on.
+            
+            **Data:**
+            - Total Customers: ${totalCustomers}
+            - Active Customers: ${activeCustomers}
+            - Total Outstanding Balance: ₹${totalOutstanding.toLocaleString('en-IN')}
+            - Overdue Tasks: ${overdueTasks}
+        `;
+
+        const response = await ai.models.generateContent({
+            model: 'gemini-2.5-flash',
+            contents: prompt,
+        });
+
+        return (response.text ?? '').trim();
+    } catch (error) {
+        console.error("Error generating short AI insight:", error);
+        return "Focus on clearing overdue tasks and following up on outstanding balances to maintain healthy cash flow.";
+    }
+}
+
 export const generateSalesForecast = async (sales: Sale[]): Promise<string> => {
     try {
         const salesSummary = sales
