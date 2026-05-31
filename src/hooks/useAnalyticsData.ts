@@ -37,7 +37,7 @@ export interface HealthScoreData {
 }
 
 export const useAnalyticsData = () => {
-  const { customers, getAllSales, analyticsFilters } = useApp();
+  const { customers, getAllSales, analyticsFilters, userSettings, historicalSnapshots } = useApp();
   const [allSales, setAllSales] = useState<Sale[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -104,7 +104,7 @@ export const useAnalyticsData = () => {
       const prev = new Date(currentD.getFullYear(), currentD.getMonth() - 1, 1);
       const prevMonthActual = monthlySales[`${prev.getFullYear()}-${prev.getMonth()}`] || 0;
       
-      const baseTarget = 2000; // Base minimal target
+      const baseTarget = userSettings ? userSettings.monthlyRevenueTarget : 2000; // Use settings base target
       const target = prevMonthActual > 0 ? Math.round(prevMonthActual * 1.1) : baseTarget;
 
       data.push({

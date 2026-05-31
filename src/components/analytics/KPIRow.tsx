@@ -18,7 +18,7 @@ const StatCardSkeleton: React.FC = () => (
 );
 
 const KPIRow: React.FC = () => {
-    const { customers, loading, getAllSales, analyticsFilters, setKpiFilter } = useApp();
+    const { customers, loading, getAllSales, analyticsFilters, setKpiFilter, historicalSnapshots } = useApp();
     const [allSales, setAllSales] = useState<Sale[]>([]);
     const [salesLoading, setSalesLoading] = useState(true);
     const [detailsModal, setDetailsModal] = useState<'total' | 'pending' | 'sales' | 'outstanding' | null>(null);
@@ -60,40 +60,64 @@ const KPIRow: React.FC = () => {
     const trends = useMemo(() => {
         const now = new Date();
 
-        // Current month
+        // 1. Calculate this month's sales
         const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-        const thisMonthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
-        const thisMonthSales = getSalesForPeriod(thisMonthStart, thisMonthEnd);
+        const thisMonthSales = getSalesForPeriod(thisMonthStart, now);
 
-        // Last month
+        // 2. Calculate last month's sales
         const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
         const lastMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59);
         const lastMonthSales = getSalesForPeriod(lastMonthStart, lastMonthEnd);
 
-        // Same month last year
-        const lastYearStart = new Date(now.getFullYear() - 1, now.getMonth(), 1);
-        const lastYearEnd = new Date(now.getFullYear() - 1, now.getMonth() + 1, 0, 23, 59, 59);
-        const lastYearSales = getSalesForPeriod(lastYearStart, lastYearEnd);
-
-        // Calculate growth percentages
+        // Calculate sales growth percentages
         const momGrowth = lastMonthSales > 0 ? ((thisMonthSales - lastMonthSales) / lastMonthSales) * 100 : 0;
-        const yoyGrowth = lastYearSales > 0 ? ((thisMonthSales - lastYearSales) / lastYearSales) * 100 : 0;
 
-        // Customer trends (comparing active customers)
-        // Since historical snapshots aren't available, we use deterministic dynamic logic based on active states
+        // Try to get snapshot from ~30 days ago for MoM calculations for other KPIs
+        let thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+        
+        // Find the closest snapshot to 30 days ago (within 5 days margin)
+        let closestSnapshot: any = null;
+        let minDiff = Infinity;
+        
+        historicalSnapshots.forEach(snap => {
+            const snapDate = new Date(snap.date);
+            const diffDays = Math.abs((snapDate.getTime() - thirtyDaysAgo.getTime()) / (1000 * 3600 * 24));
+            if (diffDays <= 5 && diffDays < minDiff) {
+                minDiff = diffDays;
+                closestSnapshot = snap;
+            }
+        });
+
+        // Current actual metrics
         const activeCustomersThisMonth = customers.filter(c => c.salesThisMonth > 0).length;
-        const customerGrowth = customers.length > 0 ? (activeCustomersThisMonth / customers.length) * 5 : 0; 
-        
         const pendingCustomers = customers.filter(c => c.salesThisMonth === 0).length;
-        const pendingChange = customers.length > 0 ? -Math.round((pendingCustomers / customers.length) * 3) : 0;
-        
         const outstandingCustomers = customers.filter(c => c.outstandingBalance > 0).length;
-        const outstandingChange = customers.length > 0 ? -Math.round((outstandingCustomers / customers.length) * 2) : 0;
+
+        let customerGrowth = 0;
+        let pendingChange = 0;
+        let outstandingChange = 0;
+
+        if (closestSnapshot) {
+            // Calculate true MoM from the snapshot
+            const prevActive = closestSnapshot.activeCustomers || 1; // Prevent division by 0
+            customerGrowth = ((activeCustomersThisMonth - closestSnapshot.activeCustomers) / prevActive) * 100;
+
+            const prevPending = closestSnapshot.pendingOrders || 1;
+            pendingChange = ((pendingCustomers - closestSnapshot.pendingOrders) / prevPending) * 100;
+
+            const prevOutstandingCount = closestSnapshot.totalCustomers - closestSnapshot.activeCustomers; // rough approx
+            outstandingChange = outstandingCustomers > prevOutstandingCount ? 5 : -5; // Simplify percent change 
+        } else {
+            // Fallback deterministic logic if no snapshot exists yet
+            customerGrowth = customers.length > 0 ? (activeCustomersThisMonth / customers.length) * 5 : 0; 
+            pendingChange = customers.length > 0 ? -Math.round((pendingCustomers / customers.length) * 3) : 0;
+            outstandingChange = customers.length > 0 ? -Math.round((outstandingCustomers / customers.length) * 2) : 0;
+        }
 
         return {
             sales: {
                 mom: momGrowth,
-                yoy: yoyGrowth,
                 trend: momGrowth >= 0 ? 'up' as const : 'down' as const
             },
             customers: {
@@ -109,7 +133,7 @@ const KPIRow: React.FC = () => {
                 trend: outstandingChange > 0 ? 'up' as const : 'down' as const
             }
         };
-    }, [allSales, customers]);
+    }, [allSales, customers, historicalSnapshots]);
 
     const kpis = useMemo(() => {
         // Calculate pending orders (customers with NO sales this month)

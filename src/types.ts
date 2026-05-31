@@ -120,3 +120,21 @@ export interface ToastMessage {
   type: 'success' | 'error' | 'info';
 }
 
+export interface UserSettings {
+  id?: string;
+  userId?: string;
+  monthlyRevenueTarget: number;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface HistoricalSnapshot {
+  id?: string;
+  date: string; // ISO string
+  totalCustomers: number;
+  activeCustomers: number;
+  pendingOrders: number;
+  totalOutstanding: number;
+  totalSales: number;
+}
+

@@ -1,7 +1,7 @@
 // hooks/useCrmData.ts
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import * as api from '../services/api';
-import { Customer, Task, CustomerFormData, CustomerTier, Sale, Remark } from '../types';
+import { Customer, Task, CustomerFormData, CustomerTier, Sale, Remark, UserSettings, HistoricalSnapshot } from '../types';
 
 export interface Filters {
   tier: CustomerTier | '';
@@ -16,6 +16,8 @@ export const useCrmData = () => {
   const [remarks, setRemarks] = useState<Remark[]>([]);
   const [sales, setSales] = useState<Sale[]>([]);
   const [invoices, setInvoices] = useState<any[]>([]); // To hold uploaded invoices
+  const [userSettings, setUserSettings] = useState<UserSettings | null>(null);
+  const [historicalSnapshots, setHistoricalSnapshots] = useState<HistoricalSnapshot[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filters, setFilters] = useState<Filters>({
@@ -29,16 +31,20 @@ export const useCrmData = () => {
     const loadData = async () => {
       setLoading(true);
       try {
-        const [customersData, tasksData, remarksData, salesData] = await Promise.all([
+        const [customersData, tasksData, remarksData, salesData, settingsData, snapshotsData] = await Promise.all([
           api.fetchCustomers(),
           api.fetchTasks(),
           api.fetchRemarks(),
           api.fetchAllSales(),
+          api.fetchUserSettings(),
+          api.fetchHistoricalSnapshots()
         ]);
         setCustomers(customersData);
         setTasks(tasksData.sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()));
         setRemarks(remarksData);
         setSales(salesData);
+        setUserSettings(settingsData);
+        setHistoricalSnapshots(snapshotsData);
       } catch (error) {
         console.error("Failed to load CRM data", error);
       } finally {
@@ -226,6 +232,39 @@ export const useCrmData = () => {
     }
   };
 
+  const updateSettings = async (target: number) => {
+    try {
+      const updated = await api.updateUserSettings(target);
+      setUserSettings(updated);
+      return updated;
+    } catch (error) {
+      console.error("Error updating settings:", error);
+      throw error;
+    }
+  };
+
+  const createSnapshot = async () => {
+    try {
+      const activeCustomers = customers.filter(c => c.salesThisMonth > 0 || c.daysSinceLastOrder <= 30).length;
+      const pendingOrders = tasks.filter(t => !t.completed).length; // Approximating pending orders from tasks for now
+      const totalOutstanding = customers.reduce((sum, c) => sum + (c.outstandingBalance || 0), 0);
+      const totalSalesThisMonth = customers.reduce((sum, c) => sum + (c.salesThisMonth || 0), 0);
+
+      const newSnapshot = await api.addHistoricalSnapshot({
+        totalCustomers: customers.length,
+        activeCustomers,
+        pendingOrders,
+        totalOutstanding,
+        totalSales: totalSalesThisMonth
+      });
+      setHistoricalSnapshots(prev => [...prev, newSnapshot].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()));
+      return newSnapshot;
+    } catch (error) {
+      console.error("Error creating snapshot:", error);
+      throw error;
+    }
+  };
+
   return {
     loading,
     customers,
@@ -233,6 +272,8 @@ export const useCrmData = () => {
     remarks,
     sales,
     invoices, // Export invoices
+    userSettings,
+    historicalSnapshots,
     filteredCustomers,
     searchTerm,
     setSearchTerm,
@@ -251,6 +292,8 @@ export const useCrmData = () => {
     addTask,
     addInvoice, // Export addInvoice action
     toggleTaskComplete,
+    updateSettings,
+    createSnapshot,
 
     // Data Fetchers for Detail View
     getSalesForCustomer: api.fetchSalesForCustomer,

@@ -1,6 +1,6 @@
 // services/api.ts
 import { supabase } from '../lib/supabase';
-import { Customer, Sale, Remark, Task, CustomerFormData, Goal, Milestone, CustomerTerritory } from '../types';
+import { Customer, Sale, Remark, Task, CustomerFormData, Goal, Milestone, CustomerTerritory, UserSettings, HistoricalSnapshot } from '../types';
 import { analyzeRemarkSentiment } from './geminiService';
 
 // --- HELPERS ---
@@ -70,6 +70,23 @@ const mapMilestone = (data: any): Milestone => ({
     completed: data.completed,
 });
 
+const mapUserSettings = (data: any): UserSettings => ({
+    id: data.id,
+    userId: data.user_id,
+    monthlyRevenueTarget: Number(data.monthly_revenue_target),
+    createdAt: data.created_at,
+    updatedAt: data.updated_at,
+});
+
+const mapHistoricalSnapshot = (data: any): HistoricalSnapshot => ({
+    id: data.id,
+    date: data.date,
+    totalCustomers: Number(data.total_customers),
+    activeCustomers: Number(data.active_customers),
+    pendingOrders: Number(data.pending_orders),
+    totalOutstanding: Number(data.total_outstanding),
+    totalSales: Number(data.total_sales),
+});
 
 // --- CUSTOMER API ---
 
@@ -576,5 +593,76 @@ export const updateCustomerFlag = async (customerId: string, flag: 'Green' | 'Re
     return mapCustomer(data);
 };
 
+// --- SETTINGS API ---
 
+export const fetchUserSettings = async (): Promise<UserSettings> => {
+    // We get the single row for the authenticated user, or insert default if it doesn't exist
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error("User not authenticated");
 
+    const { data, error } = await supabase
+        .from('user_settings')
+        .select('*')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+    if (error) throw error;
+    
+    if (!data) {
+        // Create default settings
+        const { data: newData, error: insertError } = await supabase
+            .from('user_settings')
+            .insert([{ user_id: user.id, monthly_revenue_target: 2000 }])
+            .select()
+            .single();
+        if (insertError) throw insertError;
+        return mapUserSettings(newData);
+    }
+    
+    return mapUserSettings(data);
+};
+
+export const updateUserSettings = async (target: number): Promise<UserSettings> => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error("User not authenticated");
+
+    const { data, error } = await supabase
+        .from('user_settings')
+        .update({ monthly_revenue_target: target, updated_at: new Date().toISOString() })
+        .eq('user_id', user.id)
+        .select()
+        .single();
+
+    if (error) throw error;
+    return mapUserSettings(data);
+};
+
+// --- HISTORICAL SNAPSHOTS API ---
+
+export const fetchHistoricalSnapshots = async (): Promise<HistoricalSnapshot[]> => {
+    const { data, error } = await supabase
+        .from('historical_snapshots')
+        .select('*')
+        .order('date', { ascending: true }); // Chronological order
+
+    if (error) throw error;
+    return (data || []).map(mapHistoricalSnapshot);
+};
+
+export const addHistoricalSnapshot = async (snapshotData: Omit<HistoricalSnapshot, 'id' | 'date'>): Promise<HistoricalSnapshot> => {
+    const { data, error } = await supabase
+        .from('historical_snapshots')
+        .insert([{
+            total_customers: snapshotData.totalCustomers,
+            active_customers: snapshotData.activeCustomers,
+            pending_orders: snapshotData.pendingOrders,
+            total_outstanding: snapshotData.totalOutstanding,
+            total_sales: snapshotData.totalSales,
+            date: new Date().toISOString()
+        }])
+        .select()
+        .single();
+
+    if (error) throw error;
+    return mapHistoricalSnapshot(data);
+};
