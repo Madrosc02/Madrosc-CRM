@@ -21,6 +21,7 @@ const KPIRow: React.FC = () => {
     const { customers, loading, getAllSales, analyticsFilters, setKpiFilter } = useApp();
     const [allSales, setAllSales] = useState<Sale[]>([]);
     const [salesLoading, setSalesLoading] = useState(true);
+    const [detailsModal, setDetailsModal] = useState<'total' | 'pending' | 'sales' | 'outstanding' | null>(null);
 
     useEffect(() => {
         const fetchSales = async () => {
@@ -180,8 +181,6 @@ const KPIRow: React.FC = () => {
             </div>
         );
     }
-
-    const [detailsModal, setDetailsModal] = useState<'total' | 'pending' | 'sales' | 'outstanding' | null>(null);
 
     const getModalData = () => {
         if (!detailsModal) return { title: '', list: [] };
