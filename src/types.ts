@@ -113,6 +113,7 @@ export interface CustomerFormData {
   tier: CustomerTier;
   monopolyStatus: MonopolyStatus;
   territories?: CustomerTerritory[]; // For multi-district support
+  tags?: string[];
 }
 
 export interface ToastMessage {

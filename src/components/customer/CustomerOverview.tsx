@@ -245,7 +245,9 @@ export const EditDetailsForm: React.FC<{ customer: Customer, onCancel: () => voi
         district: customer.district,
         tier: customer.tier,
         monopolyStatus: customer.monopolyStatus,
+        tags: customer.tags || [],
     });
+    const [tagsInput, setTagsInput] = useState(customer.tags ? customer.tags.join(', ') : '');
     const [districts, setDistricts] = useState<string[]>([]);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -265,7 +267,9 @@ export const EditDetailsForm: React.FC<{ customer: Customer, onCancel: () => voi
 
     const handleSubmit = async () => {
         setIsSubmitting(true);
-        await onSave(formData);
+        // Process tags input
+        const processedTags = tagsInput.split(',').map(t => t.trim()).filter(t => t.length > 0);
+        await onSave({ ...formData, tags: processedTags });
         setIsSubmitting(false);
     }
 
@@ -320,6 +324,16 @@ export const EditDetailsForm: React.FC<{ customer: Customer, onCancel: () => voi
                         <option value="Non-Monopoly">Non-Monopoly</option>
                         <option value="Monopoly">Monopoly</option>
                     </select>
+                </div>
+                <div className="md:col-span-2">
+                    <label className="block text-sm font-medium mb-1">Custom Tags (comma separated)</label>
+                    <input 
+                        type="text" 
+                        value={tagsInput} 
+                        onChange={(e) => setTagsInput(e.target.value)} 
+                        className={inputStyle} 
+                        placeholder="e.g. Wholesaler, VIP, Requires Follow-up" 
+                    />
                 </div>
             </div>
 

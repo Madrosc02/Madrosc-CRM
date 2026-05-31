@@ -126,6 +126,7 @@ export const addCustomer = async (formData: CustomerFormData): Promise<Customer>
             monopoly_status: formData.monopolyStatus,
             state: formData.state,
             district: formData.district,
+            tags: formData.tags || [],
             avatar: `https://i.pravatar.cc/150?u=${Date.now()}`, // Temporary avatar logic
             last_updated: new Date().toISOString()
         }])
@@ -150,6 +151,8 @@ export const updateCustomer = async (customerId: string, updateData: Partial<Cus
     if (updateData.monopolyStatus) dbUpdateData.monopoly_status = updateData.monopolyStatus;
     if (updateData.state) dbUpdateData.state = updateData.state;
     if (updateData.district) dbUpdateData.district = updateData.district;
+    if (updateData.tags !== undefined) dbUpdateData.tags = updateData.tags;
+    
     dbUpdateData.last_updated = new Date().toISOString();
 
     const { data, error } = await supabase
