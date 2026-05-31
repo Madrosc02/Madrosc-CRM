@@ -5,7 +5,7 @@ import FadeIn from './ui/FadeIn';
 import StatCard from './analytics/StatCard';
 
 const ClientsPage: React.FC = () => {
-    const { customers, openAddCustomerModal, openBulkImportModal } = useApp();
+    const { customers, openAddCustomerModal, openBulkImportModal, deleteAllCustomers } = useApp();
 
     const kpis = useMemo(() => {
         const active = customers.filter(c => c.salesThisMonth > 0).length;
@@ -31,6 +31,17 @@ const ClientsPage: React.FC = () => {
                     </p>
                 </div>
                 <div className="flex items-center gap-3">
+                    <button 
+                        onClick={() => {
+                            if(window.confirm('Are you sure you want to delete ALL clients? This action cannot be undone.')) {
+                                deleteAllCustomers();
+                            }
+                        }}
+                        className="inline-flex items-center justify-center px-4 py-2 border border-red-200 dark:border-red-900/50 shadow-sm text-sm font-medium rounded-lg text-red-600 bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/40 dark:text-red-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors"
+                    >
+                        <i className="fas fa-trash-alt mr-2"></i>
+                        Delete All
+                    </button>
                     <button 
                         onClick={openBulkImportModal}
                         className="inline-flex items-center justify-center px-4 py-2 border border-slate-300 dark:border-slate-600 shadow-sm text-sm font-medium rounded-lg text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand transition-colors"

@@ -178,6 +178,16 @@ export const deleteCustomer = async (customerId: string): Promise<boolean> => {
 
 
 
+export const deleteAllCustomers = async (): Promise<boolean> => {
+    const { error } = await supabase
+        .from('customers')
+        .delete()
+        .not('id', 'is', null);
+
+    if (error) throw error;
+    return true;
+};
+
 export const bulkAddCustomers = async (newCustomersData: Omit<Customer, 'id' | 'avatar' | 'lastUpdated'>[]): Promise<Customer[]> => {
     const dbData = newCustomersData.map(c => ({
         name: c.firmName, // Keep for backward compatibility

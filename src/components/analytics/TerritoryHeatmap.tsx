@@ -6,7 +6,7 @@ import { useApp } from '../../contexts/AppContext';
 import StateProfileDrawer from './StateProfileDrawer';
 import { Customer } from '../../types';
 
-const INDIA_TOPO_JSON = "https://raw.githubusercontent.com/deldersveld/topojson/master/countries/india/india-states.json";
+const INDIA_TOPO_JSON = "/india-states.json";
 
 const PROJECTION_CONFIG = {
     scale: 1050,

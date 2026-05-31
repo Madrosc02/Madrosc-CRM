@@ -147,6 +147,16 @@ export const useCrmData = () => {
     }
   }
 
+  const deleteAllCustomers = async () => {
+    try {
+      await api.deleteAllCustomers();
+      setCustomers([]);
+    } catch (error) {
+      console.error("Error deleting all customers:", error);
+      throw error;
+    }
+  }
+
   const bulkAddCustomers = async (newCustomersData: Omit<Customer, 'id' | 'avatar' | 'lastUpdated'>[]) => {
     try {
       const addedCustomers = await api.bulkAddCustomers(newCustomersData);
@@ -335,6 +345,7 @@ export const useCrmData = () => {
     addCustomer,
     updateCustomer,
     deleteCustomer,
+    deleteAllCustomers,
     bulkAddCustomers,
     addSale,
     addRemark,

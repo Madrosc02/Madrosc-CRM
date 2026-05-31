@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { useApp } from '../../contexts/AppContext';
 import { scaleLinear } from 'd3-scale';
 
-const CATEGORIES = ['Software Licenses', 'Hardware Solutions', 'Professional Services', 'Cloud Storage', 'Support Contracts'];
+const CATEGORIES = ['Antibiotics', 'Gynecology', 'Derma', 'Diabetic', 'PPI'];
 
 const ProductAffinityMatrix: React.FC = () => {
     const { customers } = useApp();
