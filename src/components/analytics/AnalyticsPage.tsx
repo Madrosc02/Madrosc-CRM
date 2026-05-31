@@ -42,6 +42,10 @@ const MayTargetProgress = lazy(() => import('../sales-revenue/MayTargetProgress'
 const CategoryMix = lazy(() => import('../sales-revenue/CategoryMix'));
 const CreditRiskExposure = lazy(() => import('./CreditRiskExposure'));
 const CrossSellMatrix = lazy(() => import('./CrossSellMatrix'));
+const ProductAffinityMatrix = lazy(() => import('./ProductAffinityMatrix'));
+const QuotaPacingChart = lazy(() => import('./QuotaPacingChart'));
+const PipelineFunnel = lazy(() => import('./PipelineFunnel'));
+const WinLossAnalysis = lazy(() => import('./WinLossAnalysis'));
 
 const ChartFallback = () => <div className="h-64 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 flex items-center justify-center"><div className="animate-pulse flex flex-col items-center"><div className="w-8 h-8 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mb-4"></div><div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-24"></div></div></div>;
 
@@ -151,10 +155,23 @@ const AnalyticsPage: React.FC = () => {
                                     {salesSubTab === 'performance' && (
                                         <div className="space-y-6">
                                             <KPICards dateRange={globalDateRange} />
-                                            <RevenueVsTarget />
-                                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                                                <MayTargetProgress />
-                                                <SalesRepLeaderboard />
+                                            
+                                            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                                                <div className="h-full">
+                                                    <QuotaPacingChart />
+                                                </div>
+                                                <div className="h-full">
+                                                    <PipelineFunnel />
+                                                </div>
+                                            </div>
+
+                                            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                                                <div className="h-full">
+                                                    <SalesRepLeaderboard />
+                                                </div>
+                                                <div className="h-full">
+                                                    <WinLossAnalysis />
+                                                </div>
                                             </div>
                                         </div>
                                     )}
@@ -234,6 +251,7 @@ const AnalyticsPage: React.FC = () => {
                                             <StateLeaderboard customers={customers} />
                                         </div>
                                     </div>
+                                    <ProductAffinityMatrix />
                                     <div>
                                         <TerritoryMatrix customers={customers} />
                                     </div>
