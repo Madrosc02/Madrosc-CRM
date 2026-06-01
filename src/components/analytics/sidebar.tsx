@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { BarChart3, Calendar, LogOut, Moon, Phone, Users } from 'lucide-react';
+import { BarChart3, Calendar, LogOut, Moon, Phone, Users, Package, FileText, Settings } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 
 export function Sidebar() {
@@ -11,6 +11,9 @@ export function Sidebar() {
     { name: 'Analytics', path: '/analytics', icon: BarChart3 },
     { name: 'Call Mode', path: '/call-mode', icon: Phone },
     { name: 'Clients', path: '/clients', icon: Users },
+    { name: 'Products', path: '/products', icon: Package },
+    { name: 'Reports', path: '/reports', icon: FileText },
+    { name: 'Settings', path: '/settings', icon: Settings },
   ];
 
   return (
