@@ -1,9 +1,11 @@
 import React, { useState, useMemo } from 'react';
-import { Package, Plus, Upload, Search, Filter, MoreVertical, Edit2, Trash2 } from 'lucide-react';
+import { Package, Plus, Upload, Search, Filter, MoreVertical, Edit2, Trash2, ArrowUpRight, ArrowDownRight, Minus, AlertTriangle } from 'lucide-react';
 import { useApp } from '../../contexts/AppContext';
+import { calculateProductMetrics } from '../../utils/productAnalytics';
+import { ProductAnalyticsDashboard } from './ProductAnalyticsCharts';
 
 const ProductsPage: React.FC = () => {
-    const { products, openAddProductModal, openBulkImportProductsModal, deleteProduct } = useApp();
+    const { products, invoices, openAddProductModal, openBulkImportProductsModal, deleteProduct } = useApp();
     const [searchTerm, setSearchTerm] = useState('');
     const [segmentFilter, setSegmentFilter] = useState('All');
 
@@ -20,6 +22,11 @@ const ProductsPage: React.FC = () => {
         const segments = new Set(products.map(p => p.segment).filter(Boolean));
         return ['All', ...Array.from(segments)];
     }, [products]);
+
+    // Calculate advanced metrics
+    const metricsMap = useMemo(() => {
+        return calculateProductMetrics(products, invoices || []);
+    }, [products, invoices]);
 
     const totalProducts = products.length;
     const activeProducts = products.filter(p => p.status === 'Active').length;
@@ -50,6 +57,11 @@ const ProductsPage: React.FC = () => {
                     </button>
                 </div>
             </div>
+
+            {/* Analytics Dashboard */}
+            {products.length > 0 && invoices && invoices.length > 0 && (
+                <ProductAnalyticsDashboard products={products} metricsMap={metricsMap} />
+            )}
 
             {/* KPIs */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -116,17 +128,25 @@ const ProductsPage: React.FC = () => {
                             <tr className="bg-slate-50 border-b border-slate-200">
                                 <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Brand Name & Comp.</th>
                                 <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Segment</th>
-                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">MRP / PTR</th>
-                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Packing</th>
+                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Pricing & Margin</th>
+                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Sales Velocity</th>
+                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Category</th>
                                 <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Status</th>
                                 <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100">
-                            {filteredProducts.length > 0 ? filteredProducts.map((product) => (
+                            {filteredProducts.length > 0 ? filteredProducts.map((product) => {
+                                const m = metricsMap.get(product.id);
+                                return (
                                 <tr key={product.id} className="hover:bg-slate-50 transition-colors group">
                                     <td className="px-6 py-4">
-                                        <div className="font-bold text-slate-900">{product.brandName}</div>
+                                        <div className="font-bold text-slate-900 flex items-center gap-2">
+                                            {product.brandName}
+                                            {m?.priceAnomalies && m.priceAnomalies > 0 ? (
+                                                <span title="Sold below cost!" className="text-red-500"><AlertTriangle className="w-3 h-3" /></span>
+                                            ) : null}
+                                        </div>
                                         <div className="text-xs text-slate-500 truncate max-w-[250px]" title={product.composition}>
                                             {product.composition}
                                         </div>
@@ -137,11 +157,30 @@ const ProductsPage: React.FC = () => {
                                         </span>
                                     </td>
                                     <td className="px-6 py-4">
-                                        <div className="font-semibold text-slate-900">₹{product.mrp?.toFixed(2)}</div>
+                                        <div className="font-semibold text-slate-900">MRP: ₹{product.mrp?.toFixed(2)}</div>
                                         <div className="text-xs text-slate-500">PTR: ₹{product.purchaseRate?.toFixed(2)}</div>
+                                        {m?.averageMarginPercent ? (
+                                            <div className="text-xs font-bold text-emerald-600 mt-0.5">Margin: {m.averageMarginPercent.toFixed(1)}%</div>
+                                        ) : null}
                                     </td>
                                     <td className="px-6 py-4">
-                                        <span className="text-sm text-slate-700">{product.packing}</span>
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-sm font-semibold text-slate-800">{Math.round(m?.averageMonthlySale || 0)}/mo</span>
+                                            {m?.trend === 'up' && <span title={`Up ${m.trendPercentage.toFixed(0)}%`}><ArrowUpRight className="w-4 h-4 text-emerald-500" /></span>}
+                                            {m?.trend === 'down' && <span title={`Down ${m.trendPercentage.toFixed(0)}%`}><ArrowDownRight className="w-4 h-4 text-red-500" /></span>}
+                                            {m?.trend === 'flat' && <span title="Stable"><Minus className="w-4 h-4 text-slate-400" /></span>}
+                                        </div>
+                                        <div className="text-xs text-slate-500">Total Sold: {m?.totalSoldQty || 0}</div>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider ${
+                                            m?.category === 'Top Selling' ? 'bg-emerald-100 text-emerald-700' :
+                                            m?.category === 'Slow Moving' ? 'bg-orange-100 text-orange-700' :
+                                            m?.category === 'Declining' ? 'bg-red-100 text-red-700' :
+                                            'bg-slate-100 text-slate-600'
+                                        }`}>
+                                            {m?.category}
+                                        </span>
                                     </td>
                                     <td className="px-6 py-4">
                                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
@@ -169,9 +208,10 @@ const ProductsPage: React.FC = () => {
                                         </div>
                                     </td>
                                 </tr>
-                            )) : (
+                                );
+                            }) : (
                                 <tr>
-                                    <td colSpan={6} className="px-6 py-16 text-center">
+                                    <td colSpan={7} className="px-6 py-16 text-center">
                                         <div className="flex flex-col items-center justify-center">
                                             <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mb-4">
                                                 <Package className="w-8 h-8 text-slate-300" />
