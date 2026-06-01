@@ -66,34 +66,32 @@ const ProductsPage: React.FC = () => {
             </div>
 
             {/* Analytics Dashboard */}
-            {products.length > 0 && invoices && invoices.length > 0 && (
-                <div className="mb-8">
-                    <div className="flex justify-end mb-4 gap-2 items-center">
-                        <span className="text-sm font-medium text-slate-500">Analytics Date Range:</span>
-                        <div className="flex items-center gap-2 bg-white border border-slate-200 rounded-lg p-1 shadow-sm">
-                            <input 
-                                type="date" 
-                                value={dateRange.start}
-                                onChange={(e) => setDateRange(prev => ({ ...prev, start: e.target.value }))}
-                                className="text-sm border-none focus:ring-0 text-slate-700 bg-transparent cursor-pointer"
-                            />
-                            <span className="text-slate-300">-</span>
-                            <input 
-                                type="date" 
-                                value={dateRange.end}
-                                onChange={(e) => setDateRange(prev => ({ ...prev, end: e.target.value }))}
-                                className="text-sm border-none focus:ring-0 text-slate-700 bg-transparent cursor-pointer"
-                            />
-                        </div>
+            <div className="mb-8">
+                <div className="flex justify-end mb-4 gap-2 items-center">
+                    <span className="text-sm font-medium text-slate-500">Analytics Date Range:</span>
+                    <div className="flex items-center gap-2 bg-white border border-slate-200 rounded-lg p-1 shadow-sm">
+                        <input 
+                            type="date" 
+                            value={dateRange.start}
+                            onChange={(e) => setDateRange(prev => ({ ...prev, start: e.target.value }))}
+                            className="text-sm border-none focus:ring-0 text-slate-700 bg-transparent cursor-pointer"
+                        />
+                        <span className="text-slate-300">-</span>
+                        <input 
+                            type="date" 
+                            value={dateRange.end}
+                            onChange={(e) => setDateRange(prev => ({ ...prev, end: e.target.value }))}
+                            className="text-sm border-none focus:ring-0 text-slate-700 bg-transparent cursor-pointer"
+                        />
                     </div>
-                    <ProductAnalyticsDashboard 
-                        products={products} 
-                        metricsMap={metricsMap} 
-                        activeCategory={activeCategory}
-                        onCategoryClick={setActiveCategory}
-                    />
                 </div>
-            )}
+                <ProductAnalyticsDashboard 
+                    products={products} 
+                    metricsMap={metricsMap} 
+                    activeCategory={activeCategory}
+                    onCategoryClick={setActiveCategory}
+                />
+            </div>
 
             {/* KPIs */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
