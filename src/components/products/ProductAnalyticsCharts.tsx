@@ -80,50 +80,114 @@ export const ProductAnalyticsDashboard: React.FC<Props> = ({ products, metricsMa
   const totalAnomalies = Array.from(metricsMap.values()).reduce((sum, m) => sum + m.priceAnomalies, 0);
 
   const categories = [
-    { name: 'Top Selling', icon: Zap, count: categoryCounts['Top Selling'], color: 'text-emerald-600', bg: 'bg-emerald-100', border: 'border-emerald-200' },
-    { name: 'Slow Moving', icon: PackageMinus, count: categoryCounts['Slow Moving'], color: 'text-orange-600', bg: 'bg-orange-100', border: 'border-orange-200' },
-    { name: 'Declining', icon: TrendingDown, count: categoryCounts['Declining'], color: 'text-red-600', bg: 'bg-red-100', border: 'border-red-200' },
-    { name: 'Untapped', icon: Filter, count: categoryCounts['Untapped'], color: 'text-slate-600', bg: 'bg-slate-100', border: 'border-slate-200' },
+    { 
+      name: 'Top Selling', 
+      desc: 'High volume & healthy margin',
+      icon: Zap, 
+      count: categoryCounts['Top Selling'], 
+      color: 'text-emerald-600', 
+      bg: 'bg-emerald-50', 
+      iconBg: 'bg-emerald-100',
+      border: 'border-emerald-200/60',
+      ring: 'ring-emerald-500',
+      shadow: 'shadow-emerald-900/5'
+    },
+    { 
+      name: 'Slow Moving', 
+      desc: 'Low monthly sales volume',
+      icon: PackageMinus, 
+      count: categoryCounts['Slow Moving'], 
+      color: 'text-amber-600', 
+      bg: 'bg-amber-50', 
+      iconBg: 'bg-amber-100',
+      border: 'border-amber-200/60',
+      ring: 'ring-amber-500',
+      shadow: 'shadow-amber-900/5'
+    },
+    { 
+      name: 'Declining', 
+      desc: 'Sales dropping vs last 30 days',
+      icon: TrendingDown, 
+      count: categoryCounts['Declining'], 
+      color: 'text-rose-600', 
+      bg: 'bg-rose-50', 
+      iconBg: 'bg-rose-100',
+      border: 'border-rose-200/60',
+      ring: 'ring-rose-500',
+      shadow: 'shadow-rose-900/5'
+    },
+    { 
+      name: 'Untapped', 
+      desc: 'Zero sales recorded yet',
+      icon: Filter, 
+      count: categoryCounts['Untapped'], 
+      color: 'text-indigo-600', 
+      bg: 'bg-indigo-50', 
+      iconBg: 'bg-indigo-100',
+      border: 'border-indigo-200/60',
+      ring: 'ring-indigo-500',
+      shadow: 'shadow-indigo-900/5'
+    },
   ];
 
   return (
     <div className="space-y-6 mb-8 animate-in fade-in slide-in-from-top-2">
       
       {/* Category Filter Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         {categories.map((cat) => {
           const isActive = activeCategory === cat.name;
           return (
             <button
               key={cat.name}
               onClick={() => onCategoryClick(isActive ? 'All' : cat.name)}
-              className={`p-4 rounded-xl border text-left transition-all duration-200 ${
+              className={`group relative overflow-hidden p-6 rounded-2xl border text-left transition-all duration-300 ease-out ${
                 isActive 
-                  ? `ring-2 ring-offset-2 ring-${cat.color.split('-')[1]}-500 ${cat.bg} ${cat.border} shadow-md` 
-                  : 'bg-white border-slate-200 hover:border-slate-300 shadow-sm hover:shadow-md'
+                  ? `ring-2 ring-offset-2 ${cat.ring} ${cat.bg} ${cat.border} shadow-lg ${cat.shadow} scale-[1.02] z-10` 
+                  : `bg-white border-slate-200 hover:border-slate-300 shadow-sm hover:shadow-md hover:-translate-y-1`
               }`}
             >
-              <div className="flex justify-between items-start mb-2">
-                <div className={`p-2 rounded-lg ${cat.bg}`}>
-                  <cat.icon className={`w-5 h-5 ${cat.color}`} />
+              {/* Decorative background blob for active state */}
+              {isActive && (
+                <div className={`absolute -right-8 -top-8 w-32 h-32 rounded-full opacity-50 blur-3xl ${cat.iconBg}`} />
+              )}
+              
+              <div className="relative z-10">
+                <div className="flex justify-between items-start mb-4">
+                  <div className={`p-3 rounded-xl transition-transform duration-300 group-hover:scale-110 ${isActive ? cat.iconBg : 'bg-slate-50'}`}>
+                    <cat.icon className={`w-6 h-6 ${isActive ? cat.color : 'text-slate-500 group-hover:text-slate-700'}`} />
+                  </div>
+                  <span className={`text-4xl font-extrabold tracking-tight ${isActive ? cat.color : 'text-slate-700'}`}>
+                    {cat.count}
+                  </span>
                 </div>
-                <span className={`text-2xl font-bold ${isActive ? cat.color : 'text-slate-700'}`}>
-                  {cat.count}
-                </span>
+                <h3 className={`text-lg font-bold tracking-tight ${isActive ? cat.color : 'text-slate-800'}`}>
+                  {cat.name}
+                </h3>
+                <p className={`text-sm font-medium mt-1 ${isActive ? 'text-slate-700/80' : 'text-slate-500'}`}>
+                  {cat.desc}
+                </p>
+                <div className={`mt-4 text-xs font-semibold uppercase tracking-wider flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity ${isActive ? cat.color : 'text-slate-400'}`}>
+                  <span>{isActive ? 'Clear Filter' : 'Filter Table'}</span>
+                  <span className="text-lg leading-none">&rarr;</span>
+                </div>
               </div>
-              <h3 className={`font-semibold ${isActive ? cat.color : 'text-slate-600'}`}>{cat.name}</h3>
-              <p className="text-xs text-slate-500 mt-1">Click to filter table</p>
             </button>
           );
         })}
       </div>
 
       {totalAnomalies > 0 && (
-        <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-center gap-3">
-          <AlertTriangle className="w-5 h-5 text-red-500 shrink-0" />
-          <div className="text-red-700">
-            <span className="font-bold">Price Anomalies Detected: </span>
-            {totalAnomalies} products were sold below purchase rate. Expand rows with warnings below to investigate.
+        <div className="bg-red-50/80 backdrop-blur-sm border border-red-200 rounded-2xl p-5 flex items-start gap-4 shadow-sm animate-in slide-in-from-bottom-4">
+          <div className="bg-red-100 p-2 rounded-full shrink-0">
+            <AlertTriangle className="w-6 h-6 text-red-600" />
+          </div>
+          <div className="text-red-800 pt-0.5">
+            <h4 className="font-bold text-base mb-1 tracking-tight">Price Anomalies Detected</h4>
+            <p className="text-sm text-red-700/90 leading-relaxed">
+              We found <strong>{totalAnomalies}</strong> instances where products were sold below their purchase rate. 
+              Expand the rows with warning icons in the table below to investigate these transactions.
+            </p>
           </div>
         </div>
       )}
@@ -131,20 +195,22 @@ export const ProductAnalyticsDashboard: React.FC<Props> = ({ products, metricsMa
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Scatter Chart */}
-        <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-          <h3 className="text-lg font-bold text-slate-800 mb-1">Profitability Matrix</h3>
-          <p className="text-sm text-slate-500 mb-6">Volume (Monthly Sales) vs Margin (%)</p>
-          <div className="h-[300px]">
+        <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
+          <div className="mb-6">
+            <h3 className="text-lg font-bold text-slate-900 tracking-tight">Profitability Matrix</h3>
+            <p className="text-sm font-medium text-slate-500">Monthly Volume vs Average Margin (%)</p>
+          </div>
+          <div className="h-[320px] w-full">
             <ResponsiveContainer width="100%" height="100%">
-              <ScatterChart margin={{ top: 10, right: 20, bottom: 20, left: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                <XAxis type="number" dataKey="monthlySale" name="Monthly Sales" tick={{fontSize: 12}} stroke="#94a3b8" />
-                <YAxis type="number" dataKey="margin" name="Margin" unit="%" tick={{fontSize: 12}} stroke="#94a3b8" />
-                <ZAxis type="number" dataKey="revenue" range={[50, 400]} name="Revenue" />
-                <Tooltip content={<CustomTooltip />} cursor={{ strokeDasharray: '3 3' }} />
-                <Scatter name="Products" data={scatterData} fill="#8B5CF6">
+              <ScatterChart margin={{ top: 10, right: 20, bottom: 20, left: -20 }}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                <XAxis type="number" dataKey="monthlySale" name="Monthly Sales" tick={{fontSize: 12, fill: '#64748b', fontWeight: 500}} axisLine={false} tickLine={false} tickMargin={10} />
+                <YAxis type="number" dataKey="margin" name="Margin" unit="%" tick={{fontSize: 12, fill: '#64748b', fontWeight: 500}} axisLine={false} tickLine={false} tickMargin={10} />
+                <ZAxis type="number" dataKey="revenue" range={[60, 500]} name="Revenue" />
+                <Tooltip content={<CustomTooltip />} cursor={{ strokeDasharray: '3 3', stroke: '#cbd5e1' }} />
+                <Scatter name="Products" data={scatterData}>
                   {scatterData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} fillOpacity={0.8} stroke={COLORS[index % COLORS.length]} strokeWidth={2} />
                   ))}
                 </Scatter>
               </ScatterChart>
@@ -153,23 +219,25 @@ export const ProductAnalyticsDashboard: React.FC<Props> = ({ products, metricsMa
         </div>
 
         {/* Top Performers Bar Chart */}
-        <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-          <h3 className="text-lg font-bold text-slate-800 mb-1">Top Performers by Revenue</h3>
-          <p className="text-sm text-slate-500 mb-6">Highest grossing products across all time</p>
-          <div className="h-[300px]">
+        <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
+          <div className="mb-6">
+            <h3 className="text-lg font-bold text-slate-900 tracking-tight">Top Performers by Revenue</h3>
+            <p className="text-sm font-medium text-slate-500">Highest grossing products across selected time</p>
+          </div>
+          <div className="h-[320px] w-full">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={topPerformers} layout="vertical" margin={{ top: 0, right: 0, left: 40, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="#e2e8f0" />
+              <BarChart data={topPerformers} layout="vertical" margin={{ top: 0, right: 20, left: 40, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="#f1f5f9" />
                 <XAxis type="number" hide />
-                <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{fontSize: 12, fontWeight: 500, fill: '#475569'}} width={100} />
+                <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{fontSize: 13, fontWeight: 600, fill: '#334155'}} width={110} />
                 <Tooltip 
                   cursor={{ fill: '#f8fafc' }}
-                  contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                  contentStyle={{ borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)' }}
                   formatter={(value: any) => [`₹${value.toLocaleString()}`, 'Revenue']}
                 />
-                <Bar dataKey="revenue" fill="#3B82F6" radius={[0, 4, 4, 0]} barSize={24}>
+                <Bar dataKey="revenue" radius={[0, 6, 6, 0]} barSize={28}>
                   {topPerformers.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} fillOpacity={0.9} />
                   ))}
                 </Bar>
               </BarChart>
