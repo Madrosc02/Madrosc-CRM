@@ -25,7 +25,7 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
     setShowAICallPrep
 }) => {
     const { invoices } = useApp();
-    const [isCollapsed, setIsCollapsed] = useState(false);
+    const [isCollapsed, setIsCollapsed] = useState(true);
     const aiActions = useAIActions(customer, invoices);
 
     const quickActions = [
