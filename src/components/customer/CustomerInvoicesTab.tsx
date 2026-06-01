@@ -223,13 +223,13 @@ export const CustomerInvoicesTab: React.FC<Props> = ({ customer }) => {
                                                 <div className="flex justify-between items-start mb-2">
                                                     <div>
                                                         <span className="bg-red-100 text-red-700 text-xs font-bold px-2 py-0.5 rounded uppercase">Billed</span>
-                                                        <h4 className="font-semibold text-slate-800 dark:text-slate-200 mt-1">Invoice #{item.invoiceNo}</h4>
+                                                        <h4 className="font-semibold text-slate-800 dark:text-slate-200 mt-1">Invoice #{(item as any).invoiceNo}</h4>
                                                     </div>
-                                                    <p className="font-bold text-red-600">₹{item.totalAmount.toLocaleString()}</p>
+                                                    <p className="font-bold text-red-600">₹{(item as any).totalAmount.toLocaleString()}</p>
                                                 </div>
                                                 <p className="text-sm text-slate-500 mb-3">{new Date(item.date).toLocaleDateString()}</p>
-                                                {item.pdfUrl && (
-                                                    <a href={item.pdfUrl} target="_blank" rel="noreferrer" className="text-blue-500 hover:underline text-sm inline-flex items-center gap-1">
+                                                {(item as any).pdfUrl && (
+                                                    <a href={(item as any).pdfUrl} target="_blank" rel="noreferrer" className="text-blue-500 hover:underline text-sm inline-flex items-center gap-1">
                                                         <FileText className="w-4 h-4" /> View PDF
                                                     </a>
                                                 )}
@@ -239,9 +239,9 @@ export const CustomerInvoicesTab: React.FC<Props> = ({ customer }) => {
                                                 <div className="flex justify-between items-start mb-2">
                                                     <div>
                                                         <span className="bg-emerald-100 text-emerald-700 text-xs font-bold px-2 py-0.5 rounded uppercase">Payment Received</span>
-                                                        <h4 className="font-semibold text-slate-800 dark:text-slate-200 mt-1">Via {item.paymentMode}</h4>
+                                                        <h4 className="font-semibold text-slate-800 dark:text-slate-200 mt-1">Via {(item as any).paymentMode}</h4>
                                                     </div>
-                                                    <p className="font-bold text-emerald-600">₹{item.amount.toLocaleString()}</p>
+                                                    <p className="font-bold text-emerald-600">₹{(item as any).amount.toLocaleString()}</p>
                                                 </div>
                                                 <p className="text-sm text-slate-500">{new Date(item.date).toLocaleDateString()}</p>
                                             </>

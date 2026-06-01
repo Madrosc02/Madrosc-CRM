@@ -36,7 +36,7 @@ const WinLossAnalysis: React.FC = () => {
                         <Tooltip 
                             cursor={{ fill: 'transparent' }}
                             contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1)' }}
-                            formatter={(value: number) => [`${value} Deals Lost`, 'Count']}
+                            formatter={(value: any) => [`${value} Deals`, 'Count']}
                         />
                         <Bar dataKey="count" radius={[0, 4, 4, 0]} barSize={24} label={{ position: 'right', fill: '#64748B', fontSize: 12, fontWeight: 'bold' }}>
                             {LOSS_REASONS.map((entry, index) => (

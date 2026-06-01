@@ -55,7 +55,7 @@ const AnalyticsPage: React.FC = () => {
     const [activeTab, setActiveTab] = useState('overview');
     const [salesSubTab, setSalesSubTab] = useState('performance');
     const [customersSubTab, setCustomersSubTab] = useState('risk');
-    const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
     const [globalDateRange, setGlobalDateRange] = useState({ start: '2026-05-01', end: '2026-05-31' });
     const [globalTier, setGlobalTier] = useState('all');

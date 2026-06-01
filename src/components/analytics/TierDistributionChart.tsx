@@ -78,7 +78,7 @@ const TierDistributionChart: React.FC = () => {
                             <RechartsTooltip 
                                 contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1)' }}
                                 itemStyle={{ fontWeight: 'bold' }}
-                                formatter={(value: number) => [`${value} Customers`, 'Count']}
+                                formatter={(value: any) => [`${value} Customers`, 'Count']}
                             />
                         </PieChart>
                     </ResponsiveContainer>
