@@ -5,7 +5,7 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, 
   ScatterChart, Scatter, ZAxis, Cell
 } from 'recharts';
-import { TrendingUp, AlertTriangle, TrendingDown, PackageMinus, Zap, Filter } from 'lucide-react';
+import { TrendingUp, AlertTriangle, TrendingDown, PackageMinus, Zap, Filter, BarChart2 } from 'lucide-react';
 
 interface Props {
   products: Product[];
@@ -194,22 +194,32 @@ export const ProductAnalyticsDashboard: React.FC<Props> = ({ products, metricsMa
             <h3 className="text-lg font-bold text-slate-900 tracking-tight">Profitability Matrix</h3>
             <p className="text-sm font-medium text-slate-500">Monthly Volume vs Average Margin (%)</p>
           </div>
-          <div className="h-[320px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <ScatterChart margin={{ top: 10, right: 20, bottom: 20, left: -20 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                <XAxis type="number" dataKey="monthlySale" name="Monthly Sales" tick={{fontSize: 12, fill: '#64748b', fontWeight: 500}} axisLine={false} tickLine={false} tickMargin={10} />
-                <YAxis type="number" dataKey="margin" name="Margin" unit="%" tick={{fontSize: 12, fill: '#64748b', fontWeight: 500}} axisLine={false} tickLine={false} tickMargin={10} />
-                <ZAxis type="number" dataKey="revenue" range={[60, 500]} name="Revenue" />
-                <Tooltip content={<CustomTooltip />} cursor={{ strokeDasharray: '3 3', stroke: '#cbd5e1' }} />
-                <Scatter name="Products" data={scatterData}>
-                  {scatterData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} fillOpacity={0.8} stroke={COLORS[index % COLORS.length]} strokeWidth={2} />
-                  ))}
-                </Scatter>
-              </ScatterChart>
-            </ResponsiveContainer>
-          </div>
+          {scatterData.length > 0 ? (
+            <div className="h-[320px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <ScatterChart margin={{ top: 10, right: 20, bottom: 20, left: -20 }}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                  <XAxis type="number" dataKey="monthlySale" name="Monthly Sales" tick={{fontSize: 12, fill: '#64748b', fontWeight: 500}} axisLine={false} tickLine={false} tickMargin={10} />
+                  <YAxis type="number" dataKey="margin" name="Margin" unit="%" tick={{fontSize: 12, fill: '#64748b', fontWeight: 500}} axisLine={false} tickLine={false} tickMargin={10} />
+                  <ZAxis type="number" dataKey="revenue" range={[60, 500]} name="Revenue" />
+                  <Tooltip content={<CustomTooltip />} cursor={{ strokeDasharray: '3 3', stroke: '#cbd5e1' }} />
+                  <Scatter name="Products" data={scatterData}>
+                    {scatterData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} fillOpacity={0.8} stroke={COLORS[index % COLORS.length]} strokeWidth={2} />
+                    ))}
+                  </Scatter>
+                </ScatterChart>
+              </ResponsiveContainer>
+            </div>
+          ) : (
+            <div className="h-[320px] w-full flex flex-col items-center justify-center bg-slate-50/50 rounded-xl border border-dashed border-slate-200">
+              <div className="w-12 h-12 bg-white rounded-full shadow-sm flex items-center justify-center mb-3">
+                <TrendingUp className="w-6 h-6 text-slate-300" />
+              </div>
+              <p className="text-slate-500 font-semibold mb-1">No profitability data</p>
+              <p className="text-xs text-slate-400 max-w-[200px] text-center">Upload invoices to generate volume vs margin insights.</p>
+            </div>
+          )}
         </div>
 
         {/* Top Performers Bar Chart */}
@@ -218,25 +228,35 @@ export const ProductAnalyticsDashboard: React.FC<Props> = ({ products, metricsMa
             <h3 className="text-lg font-bold text-slate-900 tracking-tight">Top Performers by Revenue</h3>
             <p className="text-sm font-medium text-slate-500">Highest grossing products across selected time</p>
           </div>
-          <div className="h-[320px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={topPerformers} layout="vertical" margin={{ top: 0, right: 20, left: 40, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="#f1f5f9" />
-                <XAxis type="number" hide />
-                <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{fontSize: 13, fontWeight: 600, fill: '#334155'}} width={110} />
-                <Tooltip 
-                  cursor={{ fill: '#f8fafc' }}
-                  contentStyle={{ borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)' }}
-                  formatter={(value: any) => [`₹${value.toLocaleString()}`, 'Revenue']}
-                />
-                <Bar dataKey="revenue" radius={[0, 6, 6, 0]} barSize={28}>
-                  {topPerformers.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} fillOpacity={0.9} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
+          {topPerformers.length > 0 ? (
+            <div className="h-[320px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={topPerformers} layout="vertical" margin={{ top: 0, right: 20, left: 40, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="#f1f5f9" />
+                  <XAxis type="number" hide />
+                  <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{fontSize: 13, fontWeight: 600, fill: '#334155'}} width={110} />
+                  <Tooltip 
+                    cursor={{ fill: '#f8fafc' }}
+                    contentStyle={{ borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)' }}
+                    formatter={(value: any) => [`₹${value.toLocaleString()}`, 'Revenue']}
+                  />
+                  <Bar dataKey="revenue" radius={[0, 6, 6, 0]} barSize={28}>
+                    {topPerformers.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} fillOpacity={0.9} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          ) : (
+            <div className="h-[320px] w-full flex flex-col items-center justify-center bg-slate-50/50 rounded-xl border border-dashed border-slate-200">
+              <div className="w-12 h-12 bg-white rounded-full shadow-sm flex items-center justify-center mb-3">
+                <BarChart2 className="w-6 h-6 text-slate-300" />
+              </div>
+              <p className="text-slate-500 font-semibold mb-1">No performance data</p>
+              <p className="text-xs text-slate-400 max-w-[200px] text-center">Upload invoices to see your highest grossing products.</p>
+            </div>
+          )}
         </div>
       </div>
     </div>

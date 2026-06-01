@@ -97,37 +97,6 @@ const ProductsPage: React.FC = () => {
                 />
             </div>
 
-            {/* KPIs */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
-                        <Package className="w-6 h-6 text-blue-600" />
-                    </div>
-                    <div>
-                        <p className="text-sm font-medium text-slate-500">Total Products</p>
-                        <p className="text-2xl font-bold text-slate-900">{totalProducts}</p>
-                    </div>
-                </div>
-                <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
-                        <div className="w-6 h-6 border-2 border-green-600 rounded-full flex items-center justify-center"><div className="w-2 h-2 bg-green-600 rounded-full" /></div>
-                    </div>
-                    <div>
-                        <p className="text-sm font-medium text-slate-500">Active Products</p>
-                        <p className="text-2xl font-bold text-slate-900">{activeProducts}</p>
-                    </div>
-                </div>
-                <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center">
-                        <Filter className="w-6 h-6 text-purple-600" />
-                    </div>
-                    <div>
-                        <p className="text-sm font-medium text-slate-500">Total Segments</p>
-                        <p className="text-2xl font-bold text-slate-900">{uniqueSegments}</p>
-                    </div>
-                </div>
-            </div>
-
             {/* Toolbar */}
             <div className="bg-white p-4 rounded-t-2xl border border-b-0 border-slate-200 flex flex-wrap gap-4 items-center justify-between">
                 <div className="relative flex-1 min-w-[250px] max-w-md">
