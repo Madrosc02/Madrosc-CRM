@@ -46,6 +46,14 @@ interface AppContextType extends CrmDataHook {
   openAddCustomerModal: () => void;
   closeAddCustomerModal: () => void;
 
+  isAddProductModalOpen: boolean;
+  openAddProductModal: () => void;
+  closeAddProductModal: () => void;
+
+  isBulkImportProductsModalOpen: boolean;
+  openBulkImportProductsModal: () => void;
+  closeBulkImportProductsModal: () => void;
+
   isBulkImportModalOpen: boolean;
   openBulkImportModal: () => void;
   closeBulkImportModal: () => void;
@@ -98,6 +106,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [detailModalInitialTab, setDetailModalInitialTab] = useState<string>('overview');
   const [isAddCustomerModalOpen, setIsAddCustomerModalOpen] = useState(false);
   const [isBulkImportModalOpen, setIsBulkImportModalOpen] = useState(false);
+  const [isAddProductModalOpen, setIsAddProductModalOpen] = useState(false);
+  const [isBulkImportProductsModalOpen, setIsBulkImportProductsModalOpen] = useState(false);
   const [isBulkActionModalOpen, setIsBulkActionModalOpen] = useState(false);
   const [isAddTaskModalOpen, setIsAddTaskModalOpen] = useState(false);
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
@@ -123,6 +133,12 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   const openAddCustomerModal = () => setIsAddCustomerModalOpen(true);
   const closeAddCustomerModal = () => setIsAddCustomerModalOpen(false);
+
+  const openAddProductModal = () => setIsAddProductModalOpen(true);
+  const closeAddProductModal = () => setIsAddProductModalOpen(false);
+
+  const openBulkImportProductsModal = () => setIsBulkImportProductsModalOpen(true);
+  const closeBulkImportProductsModal = () => setIsBulkImportProductsModalOpen(false);
 
   const openBulkImportModal = () => setIsBulkImportModalOpen(true);
   const closeBulkImportModal = () => setIsBulkImportModalOpen(false);
@@ -161,6 +177,12 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     isAddCustomerModalOpen,
     openAddCustomerModal,
     closeAddCustomerModal,
+    isAddProductModalOpen,
+    openAddProductModal,
+    closeAddProductModal,
+    isBulkImportProductsModalOpen,
+    openBulkImportProductsModal,
+    closeBulkImportProductsModal,
     isBulkImportModalOpen,
     openBulkImportModal,
     closeBulkImportModal,

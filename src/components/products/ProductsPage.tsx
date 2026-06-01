@@ -1,0 +1,198 @@
+import React, { useState, useMemo } from 'react';
+import { Package, Plus, Upload, Search, Filter, MoreVertical, Edit2, Trash2 } from 'lucide-react';
+import { useApp } from '../../contexts/AppContext';
+
+const ProductsPage: React.FC = () => {
+    const { products, openAddProductModal, openBulkImportProductsModal, deleteProduct } = useApp();
+    const [searchTerm, setSearchTerm] = useState('');
+    const [segmentFilter, setSegmentFilter] = useState('All');
+
+    const filteredProducts = useMemo(() => {
+        return products.filter(p => {
+            const matchesSearch = p.brandName.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                                  p.composition.toLowerCase().includes(searchTerm.toLowerCase());
+            const matchesSegment = segmentFilter === 'All' || p.segment === segmentFilter;
+            return matchesSearch && matchesSegment;
+        });
+    }, [products, searchTerm, segmentFilter]);
+
+    const allSegments = useMemo(() => {
+        const segments = new Set(products.map(p => p.segment).filter(Boolean));
+        return ['All', ...Array.from(segments)];
+    }, [products]);
+
+    const totalProducts = products.length;
+    const activeProducts = products.filter(p => p.status === 'Active').length;
+    const uniqueSegments = new Set(products.map(p => p.segment)).size;
+
+    return (
+        <div className="p-8 max-w-7xl mx-auto min-h-screen">
+            {/* Header */}
+            <div className="flex justify-between items-end mb-8">
+                <div>
+                    <h1 className="text-3xl font-bold text-slate-900 mb-2">Product Catalog</h1>
+                    <p className="text-slate-500">Manage your pharmaceutical inventory, prices, and segments.</p>
+                </div>
+                <div className="flex gap-3">
+                    <button 
+                        onClick={openBulkImportProductsModal}
+                        className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors font-medium shadow-sm"
+                    >
+                        <Upload className="w-4 h-4" />
+                        Import CSV
+                    </button>
+                    <button 
+                        onClick={openAddProductModal}
+                        className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium shadow-sm"
+                    >
+                        <Plus className="w-4 h-4" />
+                        Add Product
+                    </button>
+                </div>
+            </div>
+
+            {/* KPIs */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
+                        <Package className="w-6 h-6 text-blue-600" />
+                    </div>
+                    <div>
+                        <p className="text-sm font-medium text-slate-500">Total Products</p>
+                        <p className="text-2xl font-bold text-slate-900">{totalProducts}</p>
+                    </div>
+                </div>
+                <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
+                        <div className="w-6 h-6 border-2 border-green-600 rounded-full flex items-center justify-center"><div className="w-2 h-2 bg-green-600 rounded-full" /></div>
+                    </div>
+                    <div>
+                        <p className="text-sm font-medium text-slate-500">Active Products</p>
+                        <p className="text-2xl font-bold text-slate-900">{activeProducts}</p>
+                    </div>
+                </div>
+                <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center">
+                        <Filter className="w-6 h-6 text-purple-600" />
+                    </div>
+                    <div>
+                        <p className="text-sm font-medium text-slate-500">Total Segments</p>
+                        <p className="text-2xl font-bold text-slate-900">{uniqueSegments}</p>
+                    </div>
+                </div>
+            </div>
+
+            {/* Toolbar */}
+            <div className="bg-white p-4 rounded-t-2xl border border-b-0 border-slate-200 flex flex-wrap gap-4 items-center justify-between">
+                <div className="relative flex-1 min-w-[250px] max-w-md">
+                    <Search className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                    <input 
+                        type="text" 
+                        placeholder="Search by brand or composition..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:ring-2 focus:ring-purple-500 outline-none transition-all"
+                    />
+                </div>
+                <div className="flex items-center gap-3">
+                    <span className="text-sm font-medium text-slate-500">Segment:</span>
+                    <select 
+                        value={segmentFilter}
+                        onChange={(e) => setSegmentFilter(e.target.value)}
+                        className="py-2 pl-3 pr-8 bg-white border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 outline-none cursor-pointer"
+                    >
+                        {allSegments.map(s => (
+                            <option key={s} value={s}>{s}</option>
+                        ))}
+                    </select>
+                </div>
+            </div>
+
+            {/* Data Grid */}
+            <div className="bg-white border border-slate-200 rounded-b-2xl shadow-sm overflow-hidden">
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse">
+                        <thead>
+                            <tr className="bg-slate-50 border-b border-slate-200">
+                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Brand Name & Comp.</th>
+                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Segment</th>
+                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">MRP / PTR</th>
+                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Packing</th>
+                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Status</th>
+                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100">
+                            {filteredProducts.length > 0 ? filteredProducts.map((product) => (
+                                <tr key={product.id} className="hover:bg-slate-50 transition-colors group">
+                                    <td className="px-6 py-4">
+                                        <div className="font-bold text-slate-900">{product.brandName}</div>
+                                        <div className="text-xs text-slate-500 truncate max-w-[250px]" title={product.composition}>
+                                            {product.composition}
+                                        </div>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-purple-100 text-purple-800">
+                                            {product.segment || 'General'}
+                                        </span>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <div className="font-semibold text-slate-900">₹{product.mrp?.toFixed(2)}</div>
+                                        <div className="text-xs text-slate-500">PTR: ₹{product.purchaseRate?.toFixed(2)}</div>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <span className="text-sm text-slate-700">{product.packing}</span>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                                            product.status === 'Active' ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-700'
+                                        }`}>
+                                            {product.status}
+                                        </span>
+                                    </td>
+                                    <td className="px-6 py-4 text-right">
+                                        <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <button className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors" title="Edit">
+                                                <Edit2 className="w-4 h-4" />
+                                            </button>
+                                            <button 
+                                                onClick={() => {
+                                                    if(window.confirm('Are you sure you want to delete this product?')) {
+                                                        deleteProduct(product.id);
+                                                    }
+                                                }}
+                                                className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors" 
+                                                title="Delete"
+                                            >
+                                                <Trash2 className="w-4 h-4" />
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            )) : (
+                                <tr>
+                                    <td colSpan={6} className="px-6 py-16 text-center">
+                                        <div className="flex flex-col items-center justify-center">
+                                            <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mb-4">
+                                                <Package className="w-8 h-8 text-slate-300" />
+                                            </div>
+                                            <h3 className="text-lg font-bold text-slate-900 mb-1">No products found</h3>
+                                            <p className="text-slate-500 mb-6 max-w-md">Get started by adding your first product or bulk importing your existing catalog via CSV.</p>
+                                            <div className="flex gap-3">
+                                                <button onClick={openAddProductModal} className="px-4 py-2 bg-purple-600 text-white font-medium rounded-lg hover:bg-purple-700 transition-colors">
+                                                    Add Product
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export default ProductsPage;

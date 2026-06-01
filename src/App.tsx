@@ -10,6 +10,7 @@ import Spinner from './components/ui/Spinner';
 const Dashboard = React.lazy(() => import('./components/Dashboard'));
 const AnalyticsPage = React.lazy(() => import('./components/analytics/AnalyticsPage'));
 const ClientsPage = React.lazy(() => import('./components/ClientsPage'));
+const ProductsPage = React.lazy(() => import('./components/products/ProductsPage'));
 const ReportsPage = React.lazy(() => import('./components/ReportsPage'));
 const SettingsPage = React.lazy(() => import('./components/SettingsPage'));
 
@@ -17,6 +18,8 @@ const SettingsPage = React.lazy(() => import('./components/SettingsPage'));
 const CustomerDetailDrawer = React.lazy(() => import('./components/CustomerDetailDrawer'));
 const AddCustomerModal = React.lazy(() => import('./components/AddCustomerModal'));
 const BulkImportModal = React.lazy(() => import('./components/BulkImportModal'));
+const AddProductDrawer = React.lazy(() => import('./components/products/AddProductDrawer'));
+const BulkImportProductsModal = React.lazy(() => import('./components/products/BulkImportProductsModal'));
 const AddTaskModal = React.lazy(() => import('./components/AddTaskModal'));
 const CommandPalette = React.lazy(() => import('./components/command/CommandPalette'));
 const CallMode = React.lazy(() => import('./components/CallMode'));
@@ -34,6 +37,8 @@ const AuthenticatedApp: React.FC = () => {
         isDetailModalOpen,
         isAddCustomerModalOpen,
         isBulkImportModalOpen,
+        isAddProductModalOpen,
+        isBulkImportProductsModalOpen,
         isAddTaskModalOpen,
         openCommandPalette
     } = useApp();
@@ -57,6 +62,7 @@ const AuthenticatedApp: React.FC = () => {
                     <Route path="/analytics" element={<AnalyticsPage />} />
                                         <Route path="/call-mode" element={<CallMode />} />
                     <Route path="/clients" element={<ClientsPage />} />
+                    <Route path="/products" element={<ProductsPage />} />
                     <Route path="/reports" element={<ReportsPage />} />
                     <Route path="/settings" element={<SettingsPage />} />
                     <Route path="*" element={<Navigate to="/" replace />} />
@@ -68,6 +74,8 @@ const AuthenticatedApp: React.FC = () => {
                 {isDetailModalOpen && <CustomerDetailDrawer />}
                 {isAddCustomerModalOpen && <AddCustomerModal />}
                 {isBulkImportModalOpen && <BulkImportModal />}
+                {isAddProductModalOpen && <AddProductDrawer />}
+                {isBulkImportProductsModalOpen && <BulkImportProductsModal />}
                 {isAddTaskModalOpen && <AddTaskModal />}
                 <CommandPalette />
             </Suspense>

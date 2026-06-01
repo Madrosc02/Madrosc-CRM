@@ -40,6 +40,35 @@ export interface Customer {
   tags?: string[]; // Custom labels
 }
 
+export interface Product {
+  id: string;
+  brandName: string;
+  composition: string;
+  mrp: number;
+  purchaseRate: number;
+  packing: string;
+  segment: string;
+  hsnCode?: string;
+  gstPercentage?: number;
+  manufacturer?: string;
+  status: 'Active' | 'Inactive';
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface ProductFormData {
+  brandName: string;
+  composition: string;
+  mrp: number;
+  purchaseRate: number;
+  packing: string;
+  segment?: string;
+  hsnCode?: string;
+  gstPercentage?: number;
+  manufacturer?: string;
+  status: 'Active' | 'Inactive';
+}
+
 export interface Sale {
   id: string;
   customerId: string;

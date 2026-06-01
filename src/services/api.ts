@@ -1,6 +1,6 @@
 // services/api.ts
 import { supabase } from '../lib/supabase';
-import { Customer, Sale, Remark, Task, CustomerFormData, Goal, Milestone, CustomerTerritory, UserSettings, HistoricalSnapshot, Invoice, InvoiceItem, Payment } from '../types';
+import { Customer, Sale, Remark, Task, CustomerFormData, Goal, Milestone, CustomerTerritory, UserSettings, HistoricalSnapshot, Invoice, InvoiceItem, Payment, Product, ProductFormData } from '../types';
 import { analyzeRemarkSentiment } from './geminiService';
 
 // --- HELPERS ---
@@ -849,4 +849,78 @@ export const fetchAllPayments = async (): Promise<Payment[]> => {
 
     if (error) throw error;
     return (data || []).map(mapPaymentRecord);
+};
+
+// --- PRODUCTS API (Mocked via LocalStorage for now) ---
+const getLocalProducts = (): Product[] => {
+    const data = localStorage.getItem('mock_products');
+    return data ? JSON.parse(data) : [];
+};
+
+const setLocalProducts = (products: Product[]) => {
+    localStorage.setItem('mock_products', JSON.stringify(products));
+};
+
+export const fetchProducts = async (): Promise<Product[]> => {
+    return new Promise((resolve) => {
+        setTimeout(() => resolve(getLocalProducts()), 300);
+    });
+};
+
+export const addProduct = async (formData: ProductFormData): Promise<Product> => {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            const products = getLocalProducts();
+            const newProduct: Product = {
+                id: Math.random().toString(36).substring(2, 9),
+                ...formData,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            };
+            setLocalProducts([newProduct, ...products]);
+            resolve(newProduct);
+        }, 300);
+    });
+};
+
+export const bulkAddProducts = async (productsData: ProductFormData[]): Promise<Product[]> => {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            const products = getLocalProducts();
+            const newProducts = productsData.map(data => ({
+                id: Math.random().toString(36).substring(2, 9),
+                ...data,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            }));
+            setLocalProducts([...newProducts, ...products]);
+            resolve(newProducts);
+        }, 500);
+    });
+};
+
+export const updateProduct = async (id: string, updates: Partial<ProductFormData>): Promise<Product> => {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            const products = getLocalProducts();
+            const index = products.findIndex(p => p.id === id);
+            if (index > -1) {
+                products[index] = { ...products[index], ...updates, updatedAt: new Date().toISOString() };
+                setLocalProducts(products);
+                resolve(products[index]);
+            } else {
+                reject(new Error("Product not found"));
+            }
+        }, 300);
+    });
+};
+
+export const deleteProduct = async (id: string): Promise<boolean> => {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            const products = getLocalProducts();
+            setLocalProducts(products.filter(p => p.id !== id));
+            resolve(true);
+        }, 300);
+    });
 };

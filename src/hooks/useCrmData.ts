@@ -1,7 +1,7 @@
 // hooks/useCrmData.ts
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import * as api from '../services/api';
-import { Customer, Task, CustomerFormData, CustomerTier, Sale, Remark, UserSettings, HistoricalSnapshot } from '../types';
+import { Customer, Task, CustomerFormData, CustomerTier, Sale, Remark, UserSettings, HistoricalSnapshot, Product, ProductFormData } from '../types';
 
 export interface Filters {
   tier: CustomerTier | '';
@@ -12,6 +12,7 @@ export interface Filters {
 
 export const useCrmData = () => {
   const [customers, setCustomers] = useState<Customer[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [remarks, setRemarks] = useState<Remark[]>([]);
   const [sales, setSales] = useState<Sale[]>([]);
@@ -32,13 +33,14 @@ export const useCrmData = () => {
     const loadData = async () => {
       setLoading(true);
       try {
-        const [customersData, tasksData, remarksData, salesData, invoicesData, paymentsData] = await Promise.all([
+        const [customersData, tasksData, remarksData, salesData, invoicesData, paymentsData, productsData] = await Promise.all([
           api.fetchCustomers(),
           api.fetchTasks(),
           api.fetchRemarks(),
           api.fetchAllSales(),
           api.fetchAllInvoices(),
-          api.fetchAllPayments()
+          api.fetchAllPayments(),
+          api.fetchProducts()
         ]);
 
         let settingsData = null;
@@ -57,6 +59,7 @@ export const useCrmData = () => {
         }
 
         setCustomers(customersData);
+        setProducts(productsData);
         setTasks(tasksData.sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()));
         setRemarks(remarksData);
         setSales(salesData);
@@ -164,6 +167,49 @@ export const useCrmData = () => {
       return addedCustomers;
     } catch (error) {
       console.error("Error bulk adding customers:", error);
+      throw error;
+    }
+  };
+
+  const addProduct = async (formData: ProductFormData) => {
+    try {
+      const newProduct = await api.addProduct(formData);
+      setProducts(prev => [newProduct, ...prev]);
+      return newProduct;
+    } catch (error) {
+      console.error("Error adding product:", error);
+      throw error;
+    }
+  };
+
+  const updateProduct = async (productId: string, updateData: Partial<ProductFormData>) => {
+    try {
+      const updatedProduct = await api.updateProduct(productId, updateData);
+      setProducts(prev => prev.map(p => p.id === productId ? updatedProduct : p));
+      return updatedProduct;
+    } catch (error) {
+      console.error("Error updating product:", error);
+      throw error;
+    }
+  };
+
+  const deleteProduct = async (productId: string) => {
+    try {
+      await api.deleteProduct(productId);
+      setProducts(prev => prev.filter(p => p.id !== productId));
+    } catch (error) {
+      console.error("Error deleting product:", error);
+      throw error;
+    }
+  };
+
+  const bulkAddProducts = async (productsData: ProductFormData[]) => {
+    try {
+      const addedProducts = await api.bulkAddProducts(productsData);
+      setProducts(prev => [...addedProducts, ...prev]);
+      return addedProducts;
+    } catch (error) {
+      console.error("Error bulk adding products:", error);
       throw error;
     }
   };
@@ -328,6 +374,7 @@ export const useCrmData = () => {
   return {
     loading,
     customers,
+    products,
     tasks,
     remarks,
     sales,
@@ -342,6 +389,10 @@ export const useCrmData = () => {
     setFilter,
 
     // Actions
+    addProduct,
+    updateProduct,
+    deleteProduct,
+    bulkAddProducts,
     addCustomer,
     updateCustomer,
     deleteCustomer,

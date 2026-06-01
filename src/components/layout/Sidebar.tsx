@@ -2,7 +2,7 @@ import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
-import { Phone, BarChart3, Users, FileText, Settings, Moon, Sun, LogOut, TrendingUp } from 'lucide-react';
+import { Phone, BarChart3, Users, FileText, Settings, Moon, Sun, LogOut, TrendingUp, Package } from 'lucide-react';
 import { cn } from '../../utils';
 
 const Sidebar: React.FC = () => {
@@ -20,6 +20,7 @@ const Sidebar: React.FC = () => {
         { path: '/analytics', label: 'Analytics', icon: BarChart3 },
         { path: '/call-mode', label: 'Call Mode', icon: Phone },
         { path: '/clients', label: 'Clients', icon: Users },
+        { path: '/products', label: 'Products', icon: Package },
         { path: '/reports', label: 'Reports', icon: FileText },
         { path: '/settings', label: 'Settings', icon: Settings },
     ];
