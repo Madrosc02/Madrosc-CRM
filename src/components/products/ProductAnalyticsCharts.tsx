@@ -134,41 +134,37 @@ export const ProductAnalyticsDashboard: React.FC<Props> = ({ products, metricsMa
     <div className="space-y-6 mb-8 animate-in fade-in slide-in-from-top-2">
       
       {/* Category Filter Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {categories.map((cat) => {
           const isActive = activeCategory === cat.name;
           return (
             <button
               key={cat.name}
               onClick={() => onCategoryClick(isActive ? 'All' : cat.name)}
-              className={`group relative overflow-hidden p-6 rounded-2xl border text-left transition-all duration-300 ease-out ${cat.bg} ${cat.border} ${
+              className={`group relative overflow-hidden p-4 rounded-xl border text-left transition-all duration-300 ease-out ${cat.bg} ${cat.border} ${
                 isActive 
-                  ? `ring-2 ring-offset-2 ${cat.ring} shadow-lg ${cat.shadow} scale-[1.02] z-10` 
-                  : `shadow-sm hover:shadow-md hover:-translate-y-1 hover:border-opacity-100`
+                  ? `ring-2 ring-offset-2 ${cat.ring} shadow-md ${cat.shadow} scale-[1.02] z-10` 
+                  : `shadow-sm hover:shadow hover:-translate-y-0.5 hover:border-opacity-100`
               }`}
             >
               {/* Decorative background blob */}
-              <div className={`absolute -right-8 -top-8 w-32 h-32 rounded-full opacity-60 blur-3xl ${cat.iconBg} transition-opacity duration-300 ${isActive ? 'opacity-100' : ''}`} />
+              <div className={`absolute -right-4 -top-4 w-24 h-24 rounded-full opacity-60 blur-2xl ${cat.iconBg} transition-opacity duration-300 ${isActive ? 'opacity-100' : 'opacity-40'}`} />
               
               <div className="relative z-10">
-                <div className="flex justify-between items-start mb-4">
-                  <div className={`p-3 rounded-xl transition-transform duration-300 group-hover:scale-110 ${cat.iconBg}`}>
-                    <cat.icon className={`w-6 h-6 ${cat.color}`} />
+                <div className="flex justify-between items-start mb-3">
+                  <div className={`p-2 rounded-lg transition-transform duration-300 group-hover:scale-110 ${cat.iconBg}`}>
+                    <cat.icon className={`w-5 h-5 ${cat.color}`} />
                   </div>
-                  <span className={`text-4xl font-extrabold tracking-tight ${cat.color} opacity-90`}>
+                  <span className={`text-2xl font-extrabold tracking-tight ${cat.color} opacity-90`}>
                     {cat.count}
                   </span>
                 </div>
-                <h3 className={`text-lg font-bold tracking-tight ${cat.color}`}>
+                <h3 className={`text-base font-bold tracking-tight ${cat.color}`}>
                   {cat.name}
                 </h3>
-                <p className={`text-sm font-medium mt-1 ${cat.color} opacity-75`}>
+                <p className={`text-xs font-medium mt-0.5 ${cat.color} opacity-75`}>
                   {cat.desc}
                 </p>
-                <div className={`mt-4 text-xs font-bold uppercase tracking-wider flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity ${cat.color}`}>
-                  <span>{isActive ? 'Clear Filter' : 'Filter Table'}</span>
-                  <span className="text-lg leading-none">&rarr;</span>
-                </div>
               </div>
             </button>
           );
