@@ -26,9 +26,15 @@ const KPIRow: React.FC = () => {
     useEffect(() => {
         const fetchSales = async () => {
             setSalesLoading(true);
-            const salesData = await getAllSales();
-            setAllSales(salesData);
-            setSalesLoading(false);
+            try {
+                const salesData = await getAllSales();
+                setAllSales(salesData || []);
+            } catch (error) {
+                console.error("Error fetching sales:", error);
+                setAllSales([]);
+            } finally {
+                setSalesLoading(false);
+            }
         };
         fetchSales();
     }, [getAllSales]);

@@ -25,7 +25,7 @@ const Header: React.FC = () => {
     };
 
     return (
-        <header className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg border-b border-border-light dark:border-border-dark p-3 flex justify-between items-center sticky top-0 z-40">
+        <header className="bg-background/80 backdrop-blur-lg border-b border-border p-3 flex justify-between items-center sticky top-0 z-40">
             <div className="flex items-center gap-4">
                 <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/')}>
                     <i className="fas fa-headset text-2xl text-primary-light dark:text-primary-dark"></i>
