@@ -26,7 +26,7 @@ const Sidebar: React.FC = () => {
     ];
 
     return (
-        <aside className="fixed left-0 top-0 bottom-0 z-50 w-[260px] bg-white dark:bg-slate-900 border-r border-border p-6 flex flex-col transition-all duration-300">
+        <aside className="fixed left-0 top-0 bottom-0 z-50 w-[260px] bg-card border-r border-border p-6 flex flex-col transition-all duration-300">
             {/* Logo */}
             <div className="flex items-center gap-3 mb-8">
                 <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center flex-shrink-0">

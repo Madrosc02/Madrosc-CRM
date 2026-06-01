@@ -178,13 +178,13 @@ const SalesTrendChart: React.FC = () => {
                             dataKey="name"
                             axisLine={false}
                             tickLine={false}
-                            tick={{ fill: 'var(--text-secondary)', fontSize: 12 }}
+                            tick={{ fill: '#94a3b8', fontSize: 12 }}
                             dy={10}
                         />
                         <YAxis
                             axisLine={false}
                             tickLine={false}
-                            tick={{ fill: 'var(--text-secondary)', fontSize: 12 }}
+                            tick={{ fill: '#94a3b8', fontSize: 12 }}
                             tickFormatter={(value) => `₹${(value / 1000).toFixed(0)}k`}
                         />
                         <Tooltip
