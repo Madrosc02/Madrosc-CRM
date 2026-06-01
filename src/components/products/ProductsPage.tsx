@@ -142,38 +142,39 @@ const ProductsPage: React.FC = () => {
                 </div>
             </div>
 
-            {/* Toolbar */}
-            <div className="bg-white p-4 rounded-t-2xl border border-b-0 border-slate-200 flex flex-wrap gap-4 items-center justify-between">
-                <div className="relative flex-1 min-w-[250px] max-w-md">
-                    <Search className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                    <input 
-                        type="text" 
-                        placeholder="Search by brand or composition..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:ring-2 focus:ring-purple-500 outline-none transition-all"
-                    />
+            {/* Main Product Table Area */}
+            <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden mb-8">
+                {/* Toolbar */}
+                <div className="p-5 border-b border-slate-100 flex flex-wrap gap-4 items-center justify-between bg-slate-50/50">
+                    <div className="relative flex-1 min-w-[250px] max-w-md">
+                        <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                        <input 
+                            type="text" 
+                            placeholder="Search by brand or composition..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all shadow-sm text-sm font-medium text-slate-700 placeholder:font-normal placeholder:text-slate-400"
+                        />
+                    </div>
+                    <div className="flex items-center gap-3">
+                        <span className="text-sm font-semibold text-slate-500">Segment</span>
+                        <select 
+                            value={segmentFilter}
+                            onChange={(e) => setSegmentFilter(e.target.value)}
+                            className="py-2.5 pl-4 pr-10 bg-white border border-slate-200 rounded-xl text-sm font-bold text-slate-700 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none cursor-pointer shadow-sm appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20stroke%3D%22%2394a3b8%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M6%209l4%204%204-4%22%2F%3E%3C%2Fsvg%3E')] bg-[position:right_0.5rem_center] bg-no-repeat"
+                        >
+                            {allSegments.map(s => (
+                                <option key={s} value={s}>{s}</option>
+                            ))}
+                        </select>
+                    </div>
                 </div>
-                <div className="flex items-center gap-3">
-                    <span className="text-sm font-medium text-slate-500">Segment:</span>
-                    <select 
-                        value={segmentFilter}
-                        onChange={(e) => setSegmentFilter(e.target.value)}
-                        className="py-2 pl-3 pr-8 bg-white border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 outline-none cursor-pointer"
-                    >
-                        {allSegments.map(s => (
-                            <option key={s} value={s}>{s}</option>
-                        ))}
-                    </select>
-                </div>
-            </div>
 
-            {/* Data Grid */}
-            <div className="bg-white border border-slate-200 rounded-b-2xl shadow-sm overflow-hidden">
+                {/* Data Grid */}
                 <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse">
                         <thead>
-                            <tr className="bg-slate-50 border-b border-slate-200">
+                            <tr className="bg-slate-50/50 border-b border-slate-200">
                                 <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Brand Name & Comp.</th>
                                 <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Segment</th>
                                 <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Pricing & Margin</th>
@@ -312,18 +313,18 @@ const ProductsPage: React.FC = () => {
                                 );
                             }) : (
                                 <tr>
-                                    <td colSpan={7} className="px-6 py-20 text-center">
+                                    <td colSpan={7} className="px-6 py-24 text-center">
                                         <div className="flex flex-col items-center justify-center max-w-sm mx-auto">
-                                            <div className="w-20 h-20 bg-indigo-50 rounded-full flex items-center justify-center mb-6 shadow-inner">
-                                                <Package className="w-10 h-10 text-indigo-400" />
+                                            <div className="w-20 h-20 bg-indigo-50/80 rounded-full flex items-center justify-center mb-6 shadow-[inset_0_2px_10px_rgba(0,0,0,0.05)] ring-4 ring-indigo-50/50">
+                                                <Package className="w-10 h-10 text-indigo-500" />
                                             </div>
                                             <h3 className="text-xl font-bold text-slate-800 mb-2 tracking-tight">No products found</h3>
-                                            <p className="text-slate-500 text-sm mb-6 leading-relaxed">
+                                            <p className="text-slate-500 text-sm mb-8 leading-relaxed">
                                                 Get started by adding your first product manually or bulk importing your existing catalog via CSV to see the magic happen.
                                             </p>
                                             <button 
                                                 onClick={openAddProductModal}
-                                                className="px-6 py-2.5 bg-indigo-600 text-white rounded-xl font-semibold shadow-sm hover:shadow hover:-translate-y-0.5 hover:bg-indigo-700 transition-all"
+                                                className="px-6 py-2.5 bg-indigo-600 text-white rounded-xl font-semibold shadow-md shadow-indigo-200 hover:shadow-lg hover:shadow-indigo-200 hover:-translate-y-0.5 hover:bg-indigo-700 transition-all active:scale-95"
                                             >
                                                 Add Your First Product
                                             </button>
