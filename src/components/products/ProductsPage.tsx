@@ -97,6 +97,51 @@ const ProductsPage: React.FC = () => {
                 />
             </div>
 
+            {/* Catalog Overview KPIs */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
+                <div className="bg-white p-5 rounded-2xl shadow-sm hover:shadow-md transition-all border border-slate-200 flex items-center gap-5 group cursor-default">
+                    <div className="w-14 h-14 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                        <Package className="w-7 h-7" />
+                    </div>
+                    <div>
+                        <p className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-0.5">Total Catalog</p>
+                        <div className="flex items-baseline gap-2">
+                            <p className="text-3xl font-extrabold text-slate-800 tracking-tight">{totalProducts}</p>
+                            <span className="text-xs font-medium text-slate-400">Products</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div className="bg-white p-5 rounded-2xl shadow-sm hover:shadow-md transition-all border border-slate-200 flex items-center gap-5 group cursor-default">
+                    <div className="w-14 h-14 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center group-hover:scale-110 transition-transform duration-300 relative overflow-hidden">
+                        <div className="absolute inset-0 bg-emerald-100 opacity-0 group-hover:opacity-50 transition-opacity" />
+                        <div className="w-7 h-7 border-2 border-emerald-600 rounded-full flex items-center justify-center">
+                            <div className="w-2.5 h-2.5 bg-emerald-600 rounded-full animate-pulse" />
+                        </div>
+                    </div>
+                    <div>
+                        <p className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-0.5">Active Products</p>
+                        <div className="flex items-baseline gap-2">
+                            <p className="text-3xl font-extrabold text-slate-800 tracking-tight">{activeProducts}</p>
+                            <span className="text-xs font-medium text-emerald-500 bg-emerald-50 px-2 py-0.5 rounded-full ml-1">Live</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="bg-white p-5 rounded-2xl shadow-sm hover:shadow-md transition-all border border-slate-200 flex items-center gap-5 group cursor-default">
+                    <div className="w-14 h-14 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                        <Filter className="w-7 h-7" />
+                    </div>
+                    <div>
+                        <p className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-0.5">Segments</p>
+                        <div className="flex items-baseline gap-2">
+                            <p className="text-3xl font-extrabold text-slate-800 tracking-tight">{uniqueSegments}</p>
+                            <span className="text-xs font-medium text-slate-400">Categories</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             {/* Toolbar */}
             <div className="bg-white p-4 rounded-t-2xl border border-b-0 border-slate-200 flex flex-wrap gap-4 items-center justify-between">
                 <div className="relative flex-1 min-w-[250px] max-w-md">
