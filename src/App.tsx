@@ -58,7 +58,8 @@ const AuthenticatedApp: React.FC = () => {
         <Layout>
             <Suspense fallback={<div className="flex h-full items-center justify-center"><Spinner className="w-8 h-8" /></div>}>
                 <Routes>
-                    <Route path="/" element={<Dashboard />} />
+                    <Route path="/" element={<Navigate to="/dashboard" replace />} />
+                    <Route path="/dashboard" element={<Dashboard />} />
                     <Route path="/analytics" element={<AnalyticsPage />} />
                                         <Route path="/call-mode" element={<CallMode />} />
                     <Route path="/clients" element={<ClientsPage />} />

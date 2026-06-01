@@ -181,7 +181,7 @@
   
   /* Utility Classes - FROZEN */
   .card-base {
-    @apply bg-white rounded-lg border border-gray-200;
+    @apply bg-white dark:bg-slate-900 rounded-lg border border-gray-200 dark:border-slate-800;
   }
   
   .card-padding {

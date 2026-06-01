@@ -200,15 +200,15 @@ const CustomerTable: React.FC = () => {
 
     const getFilterLabel = () => {
         switch (kpiFilter) {
-            case 'total': return 'All Customers';
-            case 'pending': return 'Customers with Pending Orders (No Sales This Month)';
-            case 'sales': return 'Customers with Sales This Month';
-            case 'outstanding': return 'Customers with Outstanding Balance';
+            case 'total': return 'All Franchise Clients';
+            case 'pending': return 'Clients with Pending Orders (No Sales This Month)';
+            case 'sales': return 'Clients with Sales This Month';
+            case 'outstanding': return 'Clients with Outstanding Balance';
             case 'high-risk': return 'High Risk (No Orders + High Balance)';
             case 'upsell': return 'Easy Upsell (No Balance + No Orders)';
-            case 'platinum': return 'Platinum Tier Customers';
+            case 'platinum': return 'Platinum Tier Clients';
             case 'ai-search': return `AI Search Results (${sortedCustomers.length} found)`;
-            default: return 'Customer Overview';
+            default: return 'Franchise Client Overview';
         }
     };
 
@@ -351,7 +351,7 @@ const CustomerTable: React.FC = () => {
                                 />
                             </th>
                             <th scope="col" className="p-4 font-semibold min-w-[280px] cursor-pointer hover:text-blue-600 transition-colors" onClick={() => handleSort('name')}>
-                                Customer <SortIcon columnKey="name" />
+                                Franchise Client <SortIcon columnKey="name" />
                             </th>
                             <th scope="col" className="p-4 font-semibold text-center min-w-[100px] cursor-pointer hover:text-blue-600 transition-colors" onClick={() => handleSort('tier')}>
                                 Tier <SortIcon columnKey="tier" />
@@ -426,7 +426,7 @@ const CustomerTable: React.FC = () => {
             {!loading && sortedCustomers.length === 0 && (
                 <div className="text-center py-16 text-slate-500 dark:text-slate-400">
                     <i className="fas fa-users-slash text-4xl mb-3"></i>
-                    <p className="font-medium">No customers found.</p>
+                    <p className="font-medium">No franchise clients found.</p>
                     <p className="text-sm">Try adjusting your search or filters.</p>
                 </div>
             )}

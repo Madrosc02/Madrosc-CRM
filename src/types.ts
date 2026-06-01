@@ -181,3 +181,38 @@ export interface Payment {
   referenceNo?: string;
   createdAt?: string;
 }
+
+export interface SalesExecutive {
+  id: string;
+  name: string;
+  contactNumber?: string;
+  createdAt?: string;
+}
+
+export interface FranchiseClient {
+  id: string;
+  businessName: string;
+  contactPerson: string;
+  phoneWhatsapp: string;
+  email?: string;
+  assignedExecutiveId?: string;
+  createdAt?: string;
+}
+
+export interface InteractionLog {
+  id: string;
+  clientId: string;
+  channel: 'WhatsApp' | 'Call' | 'Email';
+  interactionNotes: string;
+  timestamp: string; // ISO string
+}
+
+export interface LoyaltyLedger {
+  id: string;
+  franchiseClientId: string;
+  transactionType: string;
+  points: number;
+  description?: string;
+  transactionDate?: string; // ISO string
+}
+

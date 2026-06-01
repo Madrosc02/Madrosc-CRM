@@ -13,7 +13,8 @@ const Login: React.FC = () => {
     const [message, setMessage] = useState<string | null>(null);
 
     if (user) {
-        return <Navigate to="/" replace />;
+        window.location.href = `${import.meta.env.VITE_SITE_URL || 'https://crm.madrosc.com'}/dashboard`;
+        return null;
     }
 
     const handleAuth = async (e: React.FormEvent) => {
