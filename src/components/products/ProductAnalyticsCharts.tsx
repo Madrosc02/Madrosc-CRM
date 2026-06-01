@@ -141,33 +141,31 @@ export const ProductAnalyticsDashboard: React.FC<Props> = ({ products, metricsMa
             <button
               key={cat.name}
               onClick={() => onCategoryClick(isActive ? 'All' : cat.name)}
-              className={`group relative overflow-hidden p-6 rounded-2xl border text-left transition-all duration-300 ease-out ${
+              className={`group relative overflow-hidden p-6 rounded-2xl border text-left transition-all duration-300 ease-out ${cat.bg} ${cat.border} ${
                 isActive 
-                  ? `ring-2 ring-offset-2 ${cat.ring} ${cat.bg} ${cat.border} shadow-lg ${cat.shadow} scale-[1.02] z-10` 
-                  : `bg-white border-slate-200 hover:border-slate-300 shadow-sm hover:shadow-md hover:-translate-y-1`
+                  ? `ring-2 ring-offset-2 ${cat.ring} shadow-lg ${cat.shadow} scale-[1.02] z-10` 
+                  : `shadow-sm hover:shadow-md hover:-translate-y-1 hover:border-opacity-100`
               }`}
             >
-              {/* Decorative background blob for active state */}
-              {isActive && (
-                <div className={`absolute -right-8 -top-8 w-32 h-32 rounded-full opacity-50 blur-3xl ${cat.iconBg}`} />
-              )}
+              {/* Decorative background blob */}
+              <div className={`absolute -right-8 -top-8 w-32 h-32 rounded-full opacity-60 blur-3xl ${cat.iconBg} transition-opacity duration-300 ${isActive ? 'opacity-100' : ''}`} />
               
               <div className="relative z-10">
                 <div className="flex justify-between items-start mb-4">
-                  <div className={`p-3 rounded-xl transition-transform duration-300 group-hover:scale-110 ${isActive ? cat.iconBg : 'bg-slate-50'}`}>
-                    <cat.icon className={`w-6 h-6 ${isActive ? cat.color : 'text-slate-500 group-hover:text-slate-700'}`} />
+                  <div className={`p-3 rounded-xl transition-transform duration-300 group-hover:scale-110 ${cat.iconBg}`}>
+                    <cat.icon className={`w-6 h-6 ${cat.color}`} />
                   </div>
-                  <span className={`text-4xl font-extrabold tracking-tight ${isActive ? cat.color : 'text-slate-700'}`}>
+                  <span className={`text-4xl font-extrabold tracking-tight ${cat.color} opacity-90`}>
                     {cat.count}
                   </span>
                 </div>
-                <h3 className={`text-lg font-bold tracking-tight ${isActive ? cat.color : 'text-slate-800'}`}>
+                <h3 className={`text-lg font-bold tracking-tight ${cat.color}`}>
                   {cat.name}
                 </h3>
-                <p className={`text-sm font-medium mt-1 ${isActive ? 'text-slate-700/80' : 'text-slate-500'}`}>
+                <p className={`text-sm font-medium mt-1 ${cat.color} opacity-75`}>
                   {cat.desc}
                 </p>
-                <div className={`mt-4 text-xs font-semibold uppercase tracking-wider flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity ${isActive ? cat.color : 'text-slate-400'}`}>
+                <div className={`mt-4 text-xs font-bold uppercase tracking-wider flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity ${cat.color}`}>
                   <span>{isActive ? 'Clear Filter' : 'Filter Table'}</span>
                   <span className="text-lg leading-none">&rarr;</span>
                 </div>
