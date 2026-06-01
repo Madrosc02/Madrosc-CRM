@@ -1,32 +1,39 @@
 import React, { useState, useMemo } from 'react';
-import { Package, Plus, Upload, Search, Filter, MoreVertical, Edit2, Trash2, ArrowUpRight, ArrowDownRight, Minus, AlertTriangle } from 'lucide-react';
+import { Package, Plus, Upload, Search, Filter, MoreVertical, Edit2, Trash2, ArrowUpRight, ArrowDownRight, Minus, AlertTriangle, ChevronDown, ChevronUp, Calendar } from 'lucide-react';
 import { useApp } from '../../contexts/AppContext';
 import { calculateProductMetrics } from '../../utils/productAnalytics';
 import { ProductAnalyticsDashboard } from './ProductAnalyticsCharts';
 
 const ProductsPage: React.FC = () => {
-    const { products, invoices, openAddProductModal, openBulkImportProductsModal, deleteProduct } = useApp();
+    const { products, invoices, customers, openAddProductModal, openBulkImportProductsModal, deleteProduct } = useApp();
     const [searchTerm, setSearchTerm] = useState('');
     const [segmentFilter, setSegmentFilter] = useState('All');
+    const [activeCategory, setActiveCategory] = useState('All');
+    const [expandedProduct, setExpandedProduct] = useState<string | null>(null);
+    const [dateRange, setDateRange] = useState({
+        start: new Date(new Date().setFullYear(new Date().getFullYear() - 1)).toISOString().split('T')[0],
+        end: new Date().toISOString().split('T')[0]
+    });
+
+    // Calculate advanced metrics
+    const metricsMap = useMemo(() => {
+        return calculateProductMetrics(products, invoices || [], customers || [], dateRange);
+    }, [products, invoices, customers, dateRange]);
 
     const filteredProducts = useMemo(() => {
         return products.filter(p => {
             const matchesSearch = p.brandName.toLowerCase().includes(searchTerm.toLowerCase()) || 
                                   p.composition.toLowerCase().includes(searchTerm.toLowerCase());
             const matchesSegment = segmentFilter === 'All' || p.segment === segmentFilter;
-            return matchesSearch && matchesSegment;
+            const matchesCategory = activeCategory === 'All' || metricsMap.get(p.id)?.category === activeCategory;
+            return matchesSearch && matchesSegment && matchesCategory;
         });
-    }, [products, searchTerm, segmentFilter]);
+    }, [products, searchTerm, segmentFilter, activeCategory, metricsMap]);
 
     const allSegments = useMemo(() => {
         const segments = new Set(products.map(p => p.segment).filter(Boolean));
         return ['All', ...Array.from(segments)];
     }, [products]);
-
-    // Calculate advanced metrics
-    const metricsMap = useMemo(() => {
-        return calculateProductMetrics(products, invoices || []);
-    }, [products, invoices]);
 
     const totalProducts = products.length;
     const activeProducts = products.filter(p => p.status === 'Active').length;
@@ -60,7 +67,32 @@ const ProductsPage: React.FC = () => {
 
             {/* Analytics Dashboard */}
             {products.length > 0 && invoices && invoices.length > 0 && (
-                <ProductAnalyticsDashboard products={products} metricsMap={metricsMap} />
+                <div className="mb-8">
+                    <div className="flex justify-end mb-4 gap-2 items-center">
+                        <span className="text-sm font-medium text-slate-500">Analytics Date Range:</span>
+                        <div className="flex items-center gap-2 bg-white border border-slate-200 rounded-lg p-1 shadow-sm">
+                            <input 
+                                type="date" 
+                                value={dateRange.start}
+                                onChange={(e) => setDateRange(prev => ({ ...prev, start: e.target.value }))}
+                                className="text-sm border-none focus:ring-0 text-slate-700 bg-transparent cursor-pointer"
+                            />
+                            <span className="text-slate-300">-</span>
+                            <input 
+                                type="date" 
+                                value={dateRange.end}
+                                onChange={(e) => setDateRange(prev => ({ ...prev, end: e.target.value }))}
+                                className="text-sm border-none focus:ring-0 text-slate-700 bg-transparent cursor-pointer"
+                            />
+                        </div>
+                    </div>
+                    <ProductAnalyticsDashboard 
+                        products={products} 
+                        metricsMap={metricsMap} 
+                        activeCategory={activeCategory}
+                        onCategoryClick={setActiveCategory}
+                    />
+                </div>
             )}
 
             {/* KPIs */}
@@ -138,16 +170,22 @@ const ProductsPage: React.FC = () => {
                         <tbody className="divide-y divide-slate-100">
                             {filteredProducts.length > 0 ? filteredProducts.map((product) => {
                                 const m = metricsMap.get(product.id);
+                                const isExpanded = expandedProduct === product.id;
                                 return (
-                                <tr key={product.id} className="hover:bg-slate-50 transition-colors group">
+                                <React.Fragment key={product.id}>
+                                <tr 
+                                    className={`hover:bg-slate-50 transition-colors group cursor-pointer ${isExpanded ? 'bg-slate-50' : ''}`}
+                                    onClick={() => setExpandedProduct(isExpanded ? null : product.id)}
+                                >
                                     <td className="px-6 py-4">
                                         <div className="font-bold text-slate-900 flex items-center gap-2">
+                                            {isExpanded ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
                                             {product.brandName}
                                             {m?.priceAnomalies && m.priceAnomalies > 0 ? (
                                                 <span title="Sold below cost!" className="text-red-500"><AlertTriangle className="w-3 h-3" /></span>
                                             ) : null}
                                         </div>
-                                        <div className="text-xs text-slate-500 truncate max-w-[250px]" title={product.composition}>
+                                        <div className="text-xs text-slate-500 truncate max-w-[250px] ml-6" title={product.composition}>
                                             {product.composition}
                                         </div>
                                     </td>
@@ -159,9 +197,11 @@ const ProductsPage: React.FC = () => {
                                     <td className="px-6 py-4">
                                         <div className="font-semibold text-slate-900">MRP: ₹{product.mrp?.toFixed(2)}</div>
                                         <div className="text-xs text-slate-500">PTR: ₹{product.purchaseRate?.toFixed(2)}</div>
-                                        {m?.averageMarginPercent ? (
-                                            <div className="text-xs font-bold text-emerald-600 mt-0.5">Margin: {m.averageMarginPercent.toFixed(1)}%</div>
-                                        ) : null}
+                                        {m?.averageMarginPercent !== null && m?.averageMarginPercent !== undefined ? (
+                                            <div className="text-xs font-bold text-emerald-600 mt-0.5">Avg Margin: {m.averageMarginPercent.toFixed(1)}%</div>
+                                        ) : (
+                                            <div className="text-xs font-bold text-slate-400 mt-0.5">Avg Margin: N/A</div>
+                                        )}
                                     </td>
                                     <td className="px-6 py-4">
                                         <div className="flex items-center gap-2">
@@ -190,7 +230,7 @@ const ProductsPage: React.FC = () => {
                                         </span>
                                     </td>
                                     <td className="px-6 py-4 text-right">
-                                        <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity" onClick={e => e.stopPropagation()}>
                                             <button className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors" title="Edit">
                                                 <Edit2 className="w-4 h-4" />
                                             </button>
@@ -208,6 +248,51 @@ const ProductsPage: React.FC = () => {
                                         </div>
                                     </td>
                                 </tr>
+                                {isExpanded && m && (
+                                    <tr className="bg-slate-50/80 border-b border-slate-200">
+                                        <td colSpan={7} className="px-12 py-6">
+                                            <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                                                <div className="bg-slate-100 px-4 py-3 border-b border-slate-200 flex justify-between items-center">
+                                                    <h4 className="font-semibold text-slate-800 text-sm">Client Purchase History</h4>
+                                                    <span className="text-xs text-slate-500 font-medium">Selected Date Range</span>
+                                                </div>
+                                                {m.buyers.length > 0 ? (
+                                                    <table className="w-full text-sm text-left">
+                                                        <thead className="text-xs text-slate-500 bg-slate-50 uppercase border-b border-slate-200">
+                                                            <tr>
+                                                                <th className="px-4 py-2">Client Name</th>
+                                                                <th className="px-4 py-2 text-right">Qty Purchased</th>
+                                                                <th className="px-4 py-2 text-right">Total Revenue</th>
+                                                                <th className="px-4 py-2 text-right">Avg Margin</th>
+                                                                <th className="px-4 py-2 text-right">Last Purchase</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody className="divide-y divide-slate-100">
+                                                            {m.buyers.map(b => (
+                                                                <tr key={b.customerId} className="hover:bg-slate-50">
+                                                                    <td className="px-4 py-2 font-medium text-slate-800">{b.customerName}</td>
+                                                                    <td className="px-4 py-2 text-right text-slate-600">{b.quantity} units</td>
+                                                                    <td className="px-4 py-2 text-right text-slate-600 font-medium">₹{b.revenue.toLocaleString()}</td>
+                                                                    <td className="px-4 py-2 text-right">
+                                                                        <span className={`font-semibold ${b.averageMargin > 20 ? 'text-emerald-600' : b.averageMargin > 0 ? 'text-amber-600' : 'text-red-600'}`}>
+                                                                            {b.averageMargin.toFixed(1)}%
+                                                                        </span>
+                                                                    </td>
+                                                                    <td className="px-4 py-2 text-right text-slate-500">{new Date(b.lastPurchaseDate).toLocaleDateString()}</td>
+                                                                </tr>
+                                                            ))}
+                                                        </tbody>
+                                                    </table>
+                                                ) : (
+                                                    <div className="p-8 text-center text-slate-500 text-sm">
+                                                        No sales data found for this product in the selected date range.
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                )}
+                                </React.Fragment>
                                 );
                             }) : (
                                 <tr>

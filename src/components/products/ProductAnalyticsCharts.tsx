@@ -3,16 +3,34 @@ import { Product } from '../../types';
 import { ProductMetrics } from '../../utils/productAnalytics';
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, 
-  ScatterChart, Scatter, ZAxis, Legend, Cell, PieChart, Pie
+  ScatterChart, Scatter, ZAxis, Cell
 } from 'recharts';
-import { TrendingUp, AlertTriangle, Activity } from 'lucide-react';
+import { TrendingUp, AlertTriangle, TrendingDown, PackageMinus, Zap, Filter } from 'lucide-react';
 
 interface Props {
   products: Product[];
   metricsMap: Map<string, ProductMetrics>;
+  activeCategory: string;
+  onCategoryClick: (category: string) => void;
 }
 
-export const ProductAnalyticsDashboard: React.FC<Props> = ({ products, metricsMap }) => {
+export const ProductAnalyticsDashboard: React.FC<Props> = ({ products, metricsMap, activeCategory, onCategoryClick }) => {
+  
+  const categoryCounts = useMemo(() => {
+    const counts = {
+      'Top Selling': 0,
+      'Slow Moving': 0,
+      'Declining': 0,
+      'Untapped': 0,
+    };
+    Array.from(metricsMap.values()).forEach(m => {
+      if (counts[m.category as keyof typeof counts] !== undefined) {
+        counts[m.category as keyof typeof counts]++;
+      }
+    });
+    return counts;
+  }, [metricsMap]);
+
   // 1. Profitability Matrix Data (Scatter Plot: Margin vs Monthly Sales)
   const scatterData = useMemo(() => {
     return products.map(p => {
@@ -21,7 +39,7 @@ export const ProductAnalyticsDashboard: React.FC<Props> = ({ products, metricsMa
       return {
         name: p.brandName,
         monthlySale: m.averageMonthlySale,
-        margin: m.averageMarginPercent,
+        margin: m.averageMarginPercent || 0,
         revenue: m.totalRevenue,
         segment: p.segment || 'General'
       };
@@ -42,21 +60,6 @@ export const ProductAnalyticsDashboard: React.FC<Props> = ({ products, metricsMa
       }).filter(d => d.revenue > 0);
   }, [products, metricsMap]);
 
-  // 3. Segment Performance (Pie Chart)
-  const segmentData = useMemo(() => {
-    const segmentMap = new Map<string, number>();
-    products.forEach(p => {
-      const m = metricsMap.get(p.id);
-      if (!m || m.totalRevenue === 0) return;
-      const seg = p.segment || 'General';
-      segmentMap.set(seg, (segmentMap.get(seg) || 0) + m.totalRevenue);
-    });
-    
-    return Array.from(segmentMap.entries())
-      .map(([name, value]) => ({ name, value }))
-      .sort((a, b) => b.value - a.value);
-  }, [products, metricsMap]);
-
   const COLORS = ['#8B5CF6', '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#EC4899'];
 
   const CustomTooltip = ({ active, payload }: any) => {
@@ -74,42 +77,56 @@ export const ProductAnalyticsDashboard: React.FC<Props> = ({ products, metricsMa
     return null;
   };
 
-  // Find anomalies
   const totalAnomalies = Array.from(metricsMap.values()).reduce((sum, m) => sum + m.priceAnomalies, 0);
+
+  const categories = [
+    { name: 'Top Selling', icon: Zap, count: categoryCounts['Top Selling'], color: 'text-emerald-600', bg: 'bg-emerald-100', border: 'border-emerald-200' },
+    { name: 'Slow Moving', icon: PackageMinus, count: categoryCounts['Slow Moving'], color: 'text-orange-600', bg: 'bg-orange-100', border: 'border-orange-200' },
+    { name: 'Declining', icon: TrendingDown, count: categoryCounts['Declining'], color: 'text-red-600', bg: 'bg-red-100', border: 'border-red-200' },
+    { name: 'Untapped', icon: Filter, count: categoryCounts['Untapped'], color: 'text-slate-600', bg: 'bg-slate-100', border: 'border-slate-200' },
+  ];
 
   return (
     <div className="space-y-6 mb-8 animate-in fade-in slide-in-from-top-2">
-      {/* KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-gradient-to-br from-purple-500 to-indigo-600 rounded-2xl p-6 text-white shadow-lg">
-          <div className="flex items-center gap-3 mb-2">
-            <TrendingUp className="w-6 h-6 text-purple-200" />
-            <h3 className="font-semibold text-purple-100">Top Revenue Driver</h3>
-          </div>
-          <p className="text-2xl font-bold">{topPerformers[0]?.name || 'N/A'}</p>
-          <p className="text-purple-200 text-sm mt-1">₹{topPerformers[0]?.revenue.toLocaleString() || '0'} lifetime revenue</p>
-        </div>
-
-        <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-6 text-white shadow-lg">
-          <div className="flex items-center gap-3 mb-2">
-            <Activity className="w-6 h-6 text-slate-400" />
-            <h3 className="font-semibold text-slate-300">Catalog Activity</h3>
-          </div>
-          <p className="text-2xl font-bold">{scatterData.length} active products</p>
-          <p className="text-slate-400 text-sm mt-1">Selling across {segmentData.length} segments</p>
-        </div>
-
-        <div className={`rounded-2xl p-6 text-white shadow-lg ${totalAnomalies > 0 ? 'bg-gradient-to-br from-red-500 to-orange-500' : 'bg-gradient-to-br from-emerald-500 to-teal-600'}`}>
-          <div className="flex items-center gap-3 mb-2">
-            <AlertTriangle className={`w-6 h-6 ${totalAnomalies > 0 ? 'text-red-200' : 'text-emerald-200'}`} />
-            <h3 className="font-semibold text-white/80">Price Anomalies</h3>
-          </div>
-          <p className="text-2xl font-bold">{totalAnomalies} instances</p>
-          <p className="text-white/80 text-sm mt-1">
-            {totalAnomalies > 0 ? 'Products sold below purchase rate!' : 'All sales have positive margin'}
-          </p>
-        </div>
+      
+      {/* Category Filter Cards */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {categories.map((cat) => {
+          const isActive = activeCategory === cat.name;
+          return (
+            <button
+              key={cat.name}
+              onClick={() => onCategoryClick(isActive ? 'All' : cat.name)}
+              className={`p-4 rounded-xl border text-left transition-all duration-200 ${
+                isActive 
+                  ? `ring-2 ring-offset-2 ring-${cat.color.split('-')[1]}-500 ${cat.bg} ${cat.border} shadow-md` 
+                  : 'bg-white border-slate-200 hover:border-slate-300 shadow-sm hover:shadow-md'
+              }`}
+            >
+              <div className="flex justify-between items-start mb-2">
+                <div className={`p-2 rounded-lg ${cat.bg}`}>
+                  <cat.icon className={`w-5 h-5 ${cat.color}`} />
+                </div>
+                <span className={`text-2xl font-bold ${isActive ? cat.color : 'text-slate-700'}`}>
+                  {cat.count}
+                </span>
+              </div>
+              <h3 className={`font-semibold ${isActive ? cat.color : 'text-slate-600'}`}>{cat.name}</h3>
+              <p className="text-xs text-slate-500 mt-1">Click to filter table</p>
+            </button>
+          );
+        })}
       </div>
+
+      {totalAnomalies > 0 && (
+        <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-center gap-3">
+          <AlertTriangle className="w-5 h-5 text-red-500 shrink-0" />
+          <div className="text-red-700">
+            <span className="font-bold">Price Anomalies Detected: </span>
+            {totalAnomalies} products were sold below purchase rate. Expand rows with warnings below to investigate.
+          </div>
+        </div>
+      )}
 
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
