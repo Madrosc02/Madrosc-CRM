@@ -20,6 +20,15 @@ class ErrorBoundary extends Component<Props, State> {
     }
 
     public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+        // Automatically reload the page if it's a chunk loading error (happens after new deployments)
+        const isChunkLoadFailed = error?.message?.match(/Failed to fetch dynamically imported module|Importing a module script failed/i);
+        
+        if (isChunkLoadFailed) {
+            console.warn('Chunk load failed. Reloading page to fetch latest version...');
+            window.location.reload();
+            return;
+        }
+
         console.error('Uncaught error:', error, errorInfo);
     }
 
