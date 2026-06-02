@@ -1,10 +1,12 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { BarChart3, Calendar, LogOut, Moon, Phone, Users, Package, FileText, Settings } from 'lucide-react';
+import { BarChart3, Calendar, LogOut, Moon, Sun, Phone, Users, Package, FileText, Settings } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
+import { useTheme } from '../../contexts/ThemeContext';
 
 export function Sidebar() {
   const { signOut } = useAuth();
+  const { theme, toggleTheme } = useTheme();
 
   const navItems = [
     { name: 'Dashboard', path: '/', icon: Calendar },
@@ -79,8 +81,11 @@ export function Sidebar() {
 
       {/* Footer Options */}
       <div className="space-y-1 border-t border-slate-800 pt-3">
-        <div className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg hover:bg-slate-800/50 cursor-pointer text-slate-400 hover:text-white transition-colors">
-          <Moon className="w-4 h-4" />
+        <div 
+          onClick={toggleTheme}
+          className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg hover:bg-slate-800/50 cursor-pointer text-slate-400 hover:text-white transition-colors"
+        >
+          {theme === 'light' ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
           <span className="text-[13px] font-medium">Theme Mode</span>
         </div>
         <div
