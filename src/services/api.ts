@@ -200,10 +200,7 @@ export const bulkAddCustomers = async (newCustomersData: Omit<Customer, 'id' | '
         monopoly_status: c.monopolyStatus,
         state: c.state,
         district: c.district,
-        sales_this_month: c.salesThisMonth,
-        avg_6_mo_sales: c.avg6MoSales,
-        outstanding_balance: c.outstandingBalance,
-        days_since_last_order: c.daysSinceLastOrder,
+        tags: c.tags || [],
         last_updated: new Date().toISOString(),
         avatar: `https://i.pravatar.cc/150?u=${Math.random()}`
     }));
@@ -213,7 +210,10 @@ export const bulkAddCustomers = async (newCustomersData: Omit<Customer, 'id' | '
         .insert(dbData)
         .select();
 
-    if (error) throw error;
+    if (error) {
+        console.error("Bulk add error:", error);
+        throw error;
+    }
     return (data || []).map(mapCustomer);
 };
 

@@ -146,8 +146,9 @@ const BulkImportModal: React.FC = () => {
             await bulkAddCustomers(parsedCustomers);
             addToast(`${parsedCustomers.length} customers imported successfully!`, 'success');
             closeBulkImportModal();
-        } catch(e) {
-             addToast("Failed to import customers.", 'error');
+        } catch(e: any) {
+             console.error("Bulk Import Exception:", e);
+             addToast(`Failed to import customers: ${e.message || 'Check console for details'}`, 'error');
         } finally {
             setIsImporting(false);
         }
