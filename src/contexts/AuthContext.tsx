@@ -44,14 +44,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     useEffect(() => {
         // Check active sessions and sets the user
-        supabase.auth.getSession().then(async ({ data: { session } }) => {
-            setSession(session);
-            setUser(session?.user ?? null);
-            if (session?.user) {
-                await fetchUserRole(session.user.id);
-            }
-            setLoading(false);
-        });
+        supabase.auth.getSession()
+            .then(async ({ data: { session } }) => {
+                setSession(session);
+                setUser(session?.user ?? null);
+                if (session?.user) {
+                    await fetchUserRole(session.user.id);
+                }
+                setLoading(false);
+            })
+            .catch((err) => {
+                console.error("Failed to get session:", err);
+                setLoading(false);
+            });
 
         // Listen for changes on auth state (sign in, sign out, etc.)
         const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
