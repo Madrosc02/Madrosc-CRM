@@ -88,11 +88,9 @@ const AdminPanel: React.FC = () => {
             if (!data.user) throw new Error('User creation failed, no user returned.');
 
             // 2. Wait for the database trigger to insert the row in user_roles
-            // We retry a few times in case the trigger is slow
+            // We check immediately, then poll with a short delay if not found yet
             let roleUpdated = false;
-            for (let i = 0; i < 5; i++) {
-                await new Promise(r => setTimeout(r, 1000));
-                
+            for (let i = 0; i < 10; i++) {
                 const { data: roleData, error: roleError } = await supabase
                     .from('user_roles')
                     .select('id')
@@ -110,6 +108,8 @@ const AdminPanel: React.FC = () => {
                     roleUpdated = true;
                     break;
                 }
+                // Wait 300ms before checking again
+                await new Promise(r => setTimeout(r, 300));
             }
 
             if (!roleUpdated) {
