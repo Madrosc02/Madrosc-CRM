@@ -13,12 +13,13 @@ END $$;
 
 -- Create user_roles table (using IF NOT EXISTS to be safe)
 CREATE TABLE IF NOT EXISTS public.user_roles (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
     user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL UNIQUE,
-    email TEXT,
-    role user_role DEFAULT 'user',
-    status user_status DEFAULT 'pending',
-    created_at TIMESTAMPTZ DEFAULT NOW(),
+    email TEXT NOT NULL,
+    name TEXT,
+    role user_role DEFAULT 'user'::user_role NOT NULL,
+    status user_status DEFAULT 'pending'::user_status NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 

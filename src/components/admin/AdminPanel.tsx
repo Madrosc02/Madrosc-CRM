@@ -8,6 +8,7 @@ interface UserRoleData {
     id: string;
     user_id: string;
     email: string;
+    name: string | null;
     role: string;
     status: string;
     created_at: string;
@@ -22,6 +23,7 @@ const AdminPanel: React.FC = () => {
 
     // Add User State
     const [isAddUserOpen, setIsAddUserOpen] = useState(false);
+    const [newName, setNewName] = useState('');
     const [newEmail, setNewEmail] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [newRole, setNewRole] = useState('user');
@@ -98,10 +100,10 @@ const AdminPanel: React.FC = () => {
                     .single();
                 
                 if (roleData && !roleError) {
-                    // Update the newly created user's role and status
+                    // Update the newly created user's role, status, and name
                     const { error: updateError } = await supabase
                         .from('user_roles')
-                        .update({ role: newRole, status: 'approved' })
+                        .update({ role: newRole, status: 'approved', name: newName })
                         .eq('user_id', data.user.id);
                     
                     if (updateError) throw updateError;
@@ -118,6 +120,7 @@ const AdminPanel: React.FC = () => {
 
             // Close modal, reset form, and refresh
             setIsAddUserOpen(false);
+            setNewName('');
             setNewEmail('');
             setNewPassword('');
             setNewRole('user');
@@ -128,6 +131,37 @@ const AdminPanel: React.FC = () => {
             setAddError(err.message || 'Failed to create user');
         } finally {
             setIsAdding(false);
+        }
+    };
+
+    // Change Password State
+    const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const [isChangingPassword, setIsChangingPassword] = useState(false);
+    const [passwordMsg, setPasswordMsg] = useState<{type: 'success'|'error', text: string} | null>(null);
+
+    const handleChangePassword = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setPasswordMsg(null);
+
+        if (password !== confirmPassword) {
+            setPasswordMsg({ type: 'error', text: 'Passwords do not match.' });
+            return;
+        }
+
+        setIsChangingPassword(true);
+        try {
+            const { error } = await supabase.auth.updateUser({ password });
+            if (error) throw error;
+            setPasswordMsg({ type: 'success', text: 'Password successfully updated!' });
+            setPassword('');
+            setConfirmPassword('');
+            setTimeout(() => setPasswordMsg(null), 3000);
+        } catch (err: any) {
+            console.error(err);
+            setPasswordMsg({ type: 'error', text: err.message || 'Failed to update password.' });
+        } finally {
+            setIsChangingPassword(false);
         }
     };
 
@@ -171,6 +205,7 @@ const AdminPanel: React.FC = () => {
                         <thead className="bg-gray-50 dark:bg-[#0d1117] border-b border-gray-200 dark:border-gray-800">
                             <tr>
                                 <th className="px-6 py-4 font-semibold text-gray-900 dark:text-gray-100">User Email</th>
+                                <th className="px-6 py-4 font-semibold text-gray-900 dark:text-gray-100">Name</th>
                                 <th className="px-6 py-4 font-semibold text-gray-900 dark:text-gray-100">Status</th>
                                 <th className="px-6 py-4 font-semibold text-gray-900 dark:text-gray-100">Role</th>
                                 <th className="px-6 py-4 font-semibold text-gray-900 dark:text-gray-100">Joined Date</th>
@@ -180,14 +215,14 @@ const AdminPanel: React.FC = () => {
                         <tbody className="divide-y divide-gray-200 dark:divide-gray-800">
                             {loading ? (
                                 <tr>
-                                    <td colSpan={5} className="px-6 py-8 text-center text-gray-500">
+                                    <td colSpan={6} className="px-6 py-8 text-center text-gray-500">
                                         <Spinner className="w-6 h-6 mx-auto mb-2" />
                                         Loading users...
                                     </td>
                                 </tr>
                             ) : users.length === 0 ? (
                                 <tr>
-                                    <td colSpan={5} className="px-6 py-8 text-center text-gray-500">
+                                    <td colSpan={6} className="px-6 py-8 text-center text-gray-500">
                                         No users found.
                                     </td>
                                 </tr>
@@ -196,6 +231,9 @@ const AdminPanel: React.FC = () => {
                                     <tr key={user.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
                                         <td className="px-6 py-4 text-gray-900 dark:text-gray-100">
                                             {user.email || 'No email'}
+                                        </td>
+                                        <td className="px-6 py-4 text-gray-900 dark:text-gray-100">
+                                            {user.name || <span className="text-gray-400 italic">No name</span>}
                                         </td>
                                         <td className="px-6 py-4">
                                             <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${
@@ -279,6 +317,61 @@ const AdminPanel: React.FC = () => {
                 </div>
             </div>
 
+            {/* Change Password Section */}
+            <div className="bg-white dark:bg-[#161b22] border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden shadow-sm mt-8">
+                <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#0d1117]">
+                    <h3 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                        <i className="fas fa-lock text-brand dark:text-brand-dark"></i>
+                        Security: Change My Password
+                    </h3>
+                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                        Update your administrator password here.
+                    </p>
+                </div>
+                <div className="p-6">
+                    <form onSubmit={handleChangePassword} className="max-w-md space-y-4">
+                        {passwordMsg && (
+                            <div className={`p-3 rounded-lg text-sm border ${passwordMsg.type === 'success' ? 'bg-green-50 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800' : 'bg-red-50 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800'}`}>
+                                {passwordMsg.text}
+                            </div>
+                        )}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">New Password</label>
+                            <input 
+                                type="password" 
+                                required
+                                minLength={6}
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-brand bg-white dark:bg-[#0d1117] text-gray-900 dark:text-white"
+                                placeholder="Minimum 6 characters"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Confirm New Password</label>
+                            <input 
+                                type="password" 
+                                required
+                                minLength={6}
+                                value={confirmPassword}
+                                onChange={(e) => setConfirmPassword(e.target.value)}
+                                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-brand bg-white dark:bg-[#0d1117] text-gray-900 dark:text-white"
+                                placeholder="Re-enter password"
+                            />
+                        </div>
+                        <div className="pt-2">
+                            <button 
+                                type="submit"
+                                disabled={isChangingPassword}
+                                className="px-4 py-2 text-sm font-medium text-white bg-brand hover:bg-brand-dark disabled:opacity-50 disabled:cursor-not-allowed rounded-md transition-colors flex items-center gap-2"
+                            >
+                                {isChangingPassword ? <><Spinner className="w-4 h-4" /> Updating...</> : 'Update Password'}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
             {/* Add User Modal */}
             {isAddUserOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
@@ -298,6 +391,17 @@ const AdminPanel: React.FC = () => {
                                     {addError}
                                 </div>
                             )}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Full Name</label>
+                                <input 
+                                    type="text" 
+                                    required
+                                    value={newName}
+                                    onChange={(e) => setNewName(e.target.value)}
+                                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-[#0d1117] text-gray-900 dark:text-white"
+                                    placeholder="John Doe"
+                                />
+                            </div>
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email Address</label>
                                 <input 
