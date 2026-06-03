@@ -15,15 +15,23 @@ const Sidebar: React.FC = () => {
         navigate('/login');
     };
 
-    const navItems = [
+    const { userRole } = useAuth();
+
+    const baseNavItems = [
         { path: '/', label: 'Dashboard', icon: BarChart3 },
         { path: '/analytics', label: 'Analytics', icon: BarChart3 },
         { path: '/call-mode', label: 'Call Mode', icon: Phone },
         { path: '/clients', label: 'Clients', icon: Users },
         { path: '/products', label: 'Products', icon: Package },
         { path: '/reports', label: 'Reports', icon: FileText },
-        { path: '/settings', label: 'Settings', icon: Settings },
     ];
+
+    const navItems = userRole === 'admin' 
+        ? [...baseNavItems, 
+            { path: '/settings', label: 'Settings', icon: Settings },
+            { path: '/admin', label: 'Admin Panel', icon: Users } // Using Users icon as a fallback since Shield isn't imported
+          ]
+        : baseNavItems;
 
     return (
         <aside className="fixed left-0 top-0 bottom-0 z-50 w-[260px] bg-card border-r border-border p-6 flex flex-col transition-all duration-300">
