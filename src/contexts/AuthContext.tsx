@@ -43,19 +43,33 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     useEffect(() => {
+        let isMounted = true;
+        
+        // Safety fallback: if Supabase takes longer than 5 seconds, force load to finish
+        // to prevent an infinite "Loading..." screen.
+        const timer = setTimeout(() => {
+            if (isMounted) {
+                console.warn("Supabase auth check timed out. Forcing load to finish.");
+                setLoading(false);
+            }
+        }, 5000);
+
         // Check active sessions and sets the user
         supabase.auth.getSession()
             .then(async ({ data: { session } }) => {
+                if (!isMounted) return;
                 setSession(session);
                 setUser(session?.user ?? null);
                 if (session?.user) {
                     await fetchUserRole(session.user.id);
                 }
-                setLoading(false);
+                clearTimeout(timer);
+                if (isMounted) setLoading(false);
             })
             .catch((err) => {
                 console.error("Failed to get session:", err);
-                setLoading(false);
+                clearTimeout(timer);
+                if (isMounted) setLoading(false);
             });
 
         // Listen for changes on auth state (sign in, sign out, etc.)
@@ -71,7 +85,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setLoading(false);
         });
 
-        return () => subscription.unsubscribe();
+        return () => {
+            isMounted = false;
+            clearTimeout(timer);
+            subscription.unsubscribe();
+        };
     }, []);
 
     const signOut = async () => {
