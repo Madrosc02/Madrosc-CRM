@@ -74,6 +74,22 @@ const AdminPanel: React.FC = () => {
         }
     };
 
+    const handleResetPassword = async (email: string) => {
+        const confirmed = window.confirm(`Send a password reset email to ${email}?`);
+        if (!confirmed) return;
+        
+        try {
+            const { error } = await supabase.auth.resetPasswordForEmail(email, {
+                redirectTo: `${window.location.origin}/settings`,
+            });
+            if (error) throw error;
+            alert(`Password reset email successfully sent to ${email}`);
+        } catch (err: any) {
+            console.error(err);
+            alert('Failed to send reset email: ' + (err.message || 'Unknown error'));
+        }
+    };
+
     const handleAddUser = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsAdding(true);
@@ -304,6 +320,16 @@ const AdminPanel: React.FC = () => {
                                                             className="text-xs font-medium px-3 py-1.5 bg-red-100 hover:bg-red-200 text-red-700 dark:bg-red-900/30 dark:hover:bg-red-900/50 dark:text-red-400 rounded-md transition-colors ml-2"
                                                         >
                                                             Revoke
+                                                        </button>
+                                                    )}
+
+                                                    {user.email && (
+                                                        <button
+                                                            onClick={() => handleResetPassword(user.email)}
+                                                            className="text-xs font-medium px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-gray-300 rounded-md transition-colors ml-2"
+                                                            title="Send Password Reset Email"
+                                                        >
+                                                            <i className="fas fa-key mr-1"></i> Reset
                                                         </button>
                                                     )}
                                                 </>
