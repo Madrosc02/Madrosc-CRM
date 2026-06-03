@@ -1,9 +1,18 @@
--- Create the enum types for roles and statuses
-CREATE TYPE user_role AS ENUM ('admin', 'user');
-CREATE TYPE user_status AS ENUM ('pending', 'approved', 'rejected');
+-- Create the enum types for roles and statuses safely
+DO $$ BEGIN
+    CREATE TYPE user_role AS ENUM ('admin', 'user');
+EXCEPTION
+    WHEN duplicate_object THEN null;
+END $$;
 
--- Create user_roles table
-CREATE TABLE public.user_roles (
+DO $$ BEGIN
+    CREATE TYPE user_status AS ENUM ('pending', 'approved', 'rejected');
+EXCEPTION
+    WHEN duplicate_object THEN null;
+END $$;
+
+-- Create user_roles table (using IF NOT EXISTS to be safe)
+CREATE TABLE IF NOT EXISTS public.user_roles (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL UNIQUE,
     email TEXT,
@@ -37,6 +46,11 @@ BEGIN
   );
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Drop policies if they exist to avoid duplication errors
+DROP POLICY IF EXISTS "Users can read own role" ON public.user_roles;
+DROP POLICY IF EXISTS "Admins can read all roles" ON public.user_roles;
+DROP POLICY IF EXISTS "Admins can update roles" ON public.user_roles;
 
 -- RLS Policies for user_roles
 -- 1. Users can read their own role
@@ -76,11 +90,6 @@ CREATE TRIGGER on_auth_user_created
   FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
 
 -- Update existing policies on core tables to require approval
--- Note: You should drop old policies first or alter them.
--- For safety, we will just add a check to the tables.
--- A cleaner way is dropping the 'Allow authenticated access' policies and recreating them.
--- But since we don't know if they were modified, we will provide the drop statements for standard tables.
-
 DROP POLICY IF EXISTS "Allow authenticated access" ON public.customers;
 CREATE POLICY "Allow authenticated access" ON public.customers FOR ALL USING (auth.role() = 'authenticated' AND public.is_approved_user());
 
