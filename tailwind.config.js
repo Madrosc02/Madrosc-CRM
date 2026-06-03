@@ -21,6 +21,10 @@ export default {
                     DEFAULT: '#FF6B6B',
                     hover: '#E65A5A',
                 },
+                brand: {
+                    DEFAULT: '#4f46e5',
+                    dark: '#4338ca',
+                }
             }
         },
     },
