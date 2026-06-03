@@ -5,6 +5,8 @@ import Layout from './components/layout/Layout';
 import Login from './components/Login';
 import { useApp } from './contexts/AppContext';
 import Spinner from './components/ui/Spinner';
+import PendingApproval from './components/PendingApproval';
+import AdminPanel from './components/admin/AdminPanel';
 
 // Lazy load main pages
 const Dashboard = React.lazy(() => import('./components/Dashboard'));
@@ -26,9 +28,17 @@ const CallMode = React.lazy(() => import('./components/CallMode'));
 
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const { user, loading } = useAuth();
+    const { user, loading, userStatus } = useAuth();
     if (loading) return <div className="flex h-screen items-center justify-center">Loading...</div>;
     if (!user) return <Navigate to="/login" replace />;
+    if (userStatus === 'pending') return <PendingApproval />;
+    if (userStatus === 'rejected') return <div className="flex h-screen items-center justify-center text-red-500 font-bold text-xl">Your account access has been rejected. Please contact an administrator.</div>;
+    return <>{children}</>;
+};
+
+const AdminRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+    const { userRole } = useAuth();
+    if (userRole !== 'admin') return <Navigate to="/dashboard" replace />;
     return <>{children}</>;
 };
 
@@ -61,11 +71,12 @@ const AuthenticatedApp: React.FC = () => {
                     <Route path="/" element={<Navigate to="/dashboard" replace />} />
                     <Route path="/dashboard" element={<Dashboard />} />
                     <Route path="/analytics" element={<AnalyticsPage />} />
-                                        <Route path="/call-mode" element={<CallMode />} />
+                    <Route path="/call-mode" element={<CallMode />} />
                     <Route path="/clients" element={<ClientsPage />} />
                     <Route path="/products" element={<ProductsPage />} />
                     <Route path="/reports" element={<ReportsPage />} />
                     <Route path="/settings" element={<SettingsPage />} />
+                    <Route path="/admin" element={<AdminRoute><AdminPanel /></AdminRoute>} />
                     <Route path="*" element={<Navigate to="/" replace />} />
                 </Routes>
             </Suspense>

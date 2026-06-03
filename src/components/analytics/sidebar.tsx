@@ -1,11 +1,11 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { BarChart3, Calendar, LogOut, Moon, Sun, Phone, Users, Package, FileText, Settings } from 'lucide-react';
+import { BarChart3, Calendar, LogOut, Moon, Sun, Phone, Users, Package, FileText, Settings, Shield } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 
 export function Sidebar() {
-  const { signOut } = useAuth();
+  const { signOut, userRole } = useAuth();
   const { theme, toggleTheme } = useTheme();
 
   const navItems = [
@@ -15,7 +15,8 @@ export function Sidebar() {
     { name: 'Clients', path: '/clients', icon: Users },
     { name: 'Products', path: '/products', icon: Package },
     { name: 'Reports', path: '/reports', icon: FileText },
-    { name: 'Settings', path: '/settings', icon: Settings },
+    ...(userRole === 'admin' ? [{ name: 'Settings', path: '/settings', icon: Settings }] : []),
+    ...(userRole === 'admin' ? [{ name: 'Admin Panel', path: '/admin', icon: Shield }] : []),
   ];
 
   return (

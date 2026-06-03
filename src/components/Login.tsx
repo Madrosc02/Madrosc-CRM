@@ -36,7 +36,7 @@ const Login: React.FC = () => {
                     password,
                 });
                 if (error) throw error;
-                setMessage('Check your email for the confirmation link!');
+                setMessage('Account created! An administrator must approve your account before you can access the CRM. (Check your email for a confirmation link if required)');
             }
         } catch (err: any) {
             setError(err.message || 'An error occurred');
