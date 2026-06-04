@@ -9,9 +9,23 @@ import ActivityFeed from './analytics/ActivityFeed';
 import FadeIn from './ui/FadeIn';
 
 const Dashboard: React.FC = () => {
+    const { customers, tasks, sales, historicalSnapshots, loading, isAnalyticsLoading } = useApp();
+    const { userRole, authError } = useAuth();
+
     // Skeletons are handled inside child components
     return (
         <div className="space-y-6 glass-panel p-6 rounded-2xl">
+            {/* Auth Error Debug Banner */}
+            {authError && (
+                <div className="bg-red-500 text-white p-4 rounded-lg mb-6 shadow-md border border-red-700">
+                    <h3 className="font-bold text-lg mb-2">Authentication Database Error!</h3>
+                    <p className="mb-2">Please take a screenshot of this error and send it to your AI assistant:</p>
+                    <code className="block bg-red-900 bg-opacity-50 p-2 rounded text-sm break-all">
+                        {authError}
+                    </code>
+                </div>
+            )}
+
             <FadeIn>
                 <KPIRow />
             </FadeIn>

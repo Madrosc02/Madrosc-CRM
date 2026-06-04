@@ -5,9 +5,9 @@ import { supabase } from '../lib/supabase';
 interface AuthContextType {
     user: User | null;
     session: Session | null;
-    loading: boolean;
     userRole: string | null;
     userStatus: string | null;
+    authError: string | null;
     signOut: () => Promise<void>;
 }
 
@@ -19,6 +19,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [loading, setLoading] = useState(true);
     const [userRole, setUserRole] = useState<string | null>(null);
     const [userStatus, setUserStatus] = useState<string | null>(null);
+    const [authError, setAuthError] = useState<string | null>(null);
 
     const fetchUserRole = async (userId: string, retries = 3) => {
         try {
@@ -33,14 +34,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             if (data) {
                 setUserRole(data.role);
                 setUserStatus(data.status);
+                setAuthError(null);
             }
-        } catch (e) {
+        } catch (e: any) {
             console.error(`Error fetching user role (${retries} retries left):`, e);
             if (retries > 0) {
                 await new Promise(resolve => setTimeout(resolve, 500));
                 await fetchUserRole(userId, retries - 1);
             } else {
                 console.warn('Failed to fetch user role after all retries');
+                setAuthError(e.message || JSON.stringify(e));
             }
         }
     };
@@ -107,6 +110,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         loading,
         userRole,
         userStatus,
+        authError,
         signOut,
     };
 
