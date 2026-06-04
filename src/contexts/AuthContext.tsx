@@ -32,13 +32,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 setUserRole(data.role);
                 setUserStatus(data.status);
             } else {
-                setUserRole(null);
-                setUserStatus(null);
+                // If the user truly doesn't exist, we must handle it, 
+                // but we only log it here to prevent wiping out on transient network errors.
+                console.warn('No role data returned for user');
             }
         } catch (e) {
             console.error('Error fetching user role:', e);
-            setUserRole(null);
-            setUserStatus(null);
         }
     };
 
@@ -73,7 +72,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             });
 
         // Listen for changes on auth state (sign in, sign out, etc.)
-        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+            if (event === 'INITIAL_SESSION') return; // Handled by getSession
+            
             setSession(session);
             setUser(session?.user ?? null);
             if (session?.user) {
