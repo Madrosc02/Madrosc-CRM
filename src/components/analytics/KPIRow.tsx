@@ -18,26 +18,8 @@ const StatCardSkeleton: React.FC = () => (
 );
 
 const KPIRow: React.FC = () => {
-    const { customers, loading, getAllSales, analyticsFilters, setKpiFilter, historicalSnapshots } = useApp();
-    const [allSales, setAllSales] = useState<Sale[]>([]);
-    const [salesLoading, setSalesLoading] = useState(true);
+    const { customers, loading, isAnalyticsLoading, sales: allSales, analyticsFilters, setKpiFilter, historicalSnapshots } = useApp();
     const [detailsModal, setDetailsModal] = useState<'total' | 'pending' | 'sales' | 'outstanding' | null>(null);
-
-    useEffect(() => {
-        const fetchSales = async () => {
-            setSalesLoading(true);
-            try {
-                const salesData = await getAllSales();
-                setAllSales(salesData || []);
-            } catch (error) {
-                console.error("Error fetching sales:", error);
-                setAllSales([]);
-            } finally {
-                setSalesLoading(false);
-            }
-        };
-        fetchSales();
-    }, [getAllSales]);
 
     const dateFilteredSales = useMemo(() => {
         const { start, end } = analyticsFilters.dateRange;
@@ -204,7 +186,7 @@ const KPIRow: React.FC = () => {
         return data;
     };
 
-    if (loading || salesLoading) {
+    if (loading || isAnalyticsLoading) {
         return (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 {[...Array(4)].map((_, i) => <StatCardSkeleton key={i} />)}

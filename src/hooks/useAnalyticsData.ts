@@ -37,24 +37,9 @@ export interface HealthScoreData {
 }
 
 export const useAnalyticsData = () => {
-  const { customers, getAllSales, analyticsFilters, userSettings, historicalSnapshots } = useApp();
-  const [allSales, setAllSales] = useState<Sale[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { customers, sales: allSales, isAnalyticsLoading: loading, analyticsFilters, userSettings, historicalSnapshots } = useApp();
 
-  useEffect(() => {
-    const fetchSales = async () => {
-      setLoading(true);
-      try {
-        const salesData = await getAllSales();
-        setAllSales(salesData);
-      } catch (error) {
-        console.error("Failed to fetch sales for analytics:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchSales();
-  }, [getAllSales]);
+
 
   // Apply Analytics Date Range Filter
   const filteredSales = useMemo(() => {

@@ -21,6 +21,7 @@ interface AddTaskInitialData {
 }
 
 interface AppContextType extends CrmDataHook {
+  isAnalyticsLoading: boolean;
   // Search
   searchQuery: string;
   setSearchQuery: (query: string) => void;
@@ -162,6 +163,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   const value: AppContextType = {
     ...crmData,
+    isAnalyticsLoading: crmData.isAnalyticsLoading,
     searchQuery,
     setSearchQuery,
     updateCustomerFlag: crmData.updateCustomerFlag,

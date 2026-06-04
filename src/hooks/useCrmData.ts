@@ -21,6 +21,7 @@ export const useCrmData = () => {
   const [userSettings, setUserSettings] = useState<UserSettings | null>(null);
   const [historicalSnapshots, setHistoricalSnapshots] = useState<HistoricalSnapshot[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isAnalyticsLoading, setIsAnalyticsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filters, setFilters] = useState<Filters>({
     tier: '',
@@ -32,45 +33,56 @@ export const useCrmData = () => {
   useEffect(() => {
     const loadData = async () => {
       setLoading(true);
+      setIsAnalyticsLoading(true);
       try {
-        const [customersData, tasksData, remarksData, salesData, invoicesData, paymentsData, productsData] = await Promise.all([
+        // Load critical UI data first
+        const [customersData, tasksData, productsData] = await Promise.all([
           api.fetchCustomers(),
           api.fetchTasks(),
-          api.fetchRemarks(),
-          api.fetchAllSales(),
-          api.fetchAllInvoices(),
-          api.fetchAllPayments(),
           api.fetchProducts()
         ]);
 
         let settingsData = null;
-        let snapshotsData: HistoricalSnapshot[] = [];
-        
         try {
           settingsData = await api.fetchUserSettings();
         } catch (err) {
           console.warn("Failed to fetch settings, using defaults.", err);
         }
 
+        setCustomers(customersData);
+        setProducts(productsData);
+        setTasks(tasksData.sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()));
+        setUserSettings(settingsData);
+        
+        // Unblock the main UI immediately
+        setLoading(false);
+
+        // Fetch heavy analytics data in the background
+        const [remarksData, salesData, invoicesData, paymentsData] = await Promise.all([
+          api.fetchRemarks(),
+          api.fetchAllSales(),
+          api.fetchAllInvoices(),
+          api.fetchAllPayments()
+        ]);
+
+        let snapshotsData: HistoricalSnapshot[] = [];
         try {
           snapshotsData = await api.fetchHistoricalSnapshots();
         } catch (err) {
           console.warn("Failed to fetch historical snapshots.", err);
         }
 
-        setCustomers(customersData);
-        setProducts(productsData);
-        setTasks(tasksData.sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()));
         setRemarks(remarksData);
         setSales(salesData);
         setInvoices(invoicesData);
         setAllPayments(paymentsData);
-        setUserSettings(settingsData);
         setHistoricalSnapshots(snapshotsData);
+        setIsAnalyticsLoading(false);
+
       } catch (error) {
         console.error("Failed to load CRM data", error);
-      } finally {
         setLoading(false);
+        setIsAnalyticsLoading(false);
       }
     };
     loadData();
@@ -373,6 +385,7 @@ export const useCrmData = () => {
 
   return {
     loading,
+    isAnalyticsLoading,
     customers,
     products,
     tasks,

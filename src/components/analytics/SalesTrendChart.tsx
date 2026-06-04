@@ -7,19 +7,10 @@ import { Sale } from '../../types';
 type DatePreset = '7d' | '1m' | '3m' | '6m' | '1y' | 'custom';
 
 const SalesTrendChart: React.FC = () => {
-    const { getAllSales } = useApp();
-    const [sales, setSales] = React.useState<Sale[]>([]);
+    const { sales, isAnalyticsLoading } = useApp();
     const [selectedPreset, setSelectedPreset] = useState<DatePreset>('6m');
     const [customStartDate, setCustomStartDate] = useState('');
     const [customEndDate, setCustomEndDate] = useState('');
-
-    React.useEffect(() => {
-        const fetchSales = async () => {
-            const data = await getAllSales();
-            setSales(data);
-        };
-        fetchSales();
-    }, [getAllSales]);
 
     const getDateRange = (): { start: Date; end: Date } => {
         const end = new Date();
@@ -170,8 +161,20 @@ const SalesTrendChart: React.FC = () => {
                 </div>
             </div>
 
-            <div className="h-[300px] w-full">
-                <ResponsiveContainer width="100%" height="100%">
+            {isAnalyticsLoading ? (
+                <div className="h-[300px] w-full flex items-center justify-center">
+                    <div className="animate-pulse flex flex-col items-center gap-4">
+                        <div className="h-40 w-full flex items-end gap-2">
+                            {[40, 70, 45, 90, 65, 80, 50, 100].map((h, i) => (
+                                <div key={i} className="w-10 bg-slate-200 dark:bg-slate-700 rounded-t-sm" style={{ height: `${h}%` }}></div>
+                            ))}
+                        </div>
+                        <span className="text-sm text-slate-500">Loading sales data...</span>
+                    </div>
+                </div>
+            ) : (
+                <div className="h-[300px] w-full">
+                    <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--chart-grid)" opacity={0.5} />
                         <XAxis
