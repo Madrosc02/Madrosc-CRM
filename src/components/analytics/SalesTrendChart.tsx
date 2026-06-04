@@ -216,6 +216,7 @@ const SalesTrendChart: React.FC = () => {
                     </BarChart>
                 </ResponsiveContainer>
             </div>
+            )}
         </div>
     );
 };
