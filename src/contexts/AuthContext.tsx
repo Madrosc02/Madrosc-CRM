@@ -20,7 +20,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [userRole, setUserRole] = useState<string | null>(null);
     const [userStatus, setUserStatus] = useState<string | null>(null);
 
-    const fetchUserRole = async (userId: string) => {
+    const fetchUserRole = async (userId: string, retries = 3) => {
         try {
             const { data, error } = await supabase
                 .from('user_roles')
@@ -28,16 +28,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 .eq('user_id', userId)
                 .single();
             
-            if (data && !error) {
+            if (error) throw error;
+            
+            if (data) {
                 setUserRole(data.role);
                 setUserStatus(data.status);
-            } else {
-                // If the user truly doesn't exist, we must handle it, 
-                // but we only log it here to prevent wiping out on transient network errors.
-                console.warn('No role data returned for user');
             }
         } catch (e) {
-            console.error('Error fetching user role:', e);
+            console.error(`Error fetching user role (${retries} retries left):`, e);
+            if (retries > 0) {
+                await new Promise(resolve => setTimeout(resolve, 500));
+                await fetchUserRole(userId, retries - 1);
+            } else {
+                console.warn('Failed to fetch user role after all retries');
+            }
         }
     };
 
