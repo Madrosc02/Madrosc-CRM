@@ -5,6 +5,7 @@ import { supabase } from '../lib/supabase';
 interface AuthContextType {
     user: User | null;
     session: Session | null;
+    loading: boolean;
     userRole: string | null;
     userStatus: string | null;
     authError: string | null;
