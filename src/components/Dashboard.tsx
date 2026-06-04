@@ -7,6 +7,8 @@ import RevenueGoalWidget from './analytics/RevenueGoalWidget';
 import GeographicHeatmap from './analytics/GeographicHeatmap';
 import ActivityFeed from './analytics/ActivityFeed';
 import FadeIn from './ui/FadeIn';
+import { useApp } from '../contexts/AppContext';
+import { useAuth } from '../contexts/AuthContext';
 
 const Dashboard: React.FC = () => {
     const { customers, tasks, sales, historicalSnapshots, loading, isAnalyticsLoading } = useApp();
