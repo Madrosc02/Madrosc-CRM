@@ -11,7 +11,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useApp } from '../../contexts/AppContext';
 
 export function Header() {
-  const { user, signOut } = useAuth();
+  const { user, signOut, userRole } = useAuth();
   const { openAddCustomerModal, openCommandPalette } = useApp();
 
   const username = user?.email?.split('@')[0] || 'User';
@@ -75,7 +75,7 @@ export function Header() {
 
         <div className="text-sm">
           <p className="font-semibold text-slate-900">{username}</p>
-          <p className="text-xs text-slate-500">Admin</p>
+          <p className="text-xs text-slate-500">{userRole === 'admin' ? 'Admin' : 'User'}</p>
         </div>
       </div>
     </header>
