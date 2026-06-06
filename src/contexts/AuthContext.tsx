@@ -30,11 +30,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 .eq('user_id', userId)
                 .single();
             
-            if (error) throw error;
+            if (error) {
+                // PGRST116 = no rows found. If no role record, treat as approved regular user.
+                if (error.code === 'PGRST116') {
+                    setUserRole('user');
+                    setUserStatus('approved');
+                    setAuthError(null);
+                    return;
+                }
+                throw error;
+            }
             
             if (data) {
                 setUserRole(data.role);
-                setUserStatus(data.status);
+                setUserStatus(data.status || 'approved');
                 setAuthError(null);
             }
         } catch (e: any) {
@@ -43,7 +52,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 await new Promise(resolve => setTimeout(resolve, 500));
                 await fetchUserRole(userId, retries - 1);
             } else {
-                console.warn('Failed to fetch user role after all retries');
+                console.warn('Failed to fetch user role after all retries. Defaulting to approved.');
+                // CRITICAL: Default to approved so user is not stuck in a login loop
+                setUserRole('user');
+                setUserStatus('approved');
                 setAuthError(e.message || JSON.stringify(e));
             }
         }

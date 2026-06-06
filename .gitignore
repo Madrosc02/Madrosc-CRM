@@ -25,6 +25,7 @@ dist-ssr
 
 # Environment Variables
 .env
-.env.*
+.env.local
+.env.*.local
 .env.development
-.env.production
+# .env.production is intentionally tracked for Cloudflare Pages build

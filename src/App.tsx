@@ -31,6 +31,7 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
     const { user, loading, userStatus } = useAuth();
     if (loading) return <div className="flex h-screen items-center justify-center">Loading...</div>;
     if (!user) return <Navigate to="/login" replace />;
+    // Only block if explicitly pending or rejected — null/undefined means role is still loading or not set
     if (userStatus === 'pending') return <PendingApproval />;
     if (userStatus === 'rejected') return <div className="flex h-screen items-center justify-center text-red-500 font-bold text-xl">Your account access has been rejected. Please contact an administrator.</div>;
     return <>{children}</>;
