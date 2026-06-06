@@ -1,10 +1,10 @@
 import { registerSW } from 'virtual:pwa-register'
 
-const updateSW = registerSW({
+// Force immediate update without prompting — critical for bug fix deployments
+registerSW({
     onNeedRefresh() {
-        if (confirm('New content available. Reload?')) {
-            updateSW(true)
-        }
+        // Auto-reload immediately without asking the user
+        window.location.reload()
     },
     onOfflineReady() {
         console.log('App ready to work offline')

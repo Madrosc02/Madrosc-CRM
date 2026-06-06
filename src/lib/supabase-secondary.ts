@@ -10,7 +10,7 @@ if (!supabaseUrl || !supabaseAnonKey) {
 // A secondary client that does NOT persist the session in local storage.
 // This is critical for allowing an Admin to create a new user account 
 // without accidentally logging out their own admin session.
-export const supabaseSecondary = createClient(supabaseUrl, supabaseAnonKey, {
+export const supabaseSecondary = createClient(supabaseUrl || '', supabaseAnonKey || '', {
     auth: {
         persistSession: false,
         autoRefreshToken: false,
