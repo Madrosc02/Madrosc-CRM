@@ -1,5 +1,5 @@
 // contexts/AppContext.tsx
-import React, { createContext, useContext, ReactNode, useState, useEffect } from 'react';
+import React, { createContext, useContext, ReactNode, useState, useEffect, useMemo } from 'react';
 import { useCrmData } from '../hooks/useCrmData';
 import { Customer } from '../types';
 
@@ -161,7 +161,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const openCommandPalette = () => setIsCommandPaletteOpen(true);
   const closeCommandPalette = () => setIsCommandPaletteOpen(false);
 
-  const value: AppContextType = {
+  const value: AppContextType = useMemo(() => ({
     ...crmData,
     isAnalyticsLoading: crmData.isAnalyticsLoading,
     searchQuery,
@@ -201,7 +201,12 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     analyticsFilters,
     setAnalyticsFilters,
     remarks: crmData.remarks, // Explicitly expose remarks
-  };
+  }), [
+    crmData, searchQuery, kpiFilter, currentView, isDetailModalOpen, detailModalCustomer,
+    detailModalInitialTab, isAddCustomerModalOpen, isAddProductModalOpen,
+    isBulkImportProductsModalOpen, isBulkImportModalOpen, isBulkActionModalOpen,
+    isAddTaskModalOpen, addTaskInitialData, isCommandPaletteOpen, analyticsFilters
+  ]);
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 };

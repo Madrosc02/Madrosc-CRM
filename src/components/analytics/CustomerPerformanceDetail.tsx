@@ -77,9 +77,9 @@ const CustomerPerformanceDetail: React.FC<{ customer: Customer }> = ({ customer 
     return (
         <div className="space-y-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                <StatCard icon="fa-dollar-sign" label="Total Sales in Period" value={`₹${performanceData.kpis.totalSales.toLocaleString('en-IN')}`} gradient="from-green-500 to-emerald-600" />
-                <StatCard icon="fa-box" label="Total Orders in Period" value={performanceData.kpis.totalOrders.toString()} gradient="from-blue-500 to-cyan-600" />
-                <StatCard icon="fa-receipt" label="Average Order Value" value={`₹${performanceData.kpis.avgOrderValue.toLocaleString('en-IN', {maximumFractionDigits: 0})}`} gradient="from-purple-500 to-pink-600" />
+                <StatCard icon="fa-dollar-sign" label="Total Sales in Period" value={performanceData.kpis.totalSales} prefix="₹" gradient="bg-gradient-to-br from-green-500 to-emerald-600" />
+                <StatCard icon="fa-box" label="Total Orders in Period" value={performanceData.kpis.totalOrders} gradient="bg-gradient-to-br from-blue-500 to-cyan-600" />
+                <StatCard icon="fa-receipt" label="Average Order Value" value={performanceData.kpis.avgOrderValue} prefix="₹" decimals={0} gradient="bg-gradient-to-br from-purple-500 to-pink-600" />
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

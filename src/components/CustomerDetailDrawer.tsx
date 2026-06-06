@@ -29,37 +29,35 @@ export const CustomerDetailDrawer: React.FC = () => {
         return customers.find(c => c.id === detailModalCustomer.id) || detailModalCustomer;
     }, [customers, detailModalCustomer]);
 
+    const customerId = customer?.id;
+    const detailModalCustomerId = detailModalCustomer?.id;
+
     const fetchData = useCallback(async () => {
-        if (!customer) return;
+        if (!customerId) return;
         setIsLoading(true);
         try {
             const [salesData, remarksData] = await Promise.all([
-                getSalesForCustomer(customer.id),
-                getRemarksForCustomer(customer.id),
+                getSalesForCustomer(customerId),
+                getRemarksForCustomer(customerId),
             ]);
             setSales(salesData);
             setRemarks(remarksData);
         } catch (error) {
             console.error("Failed to fetch customer details", error);
-            addToast("Could not load customer details.", "error");
+            // addToast("Could not load customer details.", "error");
         } finally {
             setIsLoading(false);
         }
-    }, [customer, getSalesForCustomer, getRemarksForCustomer, addToast]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [customerId, getSalesForCustomer, getRemarksForCustomer]);
 
     useEffect(() => {
-        if (customer) {
+        if (detailModalCustomerId) {
+            setActiveTab(detailModalInitialTab || 'overview');
+            setIsEditMode(false);
             fetchData();
         }
-        if (detailModalCustomer?.id !== customer?.id) {
-            setIsEditMode(false);
-            // Set active tab from context, default to overview
-            setActiveTab(detailModalInitialTab || 'overview');
-        } else {
-            // If customer is same (re-render), ensure tab is updated if it changed in context
-            setActiveTab(detailModalInitialTab || 'overview');
-        }
-    }, [customer, detailModalCustomer, fetchData, detailModalInitialTab]);
+    }, [detailModalCustomerId, detailModalInitialTab, fetchData]);
 
     const handleSave = async (data: CustomerFormData) => {
         if (!customer) return;

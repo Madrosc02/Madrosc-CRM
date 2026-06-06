@@ -73,7 +73,7 @@ const QuotaPacingChart: React.FC = () => {
                         <Tooltip 
                             contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1)' }}
                             labelStyle={{ color: '#64748B', fontWeight: 'bold', marginBottom: '4px' }}
-                            formatter={(value: any, name: string) => [`₹${value}k`, name.charAt(0).toUpperCase() + name.slice(1)]}
+                            formatter={(value: any, name: any) => [`₹${value}k`, name.charAt(0).toUpperCase() + name.slice(1)]}
                         />
                         <ReferenceLine y={TARGET} label={{ position: 'top', value: 'Target', fill: '#64748B', fontSize: 10, fontWeight: 'bold' }} stroke="#94A3B8" strokeDasharray="3 3" />
                         <ReferenceLine x={`Day ${CURRENT_DAY}`} stroke="#CBD5E1" />

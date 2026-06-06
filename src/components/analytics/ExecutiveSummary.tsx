@@ -21,9 +21,9 @@ const ExecutiveSummary: React.FC<ExecutiveSummaryProps> = ({ data }) => {
   
   const handleActionClick = (action: HealthAction) => {
     if (action.type === 'collection') {
-      setKpiFilter('high_balance');
+      setKpiFilter('outstanding');
     } else if (action.type === 'churn' || action.type === 'campaign') {
-      setKpiFilter('churn_risk');
+      setKpiFilter('pending');
     }
     navigate('/clients');
   };

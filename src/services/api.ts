@@ -19,10 +19,10 @@ const mapCustomer = (data: any): Customer => ({
     monopolyStatus: data.monopoly_status || 'Non-Monopoly',
     state: data.state,
     district: data.district,
-    salesThisMonth: Number(data.sales_this_month),
-    avg6MoSales: Number(data.avg_6_mo_sales),
-    outstandingBalance: Number(data.outstanding_balance),
-    daysSinceLastOrder: Number(data.days_since_last_order),
+    salesThisMonth: Number(data.sales_this_month) || 0,
+    avg6MoSales: Number(data.avg_6_mo_sales) || 0,
+    outstandingBalance: Number(data.outstanding_balance) || 0,
+    daysSinceLastOrder: Number(data.days_since_last_order) || 0,
     lastUpdated: data.last_updated,
     flag: data.flag,
     tags: data.tags || [],
@@ -139,18 +139,18 @@ export const addCustomer = async (formData: CustomerFormData): Promise<Customer>
 
 export const updateCustomer = async (customerId: string, updateData: Partial<CustomerFormData>): Promise<Customer> => {
     const dbUpdateData: any = {};
-    if (updateData.firmName) {
+    if (updateData.firmName !== undefined) {
         dbUpdateData.name = updateData.firmName; // Keep for backward compatibility
         dbUpdateData.firm_name = updateData.firmName;
     }
-    if (updateData.personName) dbUpdateData.person_name = updateData.personName;
+    if (updateData.personName !== undefined) dbUpdateData.person_name = updateData.personName;
     if (updateData.email !== undefined) dbUpdateData.email = updateData.email;
-    if (updateData.contact) dbUpdateData.contact = updateData.contact;
-    if (updateData.alternateContact) dbUpdateData.alternate_contact = updateData.alternateContact;
-    if (updateData.tier) dbUpdateData.tier = updateData.tier;
-    if (updateData.monopolyStatus) dbUpdateData.monopoly_status = updateData.monopolyStatus;
-    if (updateData.state) dbUpdateData.state = updateData.state;
-    if (updateData.district) dbUpdateData.district = updateData.district;
+    if (updateData.contact !== undefined) dbUpdateData.contact = updateData.contact;
+    if (updateData.alternateContact !== undefined) dbUpdateData.alternate_contact = updateData.alternateContact;
+    if (updateData.tier !== undefined) dbUpdateData.tier = updateData.tier;
+    if (updateData.monopolyStatus !== undefined) dbUpdateData.monopoly_status = updateData.monopolyStatus;
+    if (updateData.state !== undefined) dbUpdateData.state = updateData.state;
+    if (updateData.district !== undefined) dbUpdateData.district = updateData.district;
     if (updateData.tags !== undefined) dbUpdateData.tags = updateData.tags;
     
     dbUpdateData.last_updated = new Date().toISOString();
@@ -579,9 +579,9 @@ export const addTerritory = async (customerId: string, territory: Omit<CustomerT
 
 export const updateTerritory = async (territoryId: string, updates: Partial<Omit<CustomerTerritory, 'id' | 'customerId' | 'createdAt' | 'updatedAt'>>): Promise<CustomerTerritory> => {
     const dbUpdates: any = {};
-    if (updates.state) dbUpdates.state = updates.state;
-    if (updates.district) dbUpdates.district = updates.district;
-    if (updates.monopolyStatus) dbUpdates.monopoly_status = updates.monopolyStatus;
+    if (updates.state !== undefined) dbUpdates.state = updates.state;
+    if (updates.district !== undefined) dbUpdates.district = updates.district;
+    if (updates.monopolyStatus !== undefined) dbUpdates.monopoly_status = updates.monopolyStatus;
 
     const { data, error } = await supabase
         .from('customer_territories')

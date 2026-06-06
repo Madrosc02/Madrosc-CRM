@@ -130,7 +130,7 @@ export const useCrmData = () => {
 
   // --- MUTATION FUNCTIONS ---
 
-  const addCustomer = async (formData: CustomerFormData) => {
+  const addCustomer = useCallback(async (formData: CustomerFormData) => {
     try {
       const newCustomer = await api.addCustomer(formData);
       setCustomers(prev => [newCustomer, ...prev]);
@@ -139,9 +139,9 @@ export const useCrmData = () => {
       console.error("Error adding customer:", error);
       throw error;
     }
-  };
+  }, []);
 
-  const updateCustomer = async (customerId: string, updateData: Partial<CustomerFormData>) => {
+  const updateCustomer = useCallback(async (customerId: string, updateData: Partial<CustomerFormData>) => {
     try {
       const updatedCustomer = await api.updateCustomer(customerId, updateData);
       setCustomers(prev => prev.map(c => c.id === customerId ? updatedCustomer : c));
@@ -150,9 +150,9 @@ export const useCrmData = () => {
       console.error("Error updating customer:", error);
       throw error;
     }
-  }
+  }, [])
 
-  const deleteCustomer = async (customerId: string) => {
+  const deleteCustomer = useCallback(async (customerId: string) => {
     try {
       await api.deleteCustomer(customerId);
       setCustomers(prev => prev.filter(c => c.id !== customerId));
@@ -160,9 +160,9 @@ export const useCrmData = () => {
       console.error("Error deleting customer:", error);
       throw error;
     }
-  }
+  }, [])
 
-  const deleteAllCustomers = async () => {
+  const deleteAllCustomers = useCallback(async () => {
     try {
       await api.deleteAllCustomers();
       setCustomers([]);
@@ -170,9 +170,9 @@ export const useCrmData = () => {
       console.error("Error deleting all customers:", error);
       throw error;
     }
-  }
+  }, [])
 
-  const bulkAddCustomers = async (newCustomersData: Omit<Customer, 'id' | 'avatar' | 'lastUpdated'>[]) => {
+  const bulkAddCustomers = useCallback(async (newCustomersData: Omit<Customer, 'id' | 'avatar' | 'lastUpdated'>[]) => {
     try {
       const addedCustomers = await api.bulkAddCustomers(newCustomersData);
       setCustomers(prev => [...addedCustomers, ...prev]);
@@ -181,9 +181,9 @@ export const useCrmData = () => {
       console.error("Error bulk adding customers:", error);
       throw error;
     }
-  };
+  }, []);
 
-  const addProduct = async (formData: ProductFormData) => {
+  const addProduct = useCallback(async (formData: ProductFormData) => {
     try {
       const newProduct = await api.addProduct(formData);
       setProducts(prev => [newProduct, ...prev]);
@@ -192,9 +192,9 @@ export const useCrmData = () => {
       console.error("Error adding product:", error);
       throw error;
     }
-  };
+  }, []);
 
-  const updateProduct = async (productId: string, updateData: Partial<ProductFormData>) => {
+  const updateProduct = useCallback(async (productId: string, updateData: Partial<ProductFormData>) => {
     try {
       const updatedProduct = await api.updateProduct(productId, updateData);
       setProducts(prev => prev.map(p => p.id === productId ? updatedProduct : p));
@@ -203,9 +203,9 @@ export const useCrmData = () => {
       console.error("Error updating product:", error);
       throw error;
     }
-  };
+  }, []);
 
-  const deleteProduct = async (productId: string) => {
+  const deleteProduct = useCallback(async (productId: string) => {
     try {
       await api.deleteProduct(productId);
       setProducts(prev => prev.filter(p => p.id !== productId));
@@ -213,9 +213,9 @@ export const useCrmData = () => {
       console.error("Error deleting product:", error);
       throw error;
     }
-  };
+  }, []);
 
-  const bulkAddProducts = async (productsData: ProductFormData[]) => {
+  const bulkAddProducts = useCallback(async (productsData: ProductFormData[]) => {
     try {
       const addedProducts = await api.bulkAddProducts(productsData);
       setProducts(prev => [...addedProducts, ...prev]);
@@ -224,9 +224,9 @@ export const useCrmData = () => {
       console.error("Error bulk adding products:", error);
       throw error;
     }
-  };
+  }, []);
 
-  const addSale = async (customerId: string, amount: number, date: string): Promise<Sale> => {
+  const addSale = useCallback(async (customerId: string, amount: number, date: string): Promise<Sale> => {
     try {
       const newSale = await api.addSale(customerId, amount, date);
       // Refetch customer to get updated sales figures
@@ -241,9 +241,9 @@ export const useCrmData = () => {
       console.error("Error adding sale:", error);
       throw error;
     }
-  }
+  }, [])
 
-  const addRemark = async (customerId: string, remarkText: string): Promise<Remark> => {
+  const addRemark = useCallback(async (customerId: string, remarkText: string): Promise<Remark> => {
     try {
       const newRemark = await api.addRemark(customerId, remarkText);
       setRemarks(prev => [newRemark, ...prev].sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()));
@@ -252,9 +252,9 @@ export const useCrmData = () => {
       console.error("Error adding remark:", error);
       throw error;
     }
-  }
+  }, [])
 
-  const addPayment = async (customerId: string, amount: number, date: string): Promise<Customer> => {
+  const addPayment = useCallback(async (customerId: string, amount: number, date: string): Promise<Customer> => {
     try {
       const updatedCustomer = await api.addPayment(customerId, amount, date);
       setCustomers(prev => prev.map(c => c.id === customerId ? updatedCustomer : c));
@@ -263,9 +263,9 @@ export const useCrmData = () => {
       console.error("Error adding payment:", error);
       throw error;
     }
-  }
+  }, [])
 
-  const addBill = async (customerId: string, amount: number): Promise<Customer> => {
+  const addBill = useCallback(async (customerId: string, amount: number): Promise<Customer> => {
     try {
       const updatedCustomer = await api.addBill(customerId, amount);
       setCustomers(prev => prev.map(c => c.id === customerId ? updatedCustomer : c));
@@ -274,9 +274,9 @@ export const useCrmData = () => {
       console.error("Error adding bill:", error);
       throw error;
     }
-  }
+  }, [])
 
-  const addTask = async (taskData: Omit<Task, 'id' | 'completed'>) => {
+  const addTask = useCallback(async (taskData: Omit<Task, 'id' | 'completed'>) => {
     try {
       const newTask = await api.addTask(taskData);
       setTasks(prev => [newTask, ...prev].sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()));
@@ -285,9 +285,9 @@ export const useCrmData = () => {
       console.error("Error adding task:", error);
       throw error;
     }
-  };
+  }, []);
 
-  const toggleTaskComplete = async (taskId: string) => {
+  const toggleTaskComplete = useCallback(async (taskId: string) => {
     try {
       const updatedTask = await api.toggleTaskComplete(taskId);
       if (updatedTask) {
@@ -298,9 +298,9 @@ export const useCrmData = () => {
       console.error("Error toggling task complete:", error);
       throw error;
     }
-  };
+  }, []);
 
-  const addInvoice = async (invoice: any) => {
+  const addInvoice = useCallback(async (invoice: any) => {
     try {
       const newInvoice = await api.addInvoiceRecord(invoice);
       setInvoices(prev => [newInvoice, ...prev]);
@@ -319,9 +319,9 @@ export const useCrmData = () => {
       console.error("Error adding invoice:", error);
       throw error;
     }
-  };
+  }, []);
 
-  const addPaymentRecord = async (payment: any) => {
+  const addPaymentRecord = useCallback(async (payment: any) => {
     try {
       const newPayment = await api.addPaymentRecord(payment);
       
@@ -338,9 +338,9 @@ export const useCrmData = () => {
       console.error("Error adding payment:", error);
       throw error;
     }
-  };
+  }, []);
 
-  const updateSettings = async (target: number) => {
+  const updateSettings = useCallback(async (target: number) => {
     try {
       const updated = await api.updateUserSettings(target);
       setUserSettings(updated);
@@ -349,9 +349,9 @@ export const useCrmData = () => {
       console.error("Error updating settings:", error);
       throw error;
     }
-  };
+  }, []);
 
-  const updateCustomerTags = async (customerId: string, tags: string[]) => {
+  const updateCustomerTags = useCallback(async (customerId: string, tags: string[]) => {
     try {
       await api.updateCustomerTags(customerId, tags);
       setCustomers(prev => prev.map(c => c.id === customerId ? { ...c, tags } : c));
@@ -359,9 +359,9 @@ export const useCrmData = () => {
       console.error("Error updating tags:", error);
       throw error;
     }
-  };
+  }, []);
 
-  const createSnapshot = async () => {
+  const createSnapshot = useCallback(async () => {
     try {
       const activeCustomers = customers.filter(c => c.salesThisMonth > 0 || c.daysSinceLastOrder <= 30).length;
       const pendingOrders = tasks.filter(t => !t.completed).length; // Approximating pending orders from tasks for now
@@ -381,7 +381,7 @@ export const useCrmData = () => {
       console.error("Error creating snapshot:", error);
       throw error;
     }
-  };
+  }, []);
 
   return {
     loading,

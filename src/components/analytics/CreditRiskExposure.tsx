@@ -117,7 +117,7 @@ const CreditRiskExposure: React.FC<CreditRiskExposureProps> = ({ customers }) =>
                             dx={-10}
                         />
                         <Tooltip content={<CustomTooltip />} cursor={{ strokeDasharray: '3 3', stroke: '#cbd5e1' }} />
-                        <Scatter name="Clients" data={data} onClick={(dataPoint) => openDetailModal(dataPoint.customer, 'invoices')}>
+                        <Scatter name="Clients" data={data} onClick={(dataPoint: any) => openDetailModal(dataPoint?.payload?.customer || dataPoint?.customer, 'invoices')}>
                             {data.map((entry, index) => {
                                 let color = '#3b82f6'; // blue
                                 let strokeColor = '#2563eb';

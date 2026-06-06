@@ -3,7 +3,7 @@ import { Customer } from '../../types';
 import { generateEmailDraft } from '../../services/geminiService';
 import { useToast } from '../../contexts/ToastContext';
 import Spinner from '../ui/Spinner';
-import Drawer from '../ui/Drawer';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog';
 
 interface EmailDrafterProps {
     isOpen: boolean;
@@ -46,8 +46,12 @@ const EmailDrafter: React.FC<EmailDrafterProps> = ({ isOpen, onClose, customer }
     };
 
     return (
-        <Drawer isOpen={isOpen} onClose={onClose} title={`Draft Email for ${customer.name}`} width="max-w-xl">
-            <div className="space-y-6 h-full flex flex-col">
+        <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+            <DialogContent className="max-w-xl flex flex-col max-h-[90vh]">
+                <DialogHeader>
+                    <DialogTitle>Draft Email for {customer.name || customer.firmName}</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-6 flex-1 overflow-y-auto flex flex-col p-1">
                 <div className="space-y-4">
                     <div>
                         <label className="block text-sm font-medium mb-1 text-[var(--color-text-primary-light)] dark:text-[var(--color-text-primary-dark)]">Context / Purpose</label>
@@ -104,7 +108,7 @@ const EmailDrafter: React.FC<EmailDrafterProps> = ({ isOpen, onClose, customer }
                         disabled={isLoading || !context.trim()}
                         className="btn-primary w-full flex justify-center items-center"
                     >
-                        {isLoading ? <><Spinner size="sm" className="mr-2" /> Generating...</> : <><i className="fas fa-magic mr-2"></i> Generate Draft</>}
+                        {isLoading ? <><Spinner className="mr-2 h-4 w-4" /> Generating...</> : <><i className="fas fa-magic mr-2"></i> Generate Draft</>}
                     </button>
                 </div>
 
@@ -143,8 +147,9 @@ const EmailDrafter: React.FC<EmailDrafterProps> = ({ isOpen, onClose, customer }
                         </div>
                     </div>
                 )}
-            </div>
-        </Drawer>
+                </div>
+            </DialogContent>
+        </Dialog>
     );
 };
 

@@ -154,7 +154,7 @@ const KPIRow: React.FC = () => {
                     .reduce((sum, s) => sum + s.amount, 0);
                 
                 // Add to a cumulative sum or just show daily trend (showing cumulative for stability)
-                const previousTotal = data.length > 0 ? data[data.length - 1].value : kpis.totalSales * 0.8; 
+                const previousTotal: number = data.length > 0 ? data[data.length - 1].value : kpis.totalSales * 0.8; 
                 data.push({ value: previousTotal + daySales });
             } else {
                 // For other metrics where we don't have historical logs, 

@@ -80,7 +80,7 @@ const GeographicHeatmap: React.FC = () => {
                             content={<CustomizedContent />}
                         >
                             <Tooltip 
-                                formatter={(value: number) => [`₹${value.toLocaleString('en-IN')}`, 'Sales Volume']}
+                                formatter={(value: any) => [`₹${value.toLocaleString('en-IN')}`, 'Sales Volume']}
                                 contentStyle={{ borderRadius: '0.5rem', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}
                             />
                         </Treemap>

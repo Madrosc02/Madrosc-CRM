@@ -43,7 +43,7 @@ const RevenueGoalWidget: React.FC = () => {
                             ))}
                         </Pie>
                         <Tooltip 
-                            formatter={(value: number) => [`₹${value.toLocaleString('en-IN')}`, 'Amount']}
+                            formatter={(value: any) => [`₹${value.toLocaleString('en-IN')}`, 'Amount']}
                             contentStyle={{ borderRadius: '0.5rem', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)', backgroundColor: 'rgba(255, 255, 255, 0.95)' }}
                         />
                     </PieChart>

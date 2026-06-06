@@ -81,8 +81,7 @@ const AddTaskModal: React.FC = () => {
                      <div className="p-5 border-t dark:border-gray-700 flex justify-end gap-3">
                         <button type="button" onClick={closeAddTaskModal} className="btn-secondary">Cancel</button>
                         <button type="submit" disabled={isSubmitting} className="btn-primary flex items-center">
-                             {isSubmitting && <Spinner size="sm" className="mr-2" />}
-                            {isSubmitting ? 'Saving...' : 'Add Task'}
+                             {isSubmitting ? <><Spinner className="mr-2 h-4 w-4" /> Saving...</> : 'Add Task'}
                         </button>
                     </div>
                 </form>

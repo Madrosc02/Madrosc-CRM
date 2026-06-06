@@ -104,7 +104,8 @@ const GoalsTab: React.FC<{ customer: Customer, sales: Sale[] }> = ({ customer, s
         } finally {
             setIsLoading(false);
         }
-    }, [customer.id, getGoalsForCustomer, addToast]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [customer.id, getGoalsForCustomer]);
 
     useEffect(() => {
         fetchData();

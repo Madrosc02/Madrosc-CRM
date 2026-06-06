@@ -206,8 +206,8 @@ const AddCustomerModal: React.FC = () => {
                             Cancel
                         </button>
                         <button type="submit" disabled={isSubmitting} className="btn-primary flex items-center">
-                            {isSubmitting && <Spinner size="sm" color="text-white" className="mr-2" />}
-                            {isSubmitting ? 'Saving...' : 'Add Client'}
+                            {isSubmitting && <Spinner className="mr-2 h-4 w-4" />}
+                            {isSubmitting ? 'Adding...' : 'Add Customer'}
                         </button>
                     </div>
                 </form>

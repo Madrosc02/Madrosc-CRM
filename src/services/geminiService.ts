@@ -195,10 +195,10 @@ export const interpretNaturalLanguageSearch = async (query: string, customers: C
                 - daysSinceLastOrder: number
 
                 **User Query:**
-                "${query}"
+                "${query.replace(/[`${}<>]/g, '').trim()}"
 
                 **Customer List (JSON):**
-                ${JSON.stringify(customers.map(({ id, ...rest }) => ({ id, ...rest })))}
+                ${JSON.stringify(customers.slice(0, 200).map(c => ({ id: c.id, name: c.name, tier: c.tier, state: c.state, district: c.district })))}
 
                 **Your Response (JSON array of IDs only):**
             `,
@@ -637,8 +637,9 @@ export const chatWithAI = async (
     tasks: Task[]
 ): Promise<string> => {
     try {
-        // Prepare context data (summarized to fit context window)
-        const customerSummary = customers.map(c => `${c.name} (${c.tier}): ₹${c.salesThisMonth} sales, ₹${c.outstandingBalance} due`).join('\n');
+        const sanitizedQuery = query.replace(/[`${}<>]/g, '').trim();
+        // Prepare context data (summarized to fit context window, limit to 50)
+        const customerSummary = customers.slice(0, 50).map(c => `${c.name} (${c.tier}): ₹${c.salesThisMonth} sales, ₹${c.outstandingBalance} due`).join('\n');
         const recentSales = sales.slice(0, 20).map(s => `₹${s.amount} on ${s.date}`).join(', ');
         const pendingTasks = tasks.filter(t => !t.completed).map(t => `${t.task} (Due: ${t.dueDate})`).join('\n');
 
@@ -653,7 +654,7 @@ export const chatWithAI = async (
             Pending Tasks:\n${pendingTasks}
             
             **User Question:**
-            "${query}"
+            "${sanitizedQuery}"
             
             **Guidelines:**
             - Be concise and helpful.

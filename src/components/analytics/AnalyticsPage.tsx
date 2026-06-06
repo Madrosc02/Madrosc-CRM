@@ -154,7 +154,7 @@ const AnalyticsPage: React.FC = () => {
 
                                     {salesSubTab === 'performance' && (
                                         <div className="space-y-6">
-                                            <KPICards dateRange={globalDateRange} />
+                                            <KPICards dateRange={{ from: globalDateRange.start, to: globalDateRange.end }} />
                                             
                                             <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
                                                 <div className="h-full">

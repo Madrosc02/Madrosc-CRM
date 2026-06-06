@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../contexts/AppContext';
 
@@ -60,25 +60,23 @@ const CallMode: React.FC = () => {
     }, [remarks, currentCustomer]);
 
     // --- Handlers ---
-    const handleNext = () => {
-        if (currentIndex < filteredCustomers.length - 1) {
-            setIsAnimating(true);
-            setTimeout(() => {
-                setCurrentIndex(prev => prev + 1);
-                setIsAnimating(false);
-            }, 300);
-        }
-    };
+    const handleNext = useCallback(() => {
+        if (isAnimating) return;
+        setIsAnimating(true);
+        setTimeout(() => {
+            setCurrentIndex(prev => (prev < filteredCustomers.length - 1 ? prev + 1 : prev));
+            setIsAnimating(false);
+        }, 300);
+    }, [filteredCustomers.length, isAnimating]);
 
-    const handlePrevious = () => {
-        if (currentIndex > 0) {
-            setIsAnimating(true);
-            setTimeout(() => {
-                setCurrentIndex(prev => prev - 1);
-                setIsAnimating(false);
-            }, 300);
-        }
-    };
+    const handlePrevious = useCallback(() => {
+        if (isAnimating) return;
+        setIsAnimating(true);
+        setTimeout(() => {
+            setCurrentIndex(prev => (prev > 0 ? prev - 1 : prev));
+            setIsAnimating(false);
+        }, 300);
+    }, [isAnimating]);
 
     // Global keyboard shortcuts
     useEffect(() => {
@@ -97,7 +95,7 @@ const CallMode: React.FC = () => {
 
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [currentIndex, filteredCustomers.length, isAnimating]);
+    }, [handleNext, handlePrevious]);
 
     const handleExit = () => {
         navigate('/');

@@ -132,7 +132,7 @@ const CustomerRow: React.FC<{
     );
 };
 
-type SortKey = 'name' | 'tier' | 'salesThisMonth' | 'avg6MoSales' | 'outstandingBalance' | 'daysSinceLastOrder';
+type SortKey = 'firmName' | 'tier' | 'salesThisMonth' | 'avg6MoSales' | 'outstandingBalance' | 'daysSinceLastOrder';
 
 const CustomerTable: React.FC = () => {
     const { filteredCustomers: customers, loading, kpiFilter, setKpiFilter, openBulkActionModal, closeBulkActionModal } = useApp();
@@ -234,12 +234,12 @@ const CustomerTable: React.FC = () => {
         const csvContent = [
             headers.join(','),
             ...dataToExport.map(c => [
-                `"${c.firmName}"`,
-                `"${c.personName || ''}"`,
-                `"${c.contact}"`,
-                `"${c.state}"`,
-                `"${c.district}"`,
-                `"${c.tier}"`,
+                `"${c.firmName?.replace(/"/g, '""') || ''}"`,
+                `"${c.personName?.replace(/"/g, '""') || ''}"`,
+                `"${c.contact?.replace(/"/g, '""') || ''}"`,
+                `"${c.state?.replace(/"/g, '""') || ''}"`,
+                `"${c.district?.replace(/"/g, '""') || ''}"`,
+                `"${c.tier?.replace(/"/g, '""') || ''}"`,
                 c.salesThisMonth,
                 c.avg6MoSales,
                 c.outstandingBalance,
@@ -256,7 +256,7 @@ const CustomerTable: React.FC = () => {
 
     const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.checked) {
-            setSelectedCustomerIds(new Set(paginatedCustomers.map(c => c.id)));
+            setSelectedCustomerIds(new Set(sortedCustomers.map(c => c.id)));
         } else {
             setSelectedCustomerIds(new Set());
         }
@@ -346,12 +346,12 @@ const CustomerTable: React.FC = () => {
                                 <input 
                                     type="checkbox" 
                                     onChange={handleSelectAll}
-                                    checked={paginatedCustomers.length > 0 && selectedCustomerIds.size === paginatedCustomers.length}
+                                    checked={sortedCustomers.length > 0 && selectedCustomerIds.size === sortedCustomers.length}
                                     className="w-4 h-4 text-primary bg-white border-slate-300 rounded focus:ring-primary dark:focus:ring-offset-slate-900 focus:ring-2 dark:bg-slate-800 dark:border-slate-600 cursor-pointer"
                                 />
                             </th>
-                            <th scope="col" className="p-4 font-semibold min-w-[280px] cursor-pointer hover:text-blue-600 transition-colors" onClick={() => handleSort('name')}>
-                                Franchise Client <SortIcon columnKey="name" />
+                            <th scope="col" className="p-4 font-semibold min-w-[280px] cursor-pointer hover:text-blue-600 transition-colors" onClick={() => handleSort('firmName')}>
+                                Franchise Client <SortIcon columnKey="firmName" />
                             </th>
                             <th scope="col" className="p-4 font-semibold text-center min-w-[100px] cursor-pointer hover:text-blue-600 transition-colors" onClick={() => handleSort('tier')}>
                                 Tier <SortIcon columnKey="tier" />

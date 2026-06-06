@@ -99,7 +99,7 @@ const AIChatAssistant: React.FC = () => {
                         {isLoading && (
                             <div className="flex justify-start">
                                 <div className="bg-white dark:bg-[var(--color-card-bg-dark)] border border-gray-200 dark:border-gray-700 rounded-lg rounded-bl-none p-3 shadow-sm">
-                                    <Spinner size="sm" />
+                                    <Spinner className="h-4 w-4" />
                                 </div>
                             </div>
                         )}
