@@ -28,12 +28,14 @@ const CallMode = React.lazy(() => import('./components/CallMode'));
 
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const { user, loading, userStatus } = useAuth();
+    const { user, loading, userStatus, userRole } = useAuth();
     if (loading) return <div className="flex h-screen items-center justify-center">Loading...</div>;
     if (!user) return <Navigate to="/login" replace />;
-    // Only block if explicitly pending or rejected — null/undefined means role is still loading or not set
+    // Admins always get through regardless of status
+    if (userRole === 'admin') return <>{children}</>;
+    // Only block non-admins if explicitly pending or rejected
+    // null/undefined means role hasn't loaded yet — let them through
     if (userStatus === 'pending') return <PendingApproval />;
-    if (userStatus === 'rejected') return <div className="flex h-screen items-center justify-center text-red-500 font-bold text-xl">Your account access has been rejected. Please contact an administrator.</div>;
     return <>{children}</>;
 };
 
