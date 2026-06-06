@@ -114,7 +114,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }, []);
 
     const signOut = async () => {
-        await supabase.auth.signOut();
+        try {
+            await supabase.auth.signOut();
+        } catch (error) {
+            console.error("Error signing out:", error);
+        } finally {
+            // Force state reset locally to avoid cached data issues
+            setUser(null);
+            setSession(null);
+            setUserRole(null);
+            setUserStatus(null);
+            
+            // Clear all local storage in case of stale cache
+            localStorage.clear();
+            sessionStorage.clear();
+            
+            // Hard redirect to login to completely reset the React app state
+            window.location.href = '/login';
+        }
     };
 
     const value = {
