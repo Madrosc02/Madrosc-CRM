@@ -6,8 +6,7 @@ import { ThemeProvider } from './contexts/ThemeContext';
 import { ToastProvider } from './contexts/ToastContext';
 import './pwa-register';
 import './index.css';
-import { Analytics } from '@vercel/analytics/react';
-import '@fontsource/geist-sans';
+import '@fontsource-variable/geist';
 import '@fontsource/geist-mono';
 import ErrorBoundary from './components/ErrorBoundary';
 
@@ -22,7 +21,6 @@ root.render(
         <ToastProvider>
           <AppProvider>
             <App />
-            <Analytics />
           </AppProvider>
         </ToastProvider>
       </ThemeProvider>

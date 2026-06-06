@@ -47,9 +47,11 @@ export default defineConfig({
     })
   ],
   build: {
-    minify: false
-  },
-  define: {
-    'process.env': process.env
+    minify: 'esbuild',
+    rollupOptions: {
+      output: {
+        manualChunks: undefined,
+      }
+    }
   }
 })
