@@ -853,8 +853,13 @@ export const fetchAllPayments = async (): Promise<Payment[]> => {
 
 // --- PRODUCTS API (Mocked via LocalStorage for now) ---
 const getLocalProducts = (): Product[] => {
-    const data = localStorage.getItem('mock_products');
-    return data ? JSON.parse(data) : [];
+    try {
+        const data = localStorage.getItem('mock_products');
+        return data ? JSON.parse(data) : [];
+    } catch (e) {
+        console.error("Failed to parse mock_products from localStorage:", e);
+        return [];
+    }
 };
 
 const setLocalProducts = (products: Product[]) => {
