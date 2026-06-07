@@ -22,6 +22,7 @@ interface AddTaskInitialData {
 
 interface AppContextType extends CrmDataHook {
   isAnalyticsLoading: boolean;
+  crmError: string | null;
   // Search
   searchQuery: string;
   setSearchQuery: (query: string) => void;

@@ -22,6 +22,7 @@ export const useCrmData = () => {
   const [historicalSnapshots, setHistoricalSnapshots] = useState<HistoricalSnapshot[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAnalyticsLoading, setIsAnalyticsLoading] = useState(true);
+  const [crmError, setCrmError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filters, setFilters] = useState<Filters>({
     tier: '',
@@ -79,8 +80,9 @@ export const useCrmData = () => {
         setHistoricalSnapshots(snapshotsData);
         setIsAnalyticsLoading(false);
 
-      } catch (error) {
+      } catch (error: any) {
         console.error("Failed to load CRM data", error);
+        setCrmError(error.message || JSON.stringify(error));
         setLoading(false);
         setIsAnalyticsLoading(false);
       }
@@ -386,6 +388,7 @@ export const useCrmData = () => {
   return {
     loading,
     isAnalyticsLoading,
+    crmError,
     customers,
     products,
     tasks,

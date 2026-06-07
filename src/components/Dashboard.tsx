@@ -11,7 +11,7 @@ import { useApp } from '../contexts/AppContext';
 import { useAuth } from '../contexts/AuthContext';
 
 const Dashboard: React.FC = () => {
-    const { customers, tasks, sales, historicalSnapshots, loading, isAnalyticsLoading } = useApp();
+    const { customers, tasks, sales, historicalSnapshots, loading, isAnalyticsLoading, crmError } = useApp();
     const { userRole, authError } = useAuth();
 
     // Skeletons are handled inside child components
@@ -24,6 +24,17 @@ const Dashboard: React.FC = () => {
                     <p className="mb-2">Please take a screenshot of this error and send it to your AI assistant:</p>
                     <code className="block bg-red-900 bg-opacity-50 p-2 rounded text-sm break-all">
                         {authError}
+                    </code>
+                </div>
+            )}
+            
+            {/* CRM Error Debug Banner */}
+            {crmError && (
+                <div className="bg-orange-500 text-white p-4 rounded-lg mb-6 shadow-md border border-orange-700">
+                    <h3 className="font-bold text-lg mb-2">Data Fetching Error!</h3>
+                    <p className="mb-2">We could not load your data. Please take a screenshot of this error and send it to me:</p>
+                    <code className="block bg-orange-900 bg-opacity-50 p-2 rounded text-sm break-all">
+                        {crmError}
                     </code>
                 </div>
             )}
