@@ -52,10 +52,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 await new Promise(resolve => setTimeout(resolve, 500));
                 await fetchUserRole(userId, retries - 1);
             } else {
-                console.warn('Failed to fetch user role after all retries. Defaulting to approved.');
-                // CRITICAL: Default to approved so user is not stuck in a login loop
-                setUserRole('user');
-                setUserStatus('approved');
+                console.warn('Failed to fetch user role after all retries. Defaulting to pending.');
+                // Default to pending so the user doesn't get unearned access
+                setUserRole(null);
+                setUserStatus('pending');
                 setAuthError(e.message || JSON.stringify(e));
             }
         }

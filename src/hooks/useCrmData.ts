@@ -1,5 +1,6 @@
 // hooks/useCrmData.ts
 import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useAuth } from '../contexts/AuthContext';
 import * as api from '../services/api';
 import { Customer, Task, CustomerFormData, CustomerTier, Sale, Remark, UserSettings, HistoricalSnapshot, Product, ProductFormData } from '../types';
 
@@ -31,7 +32,22 @@ export const useCrmData = () => {
     sortOrder: 'desc',
   });
 
+  const { user } = useAuth();
+
   useEffect(() => {
+    if (!user) {
+      setCustomers([]);
+      setProducts([]);
+      setTasks([]);
+      setRemarks([]);
+      setSales([]);
+      setInvoices([]);
+      setAllPayments([]);
+      setLoading(false);
+      setIsAnalyticsLoading(false);
+      return;
+    }
+
     const loadData = async () => {
       setLoading(true);
       setIsAnalyticsLoading(true);
@@ -88,7 +104,7 @@ export const useCrmData = () => {
       }
     };
     loadData();
-  }, []);
+  }, [user]);
 
   const setFilter = useCallback((key: keyof Filters, value: Filters[keyof Filters]) => {
     setFilters(prev => ({ ...prev, [key]: value }));
@@ -313,9 +329,6 @@ export const useCrmData = () => {
          setCustomers(prev => prev.map(c => c.id === invoice.customerId ? updatedCustomer : c));
       }
       
-      // Auto-add a remark about this invoice
-      await addRemark(invoice.customerId, `📄 Invoice ${invoice.invoiceNo} generated for ₹${invoice.totalAmount.toLocaleString('en-IN')}`);
-      
       return newInvoice;
     } catch (error) {
       console.error("Error adding invoice:", error);
@@ -332,8 +345,6 @@ export const useCrmData = () => {
       if (updatedCustomer) {
          setCustomers(prev => prev.map(c => c.id === payment.customerId ? updatedCustomer : c));
       }
-
-      await addRemark(payment.customerId, `💰 Payment of ₹${payment.amount.toLocaleString('en-IN')} received via ${payment.paymentMode}`);
       
       return newPayment;
     } catch (error) {

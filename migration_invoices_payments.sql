@@ -36,32 +36,32 @@ ALTER TABLE public.invoices ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.invoice_items ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.payments ENABLE ROW LEVEL SECURITY;
 
--- 5. Create Policies (Allow all for anon/authenticated for now, similar to existing tables)
-CREATE POLICY "Enable read access for all users" ON public.invoices FOR SELECT USING (true);
-CREATE POLICY "Enable insert access for all users" ON public.invoices FOR INSERT WITH CHECK (true);
-CREATE POLICY "Enable update access for all users" ON public.invoices FOR UPDATE USING (true);
-CREATE POLICY "Enable delete access for all users" ON public.invoices FOR DELETE USING (true);
+-- 5. Create Policies (Require authenticated users)
+CREATE POLICY "Enable read access for authenticated users" ON public.invoices FOR SELECT USING (auth.uid() IS NOT NULL);
+CREATE POLICY "Enable insert access for authenticated users" ON public.invoices FOR INSERT WITH CHECK (auth.uid() IS NOT NULL);
+CREATE POLICY "Enable update access for authenticated users" ON public.invoices FOR UPDATE USING (auth.uid() IS NOT NULL);
+CREATE POLICY "Enable delete access for authenticated users" ON public.invoices FOR DELETE USING (auth.uid() IS NOT NULL);
 
-CREATE POLICY "Enable read access for all users" ON public.invoice_items FOR SELECT USING (true);
-CREATE POLICY "Enable insert access for all users" ON public.invoice_items FOR INSERT WITH CHECK (true);
-CREATE POLICY "Enable update access for all users" ON public.invoice_items FOR UPDATE USING (true);
-CREATE POLICY "Enable delete access for all users" ON public.invoice_items FOR DELETE USING (true);
+CREATE POLICY "Enable read access for authenticated users" ON public.invoice_items FOR SELECT USING (auth.uid() IS NOT NULL);
+CREATE POLICY "Enable insert access for authenticated users" ON public.invoice_items FOR INSERT WITH CHECK (auth.uid() IS NOT NULL);
+CREATE POLICY "Enable update access for authenticated users" ON public.invoice_items FOR UPDATE USING (auth.uid() IS NOT NULL);
+CREATE POLICY "Enable delete access for authenticated users" ON public.invoice_items FOR DELETE USING (auth.uid() IS NOT NULL);
 
-CREATE POLICY "Enable read access for all users" ON public.payments FOR SELECT USING (true);
-CREATE POLICY "Enable insert access for all users" ON public.payments FOR INSERT WITH CHECK (true);
-CREATE POLICY "Enable update access for all users" ON public.payments FOR UPDATE USING (true);
-CREATE POLICY "Enable delete access for all users" ON public.payments FOR DELETE USING (true);
+CREATE POLICY "Enable read access for authenticated users" ON public.payments FOR SELECT USING (auth.uid() IS NOT NULL);
+CREATE POLICY "Enable insert access for authenticated users" ON public.payments FOR INSERT WITH CHECK (auth.uid() IS NOT NULL);
+CREATE POLICY "Enable update access for authenticated users" ON public.payments FOR UPDATE USING (auth.uid() IS NOT NULL);
+CREATE POLICY "Enable delete access for authenticated users" ON public.payments FOR DELETE USING (auth.uid() IS NOT NULL);
 
 -- 6. Insert Storage Bucket for PDF Invoices
 INSERT INTO storage.buckets (id, name, public) 
-VALUES ('invoice_pdfs', 'invoice_pdfs', true)
+VALUES ('invoice_pdfs', 'invoice_pdfs', false)
 ON CONFLICT (id) DO NOTHING;
 
--- Allow public access to the bucket
-CREATE POLICY "Public Access" 
+-- Restrict access to the bucket to authenticated users
+CREATE POLICY "Authenticated Access" 
 ON storage.objects FOR SELECT 
-USING (bucket_id = 'invoice_pdfs');
+USING (bucket_id = 'invoice_pdfs' AND auth.uid() IS NOT NULL);
 
-CREATE POLICY "Public Insert" 
+CREATE POLICY "Authenticated Insert" 
 ON storage.objects FOR INSERT 
-WITH CHECK (bucket_id = 'invoice_pdfs');
+WITH CHECK (bucket_id = 'invoice_pdfs' AND auth.uid() IS NOT NULL);

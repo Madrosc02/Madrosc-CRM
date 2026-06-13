@@ -1,6 +1,6 @@
 import React, { Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { useAuth } from './contexts/AuthContext';
 import Layout from './components/layout/Layout';
 import Login from './components/Login';
 import { useApp } from './contexts/AppContext';
@@ -100,18 +100,16 @@ const AuthenticatedApp: React.FC = () => {
 
 const App: React.FC = () => {
     return (
-        <AuthProvider>
-            <Router>
-                <Routes>
-                    <Route path="/login" element={<Login />} />
-                    <Route path="/*" element={
-                        <ProtectedRoute>
-                            <AuthenticatedApp />
-                        </ProtectedRoute>
-                    } />
-                </Routes>
-            </Router>
-        </AuthProvider>
+        <Router>
+            <Routes>
+                <Route path="/login" element={<Login />} />
+                <Route path="/*" element={
+                    <ProtectedRoute>
+                        <AuthenticatedApp />
+                    </ProtectedRoute>
+                } />
+            </Routes>
+        </Router>
     );
 };
 

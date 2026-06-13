@@ -242,83 +242,58 @@ export const fetchAllSales = async (): Promise<Sale[]> => {
 };
 
 export const addSale = async (customerId: string, amount: number, date: string): Promise<Sale> => {
-    // 1. Add Sale
-    const { data: saleData, error: saleError } = await supabase
-        .from('sales')
-        .insert([{ customer_id: customerId, amount, date }])
-        .select()
-        .single();
+    const { data: saleId, error } = await supabase.rpc('create_sale_txn', {
+        p_customer_id: customerId,
+        p_amount: amount,
+        p_date: date
+    });
 
-    if (saleError) throw saleError;
-
-    // 2. Update Customer last_updated
-    await supabase
-        .from('customers')
-        .update({ last_updated: new Date().toISOString() })
-        .eq('id', customerId);
-
-    return mapSale(saleData);
+    if (error) throw error;
+    return mapSale({ id: saleId, customer_id: customerId, amount, date });
 };
 
 export const addPayment = async (customerId: string, amount: number, date: string): Promise<Customer> => {
-    // 1. Fetch current balance
-    const { data: customer, error: fetchError } = await supabase
+    const remarkText = `Payment of ₹${amount.toLocaleString('en-IN')} recorded for ${new Date(date).toLocaleDateString()}.`;
+    
+    const { error } = await supabase.rpc('create_payment_txn', {
+        p_customer_id: customerId,
+        p_amount: amount,
+        p_date: date,
+        p_payment_mode: null,
+        p_reference_no: null,
+        p_remark: remarkText
+    });
+
+    if (error) throw error;
+
+    const { data: updatedCustomer, error: fetchError } = await supabase
         .from('customers')
-        .select('outstanding_balance')
+        .select('*')
         .eq('id', customerId)
         .single();
 
     if (fetchError) throw fetchError;
-
-    const newBalance = (customer.outstanding_balance || 0) - amount;
-
-    // 2. Update balance
-    const { data: updatedCustomer, error: updateError } = await supabase
-        .from('customers')
-        .update({
-            outstanding_balance: newBalance,
-            last_updated: new Date().toISOString()
-        })
-        .eq('id', customerId)
-        .select()
-        .single();
-
-    if (updateError) throw updateError;
-
-    // 3. Add Remark
-    await addRemark(customerId, `Payment of ₹${amount.toLocaleString('en-IN')} recorded for ${new Date(date).toLocaleDateString()}.`);
-
     return mapCustomer(updatedCustomer);
 };
 
 export const addBill = async (customerId: string, amount: number): Promise<Customer> => {
-    // 1. Fetch current balance
-    const { data: customer, error: fetchError } = await supabase
+    const remarkText = `Bill of ₹${amount.toLocaleString('en-IN')} added.`;
+    
+    const { error } = await supabase.rpc('create_bill_txn', {
+        p_customer_id: customerId,
+        p_amount: amount,
+        p_remark: remarkText
+    });
+
+    if (error) throw error;
+
+    const { data: updatedCustomer, error: fetchError } = await supabase
         .from('customers')
-        .select('outstanding_balance')
+        .select('*')
         .eq('id', customerId)
         .single();
 
     if (fetchError) throw fetchError;
-
-    const newBalance = (customer.outstanding_balance || 0) + amount;
-
-    // 2. Update balance
-    const { data: updatedCustomer, error: updateError } = await supabase
-        .from('customers')
-        .update({
-            outstanding_balance: newBalance,
-            last_updated: new Date().toISOString()
-        })
-        .eq('id', customerId)
-        .select()
-        .single();
-
-    if (updateError) throw updateError;
-
-    // 3. Add Remark
-    await addRemark(customerId, `Bill of ₹${amount.toLocaleString('en-IN')} added.`);
-
     return mapCustomer(updatedCustomer);
 };
 
@@ -732,43 +707,38 @@ const mapInvoice = (dbData: any): Invoice => ({
 });
 
 export const addInvoiceRecord = async (invoice: Omit<Invoice, 'id' | 'createdAt'>): Promise<Invoice> => {
-    const { data: invData, error: invError } = await supabase
-        .from('invoices')
-        .insert([{
-            customer_id: invoice.customerId,
-            invoice_no: invoice.invoiceNo,
-            date: invoice.date,
-            total_amount: invoice.totalAmount,
-            pdf_url: invoice.pdfUrl
-        }])
-        .select()
-        .single();
+    const remarkText = `📄 Invoice ${invoice.invoiceNo} generated for ₹${invoice.totalAmount.toLocaleString('en-IN')}`;
+    const itemsJson = invoice.items?.map(item => ({
+        product_name: item.productName,
+        pack: item.pack,
+        quantity: item.quantity,
+        rate: item.rate,
+        amount: item.amount
+    })) || null;
+
+    const { data: invoiceId, error: invError } = await supabase.rpc('create_invoice_txn', {
+        p_customer_id: invoice.customerId,
+        p_invoice_no: invoice.invoiceNo,
+        p_date: invoice.date,
+        p_total_amount: invoice.totalAmount,
+        p_pdf_url: invoice.pdfUrl,
+        p_items: itemsJson,
+        p_remark: remarkText
+    });
 
     if (invError) throw invError;
 
-    let itemsData: any[] = [];
-    if (invoice.items && invoice.items.length > 0) {
-        const itemsToInsert = invoice.items.map(item => ({
-            invoice_id: invData.id,
-            product_name: item.productName,
-            pack: item.pack,
-            quantity: item.quantity,
-            rate: item.rate,
-            amount: item.amount
-        }));
+    const { data: invData, error: fetchError } = await supabase
+        .from('invoices')
+        .select('*, invoice_items(*)')
+        .eq('id', invoiceId)
+        .single();
 
-        const { data: insertedItems, error: itemsError } = await supabase
-            .from('invoice_items')
-            .insert(itemsToInsert)
-            .select();
+    if (fetchError) throw fetchError;
 
-        if (itemsError) throw itemsError;
-        itemsData = insertedItems;
-    }
-
-    await addBill(invoice.customerId, invoice.totalAmount);
-
-    return { ...mapInvoice(invData), items: itemsData.map(mapInvoiceItem) };
+    const mapped = mapInvoice(invData);
+    mapped.items = (invData.invoice_items || []).map(mapInvoiceItem);
+    return mapped;
 };
 
 export const fetchInvoices = async (customerId: string): Promise<Invoice[]> => {
@@ -798,21 +768,28 @@ const mapPaymentRecord = (dbData: any): Payment => ({
 });
 
 export const addPaymentRecord = async (payment: Omit<Payment, 'id' | 'createdAt'>): Promise<Payment> => {
-    const { data, error } = await supabase
-        .from('payments')
-        .insert([{
-            customer_id: payment.customerId,
-            amount: payment.amount,
-            date: payment.date,
-            payment_mode: payment.paymentMode,
-            reference_no: payment.referenceNo
-        }])
-        .select()
-        .single();
+    const remarkText = `💰 Payment of ₹${payment.amount.toLocaleString('en-IN')} received via ${payment.paymentMode}`;
+    
+    const { data: paymentId, error: payError } = await supabase.rpc('create_payment_txn', {
+        p_customer_id: payment.customerId,
+        p_amount: payment.amount,
+        p_date: payment.date,
+        p_payment_mode: payment.paymentMode,
+        p_reference_no: payment.referenceNo,
+        p_remark: remarkText
+    });
 
-    if (error) throw error;
-    await addPayment(payment.customerId, payment.amount, payment.date);
-    return mapPaymentRecord(data);
+    if (payError) throw payError;
+
+    return {
+        id: paymentId,
+        customerId: payment.customerId,
+        amount: payment.amount,
+        date: payment.date,
+        paymentMode: payment.paymentMode,
+        referenceNo: payment.referenceNo,
+        createdAt: new Date().toISOString()
+    };
 };
 
 export const fetchPayments = async (customerId: string): Promise<Payment[]> => {
@@ -851,81 +828,108 @@ export const fetchAllPayments = async (): Promise<Payment[]> => {
     return (data || []).map(mapPaymentRecord);
 };
 
-// --- PRODUCTS API (Mocked via LocalStorage for now) ---
-const getLocalProducts = (): Product[] => {
-    try {
-        const data = localStorage.getItem('mock_products');
-        return data ? JSON.parse(data) : [];
-    } catch (e) {
-        console.error("Failed to parse mock_products from localStorage:", e);
-        return [];
-    }
-};
-
-const setLocalProducts = (products: Product[]) => {
-    localStorage.setItem('mock_products', JSON.stringify(products));
-};
+// --- PRODUCTS API ---
+const mapProduct = (data: any): Product => ({
+    id: data.id,
+    brandName: data.brand_name,
+    composition: data.composition,
+    mrp: Number(data.mrp),
+    purchaseRate: Number(data.purchase_rate),
+    packing: data.packing,
+    segment: data.segment,
+    hsnCode: data.hsn_code,
+    gstPercentage: data.gst_percentage ? Number(data.gst_percentage) : undefined,
+    manufacturer: data.manufacturer,
+    status: data.status,
+    createdAt: data.created_at,
+    updatedAt: data.updated_at
+});
 
 export const fetchProducts = async (): Promise<Product[]> => {
-    return new Promise((resolve) => {
-        setTimeout(() => resolve(getLocalProducts()), 300);
-    });
+    const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .order('brand_name', { ascending: true });
+
+    if (error) throw error;
+    return (data || []).map(mapProduct);
 };
 
 export const addProduct = async (formData: ProductFormData): Promise<Product> => {
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            const products = getLocalProducts();
-            const newProduct: Product = {
-                id: Math.random().toString(36).substring(2, 9),
-                ...formData,
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString()
-            };
-            setLocalProducts([newProduct, ...products]);
-            resolve(newProduct);
-        }, 300);
-    });
+    const { data, error } = await supabase
+        .from('products')
+        .insert([{
+            brand_name: formData.brandName,
+            composition: formData.composition,
+            mrp: formData.mrp,
+            purchase_rate: formData.purchaseRate,
+            packing: formData.packing,
+            segment: formData.segment,
+            hsn_code: formData.hsnCode,
+            gst_percentage: formData.gstPercentage,
+            manufacturer: formData.manufacturer,
+            status: formData.status
+        }])
+        .select()
+        .single();
+
+    if (error) throw error;
+    return mapProduct(data);
 };
 
 export const bulkAddProducts = async (productsData: ProductFormData[]): Promise<Product[]> => {
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            const products = getLocalProducts();
-            const newProducts = productsData.map(data => ({
-                id: Math.random().toString(36).substring(2, 9),
-                ...data,
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString()
-            }));
-            setLocalProducts([...newProducts, ...products]);
-            resolve(newProducts);
-        }, 500);
-    });
+    const dbData = productsData.map(formData => ({
+        brand_name: formData.brandName,
+        composition: formData.composition,
+        mrp: formData.mrp,
+        purchase_rate: formData.purchaseRate,
+        packing: formData.packing,
+        segment: formData.segment,
+        hsn_code: formData.hsnCode,
+        gst_percentage: formData.gstPercentage,
+        manufacturer: formData.manufacturer,
+        status: formData.status
+    }));
+
+    const { data, error } = await supabase
+        .from('products')
+        .insert(dbData)
+        .select();
+
+    if (error) throw error;
+    return (data || []).map(mapProduct);
 };
 
 export const updateProduct = async (id: string, updates: Partial<ProductFormData>): Promise<Product> => {
-    return new Promise((resolve, reject) => {
-        setTimeout(() => {
-            const products = getLocalProducts();
-            const index = products.findIndex(p => p.id === id);
-            if (index > -1) {
-                products[index] = { ...products[index], ...updates, updatedAt: new Date().toISOString() };
-                setLocalProducts(products);
-                resolve(products[index]);
-            } else {
-                reject(new Error("Product not found"));
-            }
-        }, 300);
-    });
+    const dbUpdates: any = { updated_at: new Date().toISOString() };
+    if (updates.brandName !== undefined) dbUpdates.brand_name = updates.brandName;
+    if (updates.composition !== undefined) dbUpdates.composition = updates.composition;
+    if (updates.mrp !== undefined) dbUpdates.mrp = updates.mrp;
+    if (updates.purchaseRate !== undefined) dbUpdates.purchase_rate = updates.purchaseRate;
+    if (updates.packing !== undefined) dbUpdates.packing = updates.packing;
+    if (updates.segment !== undefined) dbUpdates.segment = updates.segment;
+    if (updates.hsnCode !== undefined) dbUpdates.hsn_code = updates.hsnCode;
+    if (updates.gstPercentage !== undefined) dbUpdates.gst_percentage = updates.gstPercentage;
+    if (updates.manufacturer !== undefined) dbUpdates.manufacturer = updates.manufacturer;
+    if (updates.status !== undefined) dbUpdates.status = updates.status;
+
+    const { data, error } = await supabase
+        .from('products')
+        .update(dbUpdates)
+        .eq('id', id)
+        .select()
+        .single();
+
+    if (error) throw error;
+    return mapProduct(data);
 };
 
 export const deleteProduct = async (id: string): Promise<boolean> => {
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            const products = getLocalProducts();
-            setLocalProducts(products.filter(p => p.id !== id));
-            resolve(true);
-        }, 300);
-    });
+    const { error } = await supabase
+        .from('products')
+        .delete()
+        .eq('id', id);
+
+    if (error) throw error;
+    return true;
 };
