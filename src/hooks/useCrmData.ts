@@ -113,14 +113,14 @@ export const useCrmData = () => {
   const filteredCustomers = useMemo(() => {
     return customers
       .filter(customer => {
-        const searchLower = searchTerm.toLowerCase();
-        const nameMatch = customer.name.toLowerCase().includes(searchLower);
-        const firmNameMatch = customer.firmName.toLowerCase().includes(searchLower);
-        const personNameMatch = customer.personName.toLowerCase().includes(searchLower);
-        const emailMatch = customer.email?.toLowerCase().includes(searchLower) || false;
-        const contactMatch = customer.contact.toLowerCase().includes(searchLower);
-        const stateMatch = customer.state.toLowerCase().includes(searchLower);
-        const districtMatch = customer.district.toLowerCase().includes(searchLower);
+        const searchLower = searchTerm ? searchTerm.toLowerCase() : '';
+        const nameMatch = (customer.name || '').toLowerCase().includes(searchLower);
+        const firmNameMatch = (customer.firmName || '').toLowerCase().includes(searchLower);
+        const personNameMatch = (customer.personName || '').toLowerCase().includes(searchLower);
+        const emailMatch = (customer.email || '').toLowerCase().includes(searchLower);
+        const contactMatch = (customer.contact || '').toLowerCase().includes(searchLower);
+        const stateMatch = (customer.state || '').toLowerCase().includes(searchLower);
+        const districtMatch = (customer.district || '').toLowerCase().includes(searchLower);
         const tierMatch = filters.tier ? customer.tier === filters.tier : true;
         const filterStateMatch = filters.state ? customer.state === filters.state : true;
 

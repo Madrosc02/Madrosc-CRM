@@ -22,8 +22,9 @@ const ProductsPage: React.FC = () => {
 
     const filteredProducts = useMemo(() => {
         return products.filter(p => {
-            const matchesSearch = p.brandName.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                                  p.composition.toLowerCase().includes(searchTerm.toLowerCase());
+            const searchLower = searchTerm ? searchTerm.toLowerCase() : '';
+            const matchesSearch = (p.brandName || '').toLowerCase().includes(searchLower) || 
+                                  (p.composition || '').toLowerCase().includes(searchLower);
             const matchesSegment = segmentFilter === 'All' || p.segment === segmentFilter;
             const matchesCategory = activeCategory === 'All' || metricsMap.get(p.id)?.category === activeCategory;
             return matchesSearch && matchesSegment && matchesCategory;

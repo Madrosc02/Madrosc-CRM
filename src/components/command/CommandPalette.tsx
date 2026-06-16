@@ -88,7 +88,7 @@ const CommandPalette: React.FC = () => {
         }
 
         const filteredCustomers = customers
-            .filter(c => c.name.toLowerCase().includes(searchLower) || c.contact.includes(searchLower))
+            .filter(c => (c.name || '').toLowerCase().includes(searchLower) || (c.contact || '').includes(searchLower))
             .map(c => ({
                 id: c.id,
                 name: c.name,
