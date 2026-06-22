@@ -50,8 +50,12 @@ export const useCrmData = () => {
   const { user, session } = useAuth();
   const loadingRef = useRef(false);
 
+  // Use stable primitive values as dependencies to avoid re-triggers from reference changes
+  const userId = user?.id;
+  const accessToken = session?.access_token;
+
   useEffect(() => {
-    if (!user || !session) {
+    if (!userId) {
       setCustomers([]);
       setProducts([]);
       setTasks([]);
@@ -74,7 +78,7 @@ export const useCrmData = () => {
       setCrmError(null);
       
       try {
-        console.log('📊 Loading CRM data for user:', user.email);
+        console.log('📊 Loading CRM data for user:', user?.email);
         
         // Load critical UI data first, with retry logic
         const [customersData, tasksData, productsData] = await Promise.all([
@@ -148,7 +152,7 @@ export const useCrmData = () => {
     };
     
     loadData();
-  }, [user, session, dataLoadAttempt]);
+  }, [userId, accessToken, dataLoadAttempt]);
 
   // Manual retry function exposed to the UI
   const retryLoadData = useCallback(() => {

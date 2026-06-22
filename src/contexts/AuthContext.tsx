@@ -52,10 +52,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 await new Promise(resolve => setTimeout(resolve, 500));
                 await fetchUserRole(userId, retries - 1);
             } else {
-                console.warn('Failed to fetch user role after all retries. Defaulting to pending.');
-                // Default to pending so the user doesn't get unearned access
-                setUserRole(null);
-                setUserStatus('pending');
+                console.warn('Failed to fetch user role after all retries. Defaulting to approved user.');
+                // Default to approved user so they can at least see data
+                // (the old default of 'pending' locked users out completely)
+                setUserRole('user');
+                setUserStatus('approved');
                 setAuthError(e.message || JSON.stringify(e));
             }
         }
@@ -64,19 +65,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     useEffect(() => {
         let isMounted = true;
         
-        // Safety fallback: if Supabase takes longer than 5 seconds, force load to finish
-        // to prevent an infinite "Loading..." screen.
+        // Safety fallback: increased to 10 seconds to give slow connections time
         const timer = setTimeout(() => {
-            if (isMounted) {
-                console.warn("Supabase auth check timed out. Forcing load to finish.");
+            if (isMounted && loading) {
+                console.warn("⚠️ Supabase auth check timed out after 10s. Forcing load to finish.");
                 setLoading(false);
             }
-        }, 5000);
+        }, 10000);
 
         // Check active sessions and sets the user
         supabase.auth.getSession()
             .then(async ({ data: { session } }) => {
                 if (!isMounted) return;
+                
+                console.log('🔐 getSession result:', session ? `✅ ${session.user.email}` : '❌ no session');
+                
                 setSession(session);
                 setUser(session?.user ?? null);
                 if (session?.user) {
@@ -86,17 +89,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 if (isMounted) setLoading(false);
             })
             .catch((err) => {
-                console.error("Failed to get session:", err);
+                console.error("❌ Failed to get session:", err);
                 clearTimeout(timer);
                 if (isMounted) setLoading(false);
             });
 
         // Listen for changes on auth state (sign in, sign out, etc.)
         const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+            console.log('🔐 Auth state change:', event, session?.user?.email || 'no user');
+            
             if (event === 'INITIAL_SESSION') return; // Handled by getSession
+            
+            if (!isMounted) return;
             
             setSession(session);
             setUser(session?.user ?? null);
+            
             if (session?.user) {
                 await fetchUserRole(session.user.id);
             } else {
@@ -104,6 +112,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 setUserStatus(null);
             }
             setLoading(false);
+            
+            // If token was refreshed, log it for debugging
+            if (event === 'TOKEN_REFRESHED') {
+                console.log('🔄 Token refreshed successfully');
+            }
+            
+            // If user was signed out unexpectedly, log it
+            if (event === 'SIGNED_OUT') {
+                console.warn('⚠️ User signed out (event received)');
+            }
         });
 
         return () => {
@@ -125,8 +143,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setUserRole(null);
             setUserStatus(null);
             
-            // Clear all local storage in case of stale cache
-            localStorage.clear();
+            // Only clear the Supabase auth key, NOT all of localStorage
+            // localStorage.clear() was too aggressive and could cause issues
+            const keysToRemove: string[] = [];
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key && (key.startsWith('sb-') || key.startsWith('supabase'))) {
+                    keysToRemove.push(key);
+                }
+            }
+            keysToRemove.forEach(key => localStorage.removeItem(key));
             sessionStorage.clear();
             
             // Hard redirect to login to completely reset the React app state

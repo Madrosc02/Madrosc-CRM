@@ -14,23 +14,12 @@ export const supabase = createClient(
   supabaseAnonKey || '',
   {
     auth: {
+      // Use ALL defaults — do NOT change storageKey or flowType!
+      // Changing storageKey causes session loss on refresh.
+      // Changing flowType breaks token refresh for existing sessions.
       persistSession: true,
       autoRefreshToken: true,
       detectSessionInUrl: true,
-      // Use localStorage for session persistence
-      storage: typeof window !== 'undefined' ? window.localStorage : undefined,
-      storageKey: 'madrosc-crm-auth',
-      // Ensure cookies are not used (avoids issues with Cloudflare Pages)
-      flowType: 'pkce',
-    },
-    global: {
-      headers: {
-        'x-app-version': '2.0.0', // Cache-bust header
-      },
-    },
-    // Add request timeout
-    db: {
-      schema: 'public',
     },
   }
 );
@@ -42,6 +31,7 @@ if (typeof window !== 'undefined') {
       console.error('❌ Supabase session error on init:', error.message);
     } else if (data.session) {
       console.log('✅ Supabase session active for:', data.session.user.email);
+      console.log('   Token expires at:', new Date(data.session.expires_at! * 1000).toLocaleString());
     } else {
       console.log('ℹ️ No active Supabase session (user not logged in)');
     }
