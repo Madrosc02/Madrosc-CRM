@@ -24,7 +24,7 @@ export default defineConfig({
         display: 'standalone',
         orientation: 'portrait',
         start_url: '/',
-        id: 'madrosc-crm-v1.2', // Bumped to force service worker update
+        id: 'madrosc-crm-v2.0', // Bumped to force service worker update
         icons: [
           {
             src: 'icon.svg',

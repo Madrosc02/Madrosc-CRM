@@ -1,5 +1,5 @@
 // hooks/useCrmData.ts
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import * as api from '../services/api';
 import { Customer, Task, CustomerFormData, CustomerTier, Sale, Remark, UserSettings, HistoricalSnapshot, Product, ProductFormData } from '../types';
@@ -9,6 +9,20 @@ export interface Filters {
   state: string;
   sortBy: keyof Customer | 'lastUpdated';
   sortOrder: 'asc' | 'desc';
+}
+
+// Retry helper: retries a function up to `retries` times with exponential backoff
+async function withRetry<T>(fn: () => Promise<T>, retries = 3, delayMs = 500): Promise<T> {
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      return await fn();
+    } catch (error: any) {
+      if (attempt === retries) throw error;
+      console.warn(`Retry ${attempt + 1}/${retries} after error:`, error.message || error);
+      await new Promise(resolve => setTimeout(resolve, delayMs * Math.pow(2, attempt)));
+    }
+  }
+  throw new Error('withRetry exhausted'); // unreachable
 }
 
 export const useCrmData = () => {
@@ -25,6 +39,7 @@ export const useCrmData = () => {
   const [isAnalyticsLoading, setIsAnalyticsLoading] = useState(true);
   const [crmError, setCrmError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [dataLoadAttempt, setDataLoadAttempt] = useState(0);
   const [filters, setFilters] = useState<Filters>({
     tier: '',
     state: '',
@@ -32,10 +47,11 @@ export const useCrmData = () => {
     sortOrder: 'desc',
   });
 
-  const { user } = useAuth();
+  const { user, session } = useAuth();
+  const loadingRef = useRef(false);
 
   useEffect(() => {
-    if (!user) {
+    if (!user || !session) {
       setCustomers([]);
       setProducts([]);
       setTasks([]);
@@ -48,22 +64,32 @@ export const useCrmData = () => {
       return;
     }
 
+    // Prevent concurrent loads
+    if (loadingRef.current) return;
+
     const loadData = async () => {
+      loadingRef.current = true;
       setLoading(true);
       setIsAnalyticsLoading(true);
+      setCrmError(null);
+      
       try {
-        // Load critical UI data first
+        console.log('📊 Loading CRM data for user:', user.email);
+        
+        // Load critical UI data first, with retry logic
         const [customersData, tasksData, productsData] = await Promise.all([
-          api.fetchCustomers(),
-          api.fetchTasks(),
-          api.fetchProducts()
+          withRetry(() => api.fetchCustomers(), 3, 500),
+          withRetry(() => api.fetchTasks(), 3, 500),
+          withRetry(() => api.fetchProducts(), 3, 500),
         ]);
+
+        console.log(`✅ Loaded: ${customersData.length} customers, ${tasksData.length} tasks, ${productsData.length} products`);
 
         let settingsData = null;
         try {
-          settingsData = await api.fetchUserSettings();
+          settingsData = await withRetry(() => api.fetchUserSettings(), 2, 500);
         } catch (err) {
-          console.warn("Failed to fetch settings, using defaults.", err);
+          console.warn("⚠️ Failed to fetch settings, using defaults.", err);
         }
 
         setCustomers(customersData);
@@ -75,36 +101,59 @@ export const useCrmData = () => {
         setLoading(false);
 
         // Fetch heavy analytics data in the background
-        const [remarksData, salesData, invoicesData, paymentsData] = await Promise.all([
-          api.fetchRemarks(),
-          api.fetchAllSales(),
-          api.fetchAllInvoices(),
-          api.fetchAllPayments()
-        ]);
-
-        let snapshotsData: HistoricalSnapshot[] = [];
         try {
-          snapshotsData = await api.fetchHistoricalSnapshots();
-        } catch (err) {
-          console.warn("Failed to fetch historical snapshots.", err);
-        }
+          const [remarksData, salesData, invoicesData, paymentsData] = await Promise.all([
+            withRetry(() => api.fetchRemarks(), 2, 500),
+            withRetry(() => api.fetchAllSales(), 2, 500),
+            withRetry(() => api.fetchAllInvoices(), 2, 500),
+            withRetry(() => api.fetchAllPayments(), 2, 500),
+          ]);
 
-        setRemarks(remarksData);
-        setSales(salesData);
-        setInvoices(invoicesData);
-        setAllPayments(paymentsData);
-        setHistoricalSnapshots(snapshotsData);
+          console.log(`✅ Analytics loaded: ${remarksData.length} remarks, ${salesData.length} sales`);
+
+          let snapshotsData: HistoricalSnapshot[] = [];
+          try {
+            snapshotsData = await api.fetchHistoricalSnapshots();
+          } catch (err) {
+            console.warn("⚠️ Failed to fetch historical snapshots.", err);
+          }
+
+          setRemarks(remarksData);
+          setSales(salesData);
+          setInvoices(invoicesData);
+          setAllPayments(paymentsData);
+          setHistoricalSnapshots(snapshotsData);
+        } catch (analyticsError: any) {
+          console.error("⚠️ Analytics data load failed (non-critical):", analyticsError.message);
+          // Don't block the UI for analytics errors
+        }
+        
         setIsAnalyticsLoading(false);
+        setCrmError(null);
 
       } catch (error: any) {
-        console.error("Failed to load CRM data", error);
-        setCrmError(error.message || JSON.stringify(error));
+        console.error("❌ Failed to load CRM data:", error);
+        const errorMessage = error.message || JSON.stringify(error);
+        setCrmError(errorMessage);
         setLoading(false);
         setIsAnalyticsLoading(false);
+        
+        // If the error seems like a network/session issue, set a flag so the UI can suggest a retry
+        if (errorMessage.includes('JWT') || errorMessage.includes('401') || errorMessage.includes('session')) {
+          setCrmError(`Session error: ${errorMessage}. Please try logging out and back in.`);
+        }
+      } finally {
+        loadingRef.current = false;
       }
     };
+    
     loadData();
-  }, [user]);
+  }, [user, session, dataLoadAttempt]);
+
+  // Manual retry function exposed to the UI
+  const retryLoadData = useCallback(() => {
+    setDataLoadAttempt(prev => prev + 1);
+  }, []);
 
   const setFilter = useCallback((key: keyof Filters, value: Filters[keyof Filters]) => {
     setFilters(prev => ({ ...prev, [key]: value }));
@@ -414,6 +463,7 @@ export const useCrmData = () => {
     setSearchTerm,
     filters,
     setFilter,
+    retryLoadData, // NEW: expose retry function
 
     // Actions
     addProduct,

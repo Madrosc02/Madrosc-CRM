@@ -11,8 +11,8 @@ import { useApp } from '../contexts/AppContext';
 import { useAuth } from '../contexts/AuthContext';
 
 const Dashboard: React.FC = () => {
-    const { customers, tasks, sales, historicalSnapshots, loading, isAnalyticsLoading, crmError } = useApp();
-    const { userRole, authError } = useAuth();
+    const { customers, tasks, sales, historicalSnapshots, loading, isAnalyticsLoading, crmError, retryLoadData } = useApp();
+    const { userRole, authError, user } = useAuth();
 
     // Skeletons are handled inside child components
     return (
@@ -28,14 +28,48 @@ const Dashboard: React.FC = () => {
                 </div>
             )}
             
-            {/* CRM Error Debug Banner */}
+            {/* CRM Error Debug Banner with Retry */}
             {crmError && (
                 <div className="bg-orange-500 text-white p-4 rounded-lg mb-6 shadow-md border border-orange-700">
                     <h3 className="font-bold text-lg mb-2">Data Fetching Error!</h3>
-                    <p className="mb-2">We could not load your data. Please take a screenshot of this error and send it to me:</p>
-                    <code className="block bg-orange-900 bg-opacity-50 p-2 rounded text-sm break-all">
+                    <p className="mb-2">We could not load your data. Please try the button below or take a screenshot of this error:</p>
+                    <code className="block bg-orange-900 bg-opacity-50 p-2 rounded text-sm break-all mb-3">
                         {crmError}
                     </code>
+                    {retryLoadData && (
+                        <button 
+                            onClick={retryLoadData}
+                            className="bg-white text-orange-700 px-4 py-2 rounded-lg font-semibold hover:bg-orange-100 transition-colors"
+                        >
+                            🔄 Retry Loading Data
+                        </button>
+                    )}
+                </div>
+            )}
+
+            {/* Empty data warning — shown when data loaded but is empty */}
+            {!loading && !crmError && customers.length === 0 && (
+                <div className="bg-blue-500 text-white p-4 rounded-lg mb-6 shadow-md border border-blue-700">
+                    <h3 className="font-bold text-lg mb-2">No Data Found</h3>
+                    <p className="mb-2">
+                        You're logged in as <strong>{user?.email}</strong> (Role: {userRole || 'loading...'}), 
+                        but no customer data was returned. This can happen if:
+                    </p>
+                    <ul className="list-disc list-inside mb-3 text-sm space-y-1">
+                        <li>The database Row Level Security (RLS) policies are blocking your access</li>
+                        <li>Your session token has expired — try logging out and back in</li>
+                        <li>No customer data has been added yet</li>
+                    </ul>
+                    <div className="flex gap-3">
+                        {retryLoadData && (
+                            <button 
+                                onClick={retryLoadData}
+                                className="bg-white text-blue-700 px-4 py-2 rounded-lg font-semibold hover:bg-blue-100 transition-colors"
+                            >
+                                🔄 Retry Loading
+                            </button>
+                        )}
+                    </div>
                 </div>
             )}
 
