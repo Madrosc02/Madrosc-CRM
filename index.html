@@ -19,6 +19,30 @@
 
 <body class="transition-colors duration-300 font-sans antialiased">
   <div id="root"></div>
+  <!-- CRITICAL: Kill stale service workers BEFORE React loads.
+       Old SWs cache broken JS and serve it on refresh, causing data to vanish. -->
+  <script>
+    (function() {
+      // Unregister ALL service workers
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(function(registrations) {
+          registrations.forEach(function(reg) {
+            reg.unregister();
+            console.log('Unregistered service worker:', reg.scope);
+          });
+        });
+      }
+      // Clear ALL caches (CacheStorage API used by service workers)
+      if ('caches' in window) {
+        caches.keys().then(function(names) {
+          names.forEach(function(name) {
+            caches.delete(name);
+            console.log('Deleted cache:', name);
+          });
+        });
+      }
+    })();
+  </script>
   <script type="module" src="/src/index.tsx"></script>
   <!-- v0 - built-with badge -->
   <div id="v0-built-with-button-22e8c8f2-baa5-4105-9370-cb250e7f8aa7" style="
