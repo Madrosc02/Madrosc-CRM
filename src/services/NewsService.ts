@@ -8,6 +8,7 @@ export interface NewsItem {
 // In a real application, this would fetch from an API like NewsAPI or SerpAPI (Google News)
 // For now, we dynamically generate hyper-local, industry-relevant insights based on the district.
 export const fetchLocalNews = async (district: string, state: string): Promise<NewsItem[]> => {
+    if (!district || !state) return [];
     // Simulate network delay
     await new Promise(resolve => setTimeout(resolve, 800));
 

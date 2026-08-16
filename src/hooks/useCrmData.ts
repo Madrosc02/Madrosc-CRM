@@ -187,15 +187,15 @@ export const useCrmData = () => {
         let comparison = 0;
         if (typeof valA === 'string' && typeof valB === 'string') {
           if (field === 'lastUpdated') {
-            comparison = new Date(valB).getTime() - new Date(valA).getTime();
+            comparison = new Date(valA).getTime() - new Date(valB).getTime();
           } else {
             comparison = valA.localeCompare(valB);
           }
         } else if (typeof valA === 'number' && typeof valB === 'number') {
-          comparison = valB - valA; // Default number sort is descending
+          comparison = valA - valB;
         }
 
-        return filters.sortOrder === 'asc' ? -comparison : comparison;
+        return filters.sortOrder === 'asc' ? comparison : -comparison;
       });
   }, [customers, searchTerm, filters]);
 
@@ -329,6 +329,7 @@ export const useCrmData = () => {
     try {
       const updatedCustomer = await api.addPayment(customerId, amount, date);
       setCustomers(prev => prev.map(c => c.id === customerId ? updatedCustomer : c));
+      setAllPayments(prev => [...prev, { customerId, amount, date }]);
       return updatedCustomer;
     } catch (error) {
       console.error("Error adding payment:", error);
@@ -392,6 +393,7 @@ export const useCrmData = () => {
   const addPaymentRecord = useCallback(async (payment: any) => {
     try {
       const newPayment = await api.addPaymentRecord(payment);
+      setAllPayments(prev => [...prev, newPayment]);
       
       // Refetch customer to reflect new balance
       const updatedCustomer = await api.fetchCustomerById(payment.customerId);
@@ -447,7 +449,7 @@ export const useCrmData = () => {
       console.error("Error creating snapshot:", error);
       throw error;
     }
-  }, []);
+  }, [customers, tasks]);
 
   return {
     loading,

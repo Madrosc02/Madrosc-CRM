@@ -1,5 +1,5 @@
 import React from 'react';
-import { Bell, Plus, User } from 'lucide-react';
+import { Bell, Plus, User, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -9,10 +9,12 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useAuth } from '../../contexts/AuthContext';
 import { useApp } from '../../contexts/AppContext';
+import { useNavigate } from 'react-router-dom';
 
 export function Header() {
   const { user, signOut, userRole } = useAuth();
   const { openAddCustomerModal, openCommandPalette } = useApp();
+  const navigate = useNavigate();
 
   const username = user?.email?.split('@')[0] || 'User';
   const initials = username.substring(0, 2).toUpperCase();
@@ -64,11 +66,14 @@ export function Header() {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={() => navigate('/settings')}>
               <User className="w-4 h-4 mr-2" />
               Profile
             </DropdownMenuItem>
-            <DropdownMenuItem>Settings</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => navigate('/settings')}>
+              <Settings className="w-4 h-4 mr-2" />
+              Settings
+            </DropdownMenuItem>
             <DropdownMenuItem onClick={signOut}>Logout</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

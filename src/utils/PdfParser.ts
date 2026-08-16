@@ -41,7 +41,13 @@ export const extractInvoiceData = async (file: File): Promise<ParsedInvoiceData>
 
         // 2. Date
         const dateMatch = fullText.match(/Invoice Date\s+(\d{2}-\d{2}-\d{4})/i);
-        const date = dateMatch ? dateMatch[1] : new Date().toISOString().split('T')[0];
+        let date = new Date().toISOString().split('T')[0];
+        if (dateMatch) {
+            const dateStr = dateMatch[1];
+            // Convert DD-MM-YYYY to YYYY-MM-DD for valid JS Date parsing
+            const parts = dateStr.split('-');
+            date = parts.length === 3 ? `${parts[2]}-${parts[1]}-${parts[0]}` : dateStr;
+        }
 
         // 3. Grand Total
         const totalMatch = fullText.match(/Grand Total\s+([\d,]+(?:\.\d{2})?)/i) || fullText.match(/TOTAL\s+([\d,]+(?:\.\d{2})?)/i);

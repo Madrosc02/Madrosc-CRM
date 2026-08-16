@@ -179,7 +179,7 @@ const CallMode: React.FC = () => {
     );
 
     return (
-        <div className="fixed top-0 left-[260px] right-0 bottom-0 z-[60] bg-slate-50 text-slate-900 font-sans flex flex-col overflow-hidden">
+        <div className="fixed top-0 left-[240px] right-0 bottom-0 z-[60] bg-slate-50 text-slate-900 font-sans flex flex-col overflow-hidden">
             
             <CallModeHeader 
                 currentIndex={currentIndex}

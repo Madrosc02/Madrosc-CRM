@@ -51,7 +51,7 @@ export const useAIActions = (customer: Customer | undefined | null, invoices: In
         // 3. Cross-sell Trigger based on Invoices
         const customerInvoices = invoices.filter(inv => inv.customerId === customer.id);
         const boughtProducts = new Set();
-        customerInvoices.forEach(inv => inv.items.forEach(item => boughtProducts.add(item.productName)));
+        customerInvoices.forEach(inv => inv.items?.forEach(item => boughtProducts.add(item.productName)));
         
         if (boughtProducts.has('MADRO CHARGE') && !boughtProducts.has('MADROSIP-LS')) {
             actions.push({

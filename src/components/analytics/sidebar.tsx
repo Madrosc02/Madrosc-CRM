@@ -9,7 +9,7 @@ export function Sidebar() {
   const { theme, toggleTheme } = useTheme();
 
   const navItems = [
-    { name: 'Dashboard', path: '/', icon: Calendar },
+    { name: 'Dashboard', path: '/dashboard', icon: Calendar },
     { name: 'Analytics', path: '/analytics', icon: BarChart3 },
     { name: 'Call Mode', path: '/call-mode', icon: Phone },
     { name: 'Clients', path: '/clients', icon: Users },
@@ -22,9 +22,7 @@ export function Sidebar() {
   return (
     <div className="w-[240px] bg-[#0f172a] text-white h-screen flex flex-col p-4 shrink-0 relative">
       {/* Sidebar Edge Collapse Toggle */}
-      <button className="absolute -right-3 top-20 w-6 h-6 bg-slate-800 border border-slate-700 rounded-full flex items-center justify-center text-slate-400 hover:text-white transition-colors z-10 hidden lg:flex">
-        <i className="fas fa-chevron-left text-[10px]"></i>
-      </button>
+
 
       {/* Logo */}
       <div className="flex items-center gap-3 mb-6 px-1">
@@ -82,20 +80,20 @@ export function Sidebar() {
 
       {/* Footer Options */}
       <div className="space-y-1 border-t border-slate-800 pt-3">
-        <div 
+        <button 
           onClick={toggleTheme}
-          className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg hover:bg-slate-800/50 cursor-pointer text-slate-400 hover:text-white transition-colors"
+          className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg hover:bg-slate-800/50 cursor-pointer text-slate-400 hover:text-white transition-colors"
         >
           {theme === 'light' ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
           <span className="text-[13px] font-medium">Theme Mode</span>
-        </div>
-        <div
+        </button>
+        <button
           onClick={signOut}
-          className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg hover:bg-slate-800/50 cursor-pointer text-slate-400 hover:text-white transition-colors"
+          className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg hover:bg-slate-800/50 cursor-pointer text-slate-400 hover:text-white transition-colors"
         >
           <LogOut className="w-4 h-4" />
           <span className="text-[13px] font-medium">Sign Out</span>
-        </div>
+        </button>
       </div>
     </div>
   );

@@ -85,6 +85,14 @@ const getMonthStart = (date: Date) => {
   return new Date(date.getFullYear(), date.getMonth(), 1);
 }
 
+// Helper: format date as YYYY-MM-DD in local time (avoids UTC offset bug with toISOString)
+const toLocalDateString = (date: Date) => {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+};
+
 export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const crmData = useCrmData();
 
@@ -118,8 +126,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   // Analytics Filters State
   const [analyticsFilters, setAnalyticsFilters] = useState<AnalyticsFilters>({
     dateRange: {
-      start: getMonthStart(new Date()).toISOString().split('T')[0],
-      end: new Date().toISOString().split('T')[0]
+      start: toLocalDateString(getMonthStart(new Date())),
+      end: toLocalDateString(new Date())
     },
     selectedCustomer: 'all',
   });

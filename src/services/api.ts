@@ -690,9 +690,9 @@ const mapInvoiceItem = (dbData: any): InvoiceItem => ({
     invoiceId: dbData.invoice_id,
     productName: dbData.product_name,
     pack: dbData.pack,
-    quantity: dbData.quantity,
-    rate: dbData.rate,
-    amount: dbData.amount
+    quantity: Number(dbData.quantity) || 0,
+    rate: Number(dbData.rate) || 0,
+    amount: Number(dbData.amount) || 0
 });
 
 const mapInvoice = (dbData: any): Invoice => ({
@@ -700,7 +700,7 @@ const mapInvoice = (dbData: any): Invoice => ({
     customerId: dbData.customer_id,
     invoiceNo: dbData.invoice_no,
     date: dbData.date,
-    totalAmount: dbData.total_amount,
+    totalAmount: Number(dbData.total_amount) || 0,
     pdfUrl: dbData.pdf_url,
     items: [],
     createdAt: dbData.created_at
@@ -760,7 +760,7 @@ export const fetchInvoices = async (customerId: string): Promise<Invoice[]> => {
 const mapPaymentRecord = (dbData: any): Payment => ({
     id: dbData.id,
     customerId: dbData.customer_id,
-    amount: dbData.amount,
+    amount: Number(dbData.amount) || 0,
     date: dbData.date,
     paymentMode: dbData.payment_mode,
     referenceNo: dbData.reference_no,

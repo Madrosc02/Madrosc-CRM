@@ -75,7 +75,7 @@ const AnalyticsFilters: React.FC = () => {
                     className="text-[12px] font-bold text-slate-700 bg-transparent outline-none cursor-pointer appearance-none pr-4 relative z-10"
                 >
                     <option value="all">All Customers</option>
-                    {customers.sort((a,b) => a.name.localeCompare(b.name)).map(c => (
+                    {[...customers].sort((a,b) => a.name.localeCompare(b.name)).map(c => (
                         <option key={c.id} value={c.id}>{c.name}</option>
                     ))}
                 </select>

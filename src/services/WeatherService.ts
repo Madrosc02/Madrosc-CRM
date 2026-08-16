@@ -18,6 +18,7 @@ const getWeatherDescription = (code: number): string => {
 };
 
 export const fetchWeatherForDistrict = async (district: string): Promise<WeatherData | null> => {
+    if (!district) return null;
     try {
         // 1. Get Lat/Lon for the district using Open-Meteo Geocoding API
         const geoResponse = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(district)}&count=1&language=en&format=json`);
